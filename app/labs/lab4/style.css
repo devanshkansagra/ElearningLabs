@@ -1,0 +1,256 @@
+.lab4-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 2rem 1rem;
+}
+
+/* Card Design */
+.lab4-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 2px 10px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+/* Header */
+.lab4-header {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: white;
+}
+
+.lab4-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.25rem;
+}
+
+.lab4-header p {
+  color: #c7d2fe;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Diagram Container */
+.lab4-diagram-wrapper {
+  border: 1px solid #f1f5f9;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: #f8fafc/50;
+  margin: 1.5rem;
+}
+
+/* SVG Styles */
+svg {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 auto;
+}
+
+svg text,
+svg tspan {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-size: 14px;
+  stroke: none !important;
+  fill: #475569;
+}
+
+svg path {
+  stroke: #64748b;
+  stroke-width: 2;
+}
+
+svg .impedance-label {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  fill: #475569;
+  stroke: none !important;
+}
+
+svg .value-display {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+svg .unit-label {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  fill: #64748b;
+}
+
+/* Specific SVG Element Styles */
+#pathVoltageTestArrow {
+  stroke: #ef4444;
+}
+
+#pathItestArrow {
+  stroke: #10b981;
+}
+
+#FaultSymbol {
+  stroke: #ef4444;
+}
+
+.impedance-rect {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 2;
+}
+
+#sourceImpedanceSet,
+#lineImedanceSet,
+#groundSourceImpedance,
+#groundLineImpedance {
+  fill: #f1f5f9;
+  stroke: #6366f1;
+}
+
+/* Input form positioning */
+.input-form-wrapper {
+  position: absolute;
+  z-index: 10;
+}
+
+/* Input field styles matching original design */
+input[type="number"] {
+  width: 55px;
+  height: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #334155;
+  text-align: right;
+  transition: all 0.2s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+input[type="number"]:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  background-color: #ffffff;
+}
+
+input[type="number"]::placeholder {
+  color: #94a3b8;
+}
+
+/* Footer */
+.lab4-footer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+.lab4-footer p {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lab4-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Smooth transitions for reactive elements */
+#path6999_1,
+#rect7832 {
+  transition: opacity 0.5s ease-in-out;
+}
+
+/* Relay symbol animation */
+#pathRelayCircle {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* CT symbol styling */
+#gCT path {
+  fill: rgba(255, 255, 255, 0.1);
+  stroke: #64748b;
+  stroke-width: 1.5;
+}
+
+/* Output value styling */
+.output-value {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  fill: #1e293b;
+}
+
+.output-unit {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+  fill: #64748b;
+}
+
+/* Distance indicator */
+.distance-indicator {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  fill: #475569;
+}
+
+/* Generator symbol */
+#pathGenerator {
+  fill: none;
+  stroke: #64748b;
+  stroke-width: 2;
+}
+
+/* Ground symbols */
+#pathEarthingBigger,
+#pathEarthingMedium,
+#pathEarthingSmallest {
+  stroke: #64748b;
+  stroke-width: 2;
+}
+
+/* Neutral and fault indicators */
+.neutral-indicator {
+  fill: #dcd09c;
+  stroke: #64748b;
+  stroke-width: 3;
+}
+
+.fault-indicator {
+  fill: #f7bdaf;
+  stroke: #c13838;
+  stroke-width: 4.53;
+}

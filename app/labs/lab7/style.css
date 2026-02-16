@@ -1,0 +1,119 @@
+@import "tailwindcss";
+:root{--brand-color:steelblue;--negative-sequence:magenta;--positive-sequence:limegreen;--zero-sequence:darkgrey;--vector-a:#dc143c;--vector-b:gold;--vector-c:blue;--vector-d:rgba(255, 0, 0, 0.75);--vector-e:orange;--vector-f:rgba(0, 255, 255);--vector-0:darkgrey;--vector-1:limegreen;--vector-2:magenta;--vector-3:black;--vector-4:#20b2aa;--vector-5:#ff1493}
+
+/* Phasor field toggle visibility */
+.phasor-fields.phasor-cartesian,
+.phasor-fields.phasor-polar {
+  display: grid;
+}
+
+#phasorControls[data-mode=cartesian] .phasor-polar,
+#sequenceControls[data-mode=cartesian] .phasor-polar {
+  display: none !important;
+}
+
+#phasorControls[data-mode=polar] .phasor-cartesian,
+#sequenceControls[data-mode=polar] .phasor-cartesian {
+  display: none !important;
+}
+
+/* Positioning for controls overlay on visualization */
+#phasorControls {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 1rem;
+  z-index: 10;
+  max-width: 280px;
+}
+
+#sequenceControls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1rem;
+  z-index: 10;
+  max-width: 260px;
+}
+
+#vis {
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+}
+
+@media (max-width: 900px) {
+  #phasorControls {
+    position: relative;
+    margin: 0.5rem auto;
+    max-width: 100%;
+  }
+  
+  #sequenceControls {
+    position: relative;
+    margin: 0.5rem auto;
+    right: auto;
+    max-width: 100%;
+  }
+}
+
+/* D3.js and SVG visualization styles */
+:not(circle):is(.vectora,.vectorb,.vectorc,.vectord,.vectore,.vectorf,.vector0,.vector1,.vector2,.vector3,.vector4,.vector5):hover{stroke-width:5px}
+
+circle{fill:rgba(255,255,255,.1);stroke:#000;stroke-width:.2px}
+circle:hover{stroke-width:1px;cursor:grab}
+
+#Containersvg{overflow:visible}
+
+polyline{stroke-width:5px}
+polyline.vectora{stroke:var(--vector-a);stroke-width:4.5px;stroke-linecap:round}
+polyline.vectorb{stroke:var(--vector-b);stroke-width:4.5px;stroke-linecap:round}
+polyline.vectorc{stroke:var(--vector-c);stroke-width:4.5px;stroke-linecap:round}
+polyline.vectord{stroke:var(--vector-d);stroke-width:4.5px;stroke-linecap:round}
+polyline.vectore{stroke:var(--vector-e);stroke-width:4.5px;stroke-linecap:round}
+polyline.vectorf{stroke:var(--vector-f);stroke-width:4.5px;stroke-linecap:round}
+polyline.vector0{stroke:var(--zero-sequence);stroke-width:3px}
+polyline.vector1{stroke:var(--positive-sequence);stroke-width:3px}
+polyline.vector2{stroke:var(--negative-sequence);stroke-width:3px}
+polyline.vector3{stroke:var(--vector-3);stroke-width:3px}
+polyline.vector4{stroke:var(--vector-4);stroke-width:3px}
+polyline.vector5{stroke:var(--vector-5);stroke-width:3px}
+
+text.vectora,text.vectorb,text.vectorc,text.vectord,text.vectore,text.vectorf{font-size:24px;font-weight:700}
+text.vectora{fill:var(--vector-a)}
+text.vectorb{fill:var(--vector-b)}
+text.vectorc{fill:var(--vector-c)}
+text.vectord{fill:var(--vector-d)}
+text.vectore{fill:var(--vector-e)}
+text.vectorf{fill:var(--vector-f)}
+
+.Sequence0,.Sequence1,.Sequence2,.Sequence3,.Sequence4,.Sequence5{font-size:24px;font-weight:700}
+.Sequence0{fill:var(--vector-0)}
+.Sequence1{fill:var(--vector-1)}
+.Sequence2{fill:var(--vector-2)}
+.Sequence3{fill:var(--vector-3)}
+.Sequence4{fill:var(--vector-4)}
+.Sequence5{fill:var(--vector-5)}
+
+.NegativeSequence{stroke:var(--negative-sequence)}
+.PositiveSequence{stroke:var(--positive-sequence)}
+.ZeroSequence{stroke:var(--zero-sequence)}
+
+marker{fill:#000}
+#marka{fill:var(--vector-a)}
+#markb{fill:var(--vector-b)}
+#markc{fill:var(--vector-c)}
+#markd{fill:var(--vector-d)}
+#marke{fill:var(--vector-e)}
+#markf{fill:var(--vector-f)}
+#mark0{fill:var(--zero-sequence)}
+#mark1{fill:var(--positive-sequence)}
+#mark2{fill:var(--negative-sequence)}
+#mark3{fill:var(--vector-3)}
+#mark4{fill:var(--vector-4)}
+#mark5{fill:var(--vector-5)}
+
+/* KaTeX equation styling */
+.equation-container{position:absolute;left:50%;transform:translateX(-50%);margin-top:20px;padding:10px;background-color:#fff;border:1px solid #ccc;box-shadow:0 4px 8px rgba(0,0,0,.2);z-index:1000}
+.katex .mclose,.katex .mopen{margin:0!important;padding:0!important}
+.vlist{font-weight:700}

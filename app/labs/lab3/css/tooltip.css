@@ -1,0 +1,166 @@
+@layer tokens, components;
+
+@layer tokens {
+  :root{
+    --tip-bg: hsl(0 0% 10% / .95);
+    --tip-fg: white;
+    --tip-radius: .5rem;
+    --tip-pad-i: clamp(.5rem, 1.5cqi, .75rem);
+    --tip-pad-b: clamp(.375rem, 1.2cqi, .5rem);
+    --tip-gap: .5rem;
+    --tip-shadow: 0 6px 24px hsl(0 0% 0% / .2);
+    --tip-fs: clamp(.75rem, 2.5cqi, .9rem);
+    --tip-max: clamp(16ch, 50cqi, 36ch);
+    --tip-z: 1000;
+    --tip-tr: 150ms ease;  
+  }
+}
+
+/* Component */
+@layer components {
+  /* Any element with a tooltip becomes the trigger */
+    [data-tooltip] {
+    position: relative;
+    cursor: help;
+    }
+
+  [data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-start: 100%;
+    translate: -50% var(--tip-gap);
+    max-inline-size: var(--tip-max);
+    padding-inline: var(--tip-pad-i);
+    padding-block: var(--tip-pad-b);
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    border-radius: var(--tip-radius);
+    box-shadow: var(--tip-shadow);
+    font-size: var(--tip-fs);
+    line-height: 1.25;
+    white-space: normal;
+    opacity: 0;
+    pointer-events: none;
+    z-index: var(--tip-z);
+    transition: opacity var(--tip-tr);
+  }
+
+  /* Arrow */
+  [data-tooltip]::before {
+    content: "";
+    position: absolute;
+    inline-size: .6rem;
+    block-size: .6rem;
+    background: var(--tip-bg);
+    rotate: 45deg;
+    inset-inline-start: 50%;
+    inset-block-start: calc(100% - .3rem);
+    translate: -50% 0;
+    opacity: 0;
+    transition: opacity var(--tip-tr);
+  }
+
+  /* Show on hover & keyboard focus */
+  [data-tooltip]:is(:hover, :focus-visible)::after,
+  [data-tooltip]:is(:hover, :focus-visible)::before,
+  [data-open="true"]::after,
+  [data-open="true"]::before {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Optional placement via data-tip-pos="top|start|end" (default bottom) */
+  [data-tip-pos="top"]::after { inset-block-start: auto; inset-block-end: 100%; translate: -50% calc(-1 * var(--tip-gap)); }
+  [data-tip-pos="top"]::before { inset-block-start: auto; inset-block-end: calc(100% - .3rem); }
+
+  [data-tip-pos="start"]::after { inset-inline-start: auto; inset-inline-end: 100%; inset-block-start: 50%; translate: calc(-1 * var(--tip-gap)) -50%; }
+  [data-tip-pos="start"]::before { inset-inline-start: calc(100% - .3rem); inset-block-start: 50%; translate: 0 -50%; }
+
+  [data-tip-pos="end"]::after { inset-inline-start: 100%; inset-block-start: 50%; translate: var(--tip-gap) -50%; }
+  [data-tip-pos="end"]::before { inset-inline-start: .3rem; inset-block-start: 50%; translate: 0 -50%; }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-tooltip]::after, [data-tooltip]::before { transition: none; }
+  }
+
+  .tooltip-d3{
+    position: absolute;
+    pointer-events: none;
+    background: var(--tip-bg);
+    color: var(--tip-fg);
+    padding: var(--tip-pad-b) var(--tip-pad-i);
+    border-radius: var(--tip-radius);
+    box-shadow: var(--tip-shadow);
+    font: 13px/1.25 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-size: var(--tip-fs);
+    white-space: nowrap;
+    z-index: var(--tip-z);
+    opacity: 0;
+    transition: opacity var(--tip-tr);
+    }
+  .tooltip-d3[data-show="true"]{ opacity:1; }  
+
+  .tooltip-rich {
+    position: fixed;            /* positioned to viewport, we compute x/y */
+    inset: auto auto 0 0;       /* will be overridden by JS */
+    translate: 0 0;
+    z-index: var(--tip-z, 1000);
+    max-inline-size: clamp(20ch, 60cqi, 48ch);
+    max-block-size: clamp(180px, 45vh, 360px);
+    overflow: auto;             /* <-- scroll */
+    background: var(--tip-bg, hsl(0 0% 10% / .95));
+    color: var(--tip-fg, white);
+    border-radius: var(--tip-radius, .5rem);
+    box-shadow: var(--tip-shadow, 0 6px 24px hsl(0 0% 0% / .2));
+    padding: clamp(.5rem, 1.5cqi, .75rem);
+    font-size: var(--tip-fs, .9rem);
+    line-height: 1.35;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--tip-tr, 150ms ease);
+  }
+  .tooltip-rich[data-show="true"] { opacity: 1; pointer-events: auto; }
+
+  .tooltip-rich header {
+    font-weight: 800;
+    font-size: 1.05em;
+    margin-block: 0 0.25rem;
+  }
+  .tooltip-rich h2 {
+    font-size: 1em; margin: .6rem 0 .25rem; font-weight: 700;
+  }
+  .tooltip-rich p, .tooltip-rich ul, .tooltip-rich ol { margin: .25rem 0 .5rem; }
+  .tooltip-rich code, .tooltip-rich kbd, .tooltip-rich pre {
+    background: color-mix(in oklab, currentColor 10%, transparent);
+    padding: .1rem .3rem; border-radius: .25rem;
+  }
+  .tooltip-rich .muted { opacity: .85; font-size: .95em; }
+
+  /* “arrow” (optional) */
+  .tooltip-rich::after {
+    content: "";
+    position: absolute;
+    inline-size: .6rem; block-size: .6rem; rotate: 45deg;
+    background: inherit;
+    /* JS will place this by data-tip-pos */
+  }
+
+  :root[data-theme="dark"] .tooltip-rich {
+    background: #0d1117; color: var(--ink, #e6edf3);
+    border: 1px solid #30363d;
+  }  
+
+  /* Global disable switch: hide all tooltip surfaces when off */
+  :root[data-tooltips="off"] [data-tooltip]::before,
+  :root[data-tooltips="off"] [data-tooltip]::after {
+    opacity: 0 !important;
+    display: none !important;
+  }
+  :root[data-tooltips="off"] [data-tooltip] { cursor: auto !important; }
+  :root[data-tooltips="off"] .tooltip-d3,
+  :root[data-tooltips="off"] .tooltip-rich,
+  :root[data-tooltips="off"] .svg-phase-panel:not([data-force="true"]) {
+    display: none !important;
+  }
+}

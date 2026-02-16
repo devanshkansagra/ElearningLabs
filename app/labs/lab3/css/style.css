@@ -1,0 +1,978 @@
+/* =================================================================== * 21 — Distance Protection Lab · streamlined layout + parity refresh Layers: tokens · reset · base · layout · widgets · phasor · components * =================================================================== */ /* ------------------------------ TOKENS ------------------------------ */
+@layer tokens {
+    :root {
+        /* palette (kept) */
+        --Aphase: hsl(0 100% 50%);
+        --Bphase: hsl(43 100% 50%);
+        --Cphase: hsl(240 100% 50%);
+        --negative: hsl(300 100% 50%);
+        --positive: hsl(120 100% 50%);
+        --zero: hsl(0 0% 50%);
+        --ink: #322c2d;
+        --bg: transparent;
+        --frame: steelblue; /* rhythm & type */
+        --thick-abc: 3px;
+        --radius: 0.375rem;
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --gap: clamp(0.45rem, 2cqi, 0.75rem);
+        --font-base: clamp(0.85rem, 1cqi + 0.75rem, 1rem);
+        --font-sm: clamp(0.8rem, 0.8cqi + 0.65rem, 0.95rem);
+        --ch-input: 10ch;
+        --border: 1px solid color-mix(in oklab, currentColor 25%, transparent);
+        --ui-border: darkgrey;
+        --plot-stroke: #000;
+    }
+    :root[data-density="dense"] {
+        --space-1: 0.125rem;
+        --space-2: 0.25rem;
+        --space-3: 0.375rem;
+        --space-4: 0.6rem;
+        --thick-abc: 2px;
+    }
+    :root[data-theme="dark"] {
+        --ink: #f5f7fb;
+        --bg: #0d1117;
+        --frame: #1f6feb;
+        --plot-stroke: #fff;
+    }
+} /* ------------------------------ RESET ------------------------------ */
+@layer base {
+    body {
+        font-family: inherit;
+        color: var(--ink);
+        background: var(--bg);
+        color-scheme: light dark;
+        font-size: var(--font-base);
+    }
+    
+    /* Preserve the premium glowing checkboxes */
+    input[type="checkbox"].custom-cb {
+        --cb-size: 23px;
+        --cb-tick: 60%;
+        --cb-active: #16a34a;
+        --cb-glow: rgba(22, 163, 74, 0.7);
+        --cb-halo: rgba(0, 0, 0, 0.08);
+        --cb-focus: #3b82f6;
+        --cb-bg: #f9fafb;
+        --cb-border: #d1d5db;
+        appearance: none;
+        width: var(--cb-size);
+        height: var(--cb-size);
+        border: 2px solid var(--cb-border);
+        border-radius: 50%;
+        background: var(--cb-bg);
+        cursor: pointer;
+        display: grid;
+        place-content: center;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    input[type="checkbox"].custom-cb::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--cb-halo);
+        opacity: 0.9;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+    }
+    input[type="checkbox"].custom-cb::before {
+        content: "";
+        width: 20px;
+        height: 20px;
+        background-color: var(--cb-active);
+        border-radius: 50%;
+        box-shadow: 0 0 8px var(--cb-glow);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-size: var(--cb-tick) var(--cb-tick);
+        background-position: center;
+        transform: scale(0);
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+    input[type="checkbox"].custom-cb:checked::before {
+        transform: scale(1);
+        opacity: 1;
+    }
+    input[type="checkbox"].custom-cb:checked::after {
+        opacity: 0;
+    }
+    input[type="checkbox"].custom-cb:checked {
+        border-color: var(--cb-active);
+    }
+}
+@layer components {
+ /* Enable-matrix surface: theme-aware */
+    #svgSELTable table {
+        border: 1px solid color-mix(in oklab, currentColor 15%, transparent);
+        border-radius: 0.375rem;
+        border-collapse: collapse;
+        background: #fff;
+    }
+    :root[data-theme="dark"] #svgSELTable table {
+        background: #0d1117;
+        color: var(--ink);
+        border-color: #30363d;
+    } /* Green/Red status cells */
+    #enable-matrix td.bit-true {
+        background: hsl(140 70% 40% / 0.75);
+        color: hsl(0deg 15.71% 92.53%);
+        font-weight: 700;
+    }
+    #enable-matrix td.bit-false {
+        background: hsl(0 75% 45% / 0.75);
+        color: hsl(0deg 15.71% 92.53%);
+        font-weight: 700;
+    }
+    :root[data-theme="dark"] #enable-matrix td.bit-true {
+        background: hsl(140 70% 30% / 0.75);
+        color: hsl(140 90% 85%);
+    }
+    :root[data-theme="dark"] #enable-matrix td.bit-false {
+        background: hsl(0 75% 35% / 0.75);
+        color: hsl(0 95% 88%);
+    } /* Subtle highlight for CHOICE row (works in both themes) */
+    #enable-matrix tr:has(#bit-CHOICE) td {
+        background: color-mix(in oklab, var(--frame) 10%, transparent);
+        font-weight: 600;
+        border-top: 2px solid color-mix(in oklab, var(--frame) 30%, transparent);
+    }
+    :root[data-theme="dark"] #enable-matrix tr:has(#bit-CHOICE) td {
+        background: color-mix(in oklab, var(--frame) 22%, transparent);
+    } /* Nice sticky head */
+    #enable-matrix thead th {
+        position: sticky;
+        top: 0;
+        background: color-mix(in oklab, currentColor 6%, transparent);
+    } /* Cursor hint when visible */
+    #enable-matrix {
+        cursor: auto;
+    }
+} /* end components */
+@layer phasor {
+    /* draggable heads */
+    circle:is(.vectora, .vectorb, .vectorc, .vectorab, .vectorbc, .vectorca, .vectora_I, .vectorb_I, .vectorc_I, .vector_KN) {
+        fill: rgb(255 255 255/0.01);
+        stroke: rgb(255 255 255/0.01);
+        stroke-width: 0.2px;
+        cursor: grab;
+    } /* distance circles + intersections */
+    circle:is(.vector_Z1_Line, .vector_Z2_Line, .vector_Z3_Line) {
+        fill: rgb(255 255 255/0.01);
+        stroke: var(--plot-stroke);
+        stroke-width: 0.2px;
+    }
+    circle.intersect {
+        fill: rgb(0 255 0/0.1);
+        stroke-width: 0.2px;
+    }
+    circle.intersect2 {
+        fill: rgb(0 0 255/0.1);
+        stroke-width: 0.2px;
+    }
+    circle.intersect3 {
+        fill: rgb(255 0 0/0.1);
+        stroke-width: 0.2px;
+    } /* vectors */
+    polyline {
+        stroke-width: 3px;
+    }
+    polyline:is(.vectora, .vectorab, .vectora_I, .vectorab_I, .vectora_Z, .vectorab_Z) {
+        stroke: var(--Aphase);
+        stroke-width: var(--thick-abc);
+        stroke-linecap: round;
+    }
+    polyline:is(.vectorb, .vectorbc, .vectorb_I, .vectorbc_I, .vectorb_Z, .vectorbc_Z, .vectorb_Z_prime) {
+        stroke: var(--Bphase);
+        stroke-width: var(--thick-abc);
+        stroke-linecap: round;
+    }
+    polyline:is(.vectorc, .vectorca, .vectorc_I, .vectorca_I, .vectorc_Z, .vectorca_Z, .vectorc_Z_prime) {
+        stroke: var(--Cphase);
+        stroke-width: var(--thick-abc);
+        stroke-linecap: round;
+    } /* sequence */
+    polyline:is(.vector2, .vector2i, .vector2_I, .vector2bis, .vector2bis_I) {
+        stroke: var(--negative);
+        stroke-width: 3px;
+        stroke-dasharray: 3;
+    }
+    polyline:is(.vector1, .vector1_I, .vector1bis, .vector1bis_I) {
+        stroke: var(--positive);
+        stroke-width: 3px;
+        stroke-dasharray: 3;
+    }
+    polyline:is(.vector0, .vector0_I, .vector0bis, .vector0bis_I, .vector_KN) {
+        stroke: var(--zero);
+        stroke-width: 3px;
+        stroke-dasharray: 3;
+    }
+    polyline.vector_Z_Line {
+        stroke: var(--frame);
+        stroke-width: 2px;
+    } /* markers & labels */
+    #marka,
+    #arrow-marka,
+    #markab,
+    #markai,
+    #markabi,
+    #markaz,
+    #markabz,
+    #markaz_prime {
+        fill: var(--Aphase);
+        cursor: pointer;
+    }
+    #markb,
+    #markbc,
+    #markbi,
+    #markbci,
+    #markbz,
+    #markbcz,
+    #markbz_prime {
+        fill: var(--Bphase);
+        cursor: pointer;
+    }
+    #markc,
+    #markca,
+    #markci,
+    #markcai,
+    #markcz,
+    #markcaz,
+    #markcz_prime {
+        fill: var(--Cphase);
+        cursor: pointer;
+    }
+    #mark2,
+    #mark2i,
+    #mark2bis,
+    #mark2bisi {
+        fill: var(--negative);
+    }
+    #mark1,
+    #mark1i,
+    #mark1bis,
+    #mark1bisi {
+        fill: var(--positive);
+    }
+    #mark0,
+    #mark0i,
+    #mark0bis,
+    #mark0bisi,
+    #markKN,
+    #markc-arc {
+        fill: var(--zero);
+    }
+    #markPol {
+        stroke: var(--frame);
+        stroke-width: 2px;
+    }
+    marker {
+        fill: black;
+    }
+    .load-blinder-v,
+    .load-blinder-arc {
+        stroke: orange;
+        stroke-width: 2px;
+        fill: none;
+        opacity: 0.9;
+        display: none;
+    }
+    .quad {
+        stroke: var(--plot-stroke);
+    }
+    text {
+        text-anchor: middle;
+        font-size: small;
+    }
+    .texta,
+    .textai,
+    .textaLegend,
+    .textaiLegend,
+    .texta_I,
+    .texta_Z,
+    .textab_Z {
+        fill: var(--Aphase);
+    }
+    .textb,
+    .textbi,
+    .textbLegend,
+    .textbiLegend,
+    .textb_I,
+    .textb_Z,
+    .textbc_Z {
+        fill: var(--Bphase);
+    }
+    .textc,
+    .textci,
+    .textcLegend,
+    .textciLegend,
+    .textc_I,
+    .textc_Z,
+    .textca_Z {
+        fill: var(--Cphase);
+    }
+    .texta,
+    .textb,
+    .textc {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .dir-fwd {
+        stroke: limegreen;
+        stroke-dasharray: 4 2;
+    }
+    .dir-rev {
+        stroke: crimson;
+        stroke-dasharray: 4 2;
+    }
+    .dir-lbl {
+        font: 0.5rem system-ui, sans-serif;
+        fill: #333;
+    }
+} /* ------------------------------ COMPONENTS -------------------------- */
+@layer components {
+    /* history bar */
+    #historyBar {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.2rem 0.6rem;
+        background: var(--ui-surface, #f7f9fc);
+        inset-block-start: 0;
+        z-index: 10;
+        container-type: inline-size;
+        width: 100px;
+    }
+    #historyBar .btn {
+        inline-size: clamp(1.8rem, 5cqi, 2rem);
+        block-size: 1.8rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--ui-border, #c9d1d9);
+        border-radius: 0.5rem;
+        background: #fff;
+        transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+    }
+    #historyBar .btn:where(:hover, :focus-visible) {
+        transform: translateY(-1px);
+    }
+    #historyBar .btn:focus-visible {
+        outline: 2px solid #1f6feb;
+        outline-offset: 2px;
+    }
+    #historyBar .btn[disabled] {
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+        filter: grayscale(0.8);
+        color: black;
+    } /* Make the cell a size container so the button can scale with cqi units */
+    td.radio-sq {
+        container-type: inline-size;
+        padding: 0.25rem; /* tweak as needed */
+        text-align: center; /* keeps the square centered in the cell */
+    }
+    td.radio-sq > label {
+        /* sizing tokens */
+        --btn-size: min(100cqi, 2.5rem); /* grows up to 3.25rem, but never wider than the cell */
+        --btn-bg: color-mix(in lab, Canvas 92%, black 8%);
+        --btn-fg: CanvasText;
+        --btn-bd: color-mix(in lab, currentColor 28%, transparent);
+        position: relative;
+        display: grid;
+        place-items: center;
+        inline-size: var(--btn-size);
+        aspect-ratio: 1; /* perfect square */
+        border: 1px solid var(--btn-bd);
+        border-radius: 0.5rem; /* set to 0 for hard square corners */
+        background: var(--btn-bg);
+        color: var(--btn-fg);
+        user-select: none;
+        cursor: pointer;
+        font: 600 clamp(0.8rem, 2.5cqi, 1rem) / 1 system-ui, Segoe UI, Roboto, sans-serif;
+        letter-spacing: 0.01em;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.06s ease;
+    } /* Hide the native radio but keep it accessible and focusable */
+    td.radio-sq input[type="radio"] {
+        position: absolute;
+        inset: 0;
+        inline-size: 100%;
+        block-size: 100%;
+        margin: 0;
+        opacity: 0;
+        appearance: none;
+    } /* Press feedback */
+    td.radio-sq > label:active {
+        transform: translateY(1px);
+    } /* Selected state using modern :has */
+    td.radio-sq > label:has(input[type="radio"]:checked) {
+        --btn-bg: color-mix(in lab, Highlight 18%, Canvas 82%);
+        --btn-fg: Highlight;
+        --btn-bd: Highlight;
+        outline: 2px solid color-mix(in lab, Highlight 35%, transparent);
+        outline-offset: 2px;
+    } /* Keyboard focus ring */
+    td.radio-sq > label:has(input[type="radio"]:focus-visible),
+    td.radio-sq > label:focus-within {
+        /* fallback if :has isn't supported */
+        box-shadow: 0 0 0 0.2rem color-mix(in lab, currentColor 30%, transparent);
+        outline: none;
+    } /* Disabled look, if you ever need it */
+    td.radio-sq > label:has(input[type="radio"]:disabled) {
+        opacity: 0.5;
+        cursor: not-allowed;
+    } /* Fallback if you prefer toggling a class from JS or legacy CSS: */
+    td.radio-sq > label.active {
+        --btn-bg: color-mix(in lab, Highlight 18%, Canvas 82%);
+        --btn-fg: Highlight;
+        --btn-bd: Highlight;
+    } /* dark parity for panels/accordion/SVG */
+    :root[data-theme="dark"] .panel,
+    :root[data-theme="dark"] #vis_inner_Z {
+        background: color-mix(in oklab, #0d1117 60%, transparent) !important;
+        border-color: color-mix(in oklab, #e6edf3 12%, transparent);
+    }
+    :root[data-theme="dark"] .accordion .accordion-item details > summary {
+        background: color-mix(in oklab, #e6edf3 6%, transparent);
+        border-color: color-mix(in oklab, #e6edf3 14%, transparent);
+    }
+    :root[data-theme="dark"] svg {
+        border-color: color-mix(in oklab, var(--frame) 60%, transparent);
+    }
+    :root[data-theme="dark"] .btn {
+        border: 1px solid white;
+        color: white;
+    }
+    :root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]) {
+        color: white;
+        background-color: var(--bg);
+    }
+    :root[data-theme="dark"] #blinders {
+        background: none !important;
+    }
+    :root[data-theme="dark"] .app-bar {
+        background: none !important;
+    }
+    :root[data-theme="dark"] #historyBar {
+        background: none;
+    }
+    /* HistoryBar buttons: adopt light-on-dark in dark theme */
+    :root[data-theme="dark"] #historyBar .btn {
+        color: #fff;
+        border: 1px solid #e6edf3;
+        background: none;
+    }
+    :root[data-theme="dark"] #historyBar .btn[disabled] {
+        color: #9ba1a6;
+        border-color: #4b5563;
+    }
+    :root[data-theme="dark"] #preset-select {
+        color: white !important;
+        background-color: var(--bg) !important;
+    }
+    :root[data-theme="dark"] .kv-table thead td,
+    :root[data-theme="dark"] .field > label {
+        font-weight: 600;
+        color: white !important;
+    } /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .btn,
+        #historyBar .btn,
+        .fault-grid label,
+        #spanUnit {
+            transition: none;
+        }
+    }
+}
+
+/* ------------------ LEGACY COMPAT (optional) ----------------- */
+input[type="checkbox"] {
+    background-color: var(--cb-bg, inherit);
+}
+
+/* When density toggle is UNCHECKED (comfortable), force larger SVG labels
+   Apply to all SVGs except the KN view to preserve its sizing. */
+:root[data-density="comfortable"] svg:not(#vis_KN_svg) text {
+  font-size: 15px !important;
+}
+/* Increase numeric table-cell text size in comfortable density */
+:root[data-density="comfortable"] .num-container,
+:root[data-density="comfortable"] .num-container td {
+  font-size: 16px !important;
+}
+
+/* ------------------ GROUND CHAR (container-driven) ------------------ */
+@layer components {
+    /*
+     Ground Char layout for #collapseSEL_GroundChar
+     - Uses CSS Container Queries on the component container instead of page media queries
+     - Minimizes specificity using :where() so rules are easy to override
+
+     Usage:
+       1) The parent container is the element with id="collapseSEL_GroundChar".
+          It is declared as a size container so child layout can respond with @container.
+       2) Inside, the section#SEL-ground-char has class="ground-char" to apply the base flex column.
+       3) Row groups use class="row-fields".
+       4) The bottom strip uses class="gc-strip" with sub-blocks: .gc-flags, .gc-order, .gc-presets.
+
+     Notes:
+       - :where(#collapseSEL_GroundChar) contributes zero specificity; selectors stay lightweight.
+       - Container name is "ground"; queries use @container ground (...)
+       - No global media queries are used for this module.
+    */
+    :where(#collapseSEL_GroundChar) {
+        container-type: inline-size;
+        container-name: ground;
+    }
+
+    :where(#collapseSEL_GroundChar) .ground-char {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    :where(#collapseSEL_GroundChar) .phasor-inputs {
+        display: flex;
+        flex-direction: row;
+        gap: 0.7rem;
+        align-items: flex-start;
+    }
+
+    :where(#collapseSEL_GroundChar) .row-fields {
+        display: inline-flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    :where(#collapseSEL_GroundChar) .field-scalar-mode {
+        width: 100%;
+    }
+    :where(#collapseSEL_GroundChar) .field.field-wide {
+        flex: 1 1 100%;
+        max-width: none;
+    }
+    :where(#collapseSEL_GroundChar) .chip-group {
+        display: inline-flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    :where(#collapseSEL_GroundChar) .chip-group .chip {
+        font-size: 0.75rem;
+    }
+    #scalar-mode-note {
+        margin-top: 0.35rem;
+        font-size: 0.7rem;
+    }
+    #ELOP {
+        min-width: 3.5rem;
+    }
+    :where(#collapseSEL_GroundChar) .is-disabled {
+        opacity: 0.6;
+    }
+
+    :where(#collapseSEL_GroundChar) .gc-strip {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    /* Right-hand separators for wide layouts */
+    :where(#collapseSEL_GroundChar) #settings-negativeSeq {
+        height: auto;
+        padding-right: 0.6rem !important;
+    }
+    :where(#collapseSEL_GroundChar) .gc-flags {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.5rem;
+        border-right: 1px solid #cccccc !important;
+        height: auto;
+        padding-right: 0.6rem !important;
+    }
+    :where(#collapseSEL_GroundChar) .gc-order {
+        border-right: 1px solid #cccccc !important;
+        height: auto;
+        padding-right: 0.6rem !important;
+    }
+    :where(#collapseSEL_GroundChar) .gc-presets {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+    :where(#collapseSEL_GroundChar) .preset-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    /* Container-responsive rules: stack at narrow widths */
+    @container ground (max-width: 820px) {
+        :where(#collapseSEL_GroundChar) .phasor-inputs {
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+        :where(#collapseSEL_GroundChar) #settings {
+            border-bottom: 1px solid #cccccc7a !important;
+        }
+        :where(#collapseSEL_GroundChar) #settings-negativeSeq {
+            border-right: 0 !important;
+            padding-right: 0 !important;
+            border-right: 1px solid #cccccc7a !important;
+            padding-bottom: 0.6rem !important;
+        }
+        /* Keep strip horizontal even at narrow widths */
+        :where(#collapseSEL_GroundChar) .gc-strip {
+            flex-direction: row;
+            align-items: center;
+            gap: var(--space-3);
+            flex-wrap: nowrap;
+        }
+        :where(#collapseSEL_GroundChar) .preset-actions {
+            gap: var(--space-3);
+        }
+    }
+}
+
+/* ===================== SVG Phase Inspector Panel ===================== */
+.svg-phase-panel {
+  position: fixed;
+  z-index: 2000;
+  inset: auto auto 0 0;
+  min-width: 260px;
+  max-width: 380px;
+  max-height: 65vh;
+  overflow: auto;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid color-mix(in oklab, currentColor 16%, transparent);
+  border-radius: 0.6rem;
+  background: color-mix(in oklab, white 92%, transparent);
+  box-shadow: 0 6px 24px rgba(0,0,0,.18), 0 1px 0 rgba(0,0,0,.04) inset;
+  color: var(--ink);
+  display: none;
+}
+.svg-phase-panel[data-show="true"] { display: block; }
+
+.svg-phase-panel__hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  font-weight: 800;
+  margin-bottom: .25rem;
+  font-size: .95rem;
+  cursor: grab;
+  user-select: none;
+}
+.svg-phase-panel.is-dragging .svg-phase-panel__hd {
+  cursor: grabbing;
+}
+
+.svg-phase-panel .btn-close {
+  appearance: none;
+  border: 0;
+  background: red;
+  color: inherit;
+  font: 700 1.1rem/1 system-ui, sans-serif;
+  cursor: pointer;
+  padding: .1rem .3rem;
+  border-radius: .35rem;
+}
+.svg-phase-panel .btn-close:hover {
+  background: color-mix(in oklab, currentColor 10%, transparent);
+}
+
+.svg-phase-panel .sec {
+  margin: .45rem 0 .2rem;
+  padding-top: .4rem;
+  border-top: 1px solid color-mix(in oklab, currentColor 12%, transparent);
+}
+.svg-phase-panel .sec h4 {
+  margin: 0 0 .25rem 0;
+  font: 700 .85rem/1.2 system-ui, sans-serif;
+  opacity: .9;
+}
+
+.svg-phase-panel table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+.svg-phase-panel td {
+  padding: .1rem .2rem;
+  vertical-align: middle;
+}
+.svg-phase-panel td:first-child {
+  white-space: nowrap;
+  width: 40%;
+  opacity: .9;
+  font-weight: 600;
+}
+.svg-phase-panel td.eq {
+  width: .5rem;
+  text-align: center;
+  opacity: .7;
+}
+.svg-phase-panel td.aln { text-align: right; font-variant-numeric: tabular-nums; }
+.svg-phase-panel td.u   { width: 2.5rem; text-align: left; opacity: .85; }
+.svg-phase-panel .muted { opacity: .7; font-size: .75em; margin: .25rem 0 0; }
+
+/* Dark theme parity */
+:root[data-theme="dark"] .svg-phase-panel {
+  background: color-mix(in oklab, #0d1117 94%, transparent);
+  border-color: color-mix(in oklab, #e6edf3 14%, transparent);
+  box-shadow: 0 6px 24px rgba(0,0,0,.4), 0 1px 0 rgba(255,255,255,.04) inset;
+  color: var(--ink);
+}
+/* Metering base controls */
+.panel-title {
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+.meter-base {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+}
+.meter-base .meter-base-body {
+  display: grid;
+  gap: 0.75rem;
+}
+@media (min-width: 720px) {
+  .meter-base .meter-base-body {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+.meter-base .meter-group {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--panel-border, rgba(0, 0, 0, 0.12));
+  border-radius: 0.5rem;
+  background: var(--panel-surface, rgba(255, 255, 255, 0.04));
+}
+.meter-base .meter-group legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.meter-base .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+/* .meter-base .field input,
+.meter-base .field select {
+  font: inherit;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--panel-border, rgba(0, 0, 0, 0.18));
+  background: var(--panel-input, rgba(255, 255, 255, 0.9));
+}
+.meter-base .field input:focus,
+.meter-base .field select:focus {
+  outline: none;
+  border-color: var(--accent, #2563eb);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+} */
+.meter-base .meter-nominal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+.meter-base .meter-nominal .lbl {
+  margin-right: 0.5rem;
+}
+.meter-base .meter-nominal .chip {
+  margin: 0;
+}
+.meter-base .meter-readout output {
+  font-weight: 600;
+}
+.meter-base .meter-base-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.meter-base .meter-base-toggle {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.meter-base .meter-base-toggle .chip {
+  margin: 0;
+}
+.meter-base .meter-base-summary {
+  font-size: 0.85rem;
+  color: var(--muted, #4b5563);
+}
+.metering-feedback {
+  min-height: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted, #4b5563);
+}
+.metering-feedback .issue {
+  color: var(--danger, #b3261e);
+}
+.metering-feedback .warning {
+  color: var(--warning, #d97706);
+}
+.meter-base .field.is-invalid input,
+.meter-base .field.is-invalid select {
+  border-color: var(--danger, #b3261e);
+  box-shadow: 0 0 0 1px rgba(179, 38, 30, 0.25);
+}
+.meter-base .field.is-warning input,
+.meter-base .field.is-warning select {
+  border-color: var(--warning, #d97706);
+  box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.25);
+}
+
+.ctRatio {
+  display: flex;flex-direction: row;
+}
+
+
+    #dir-explainer .why-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.3rem;
+    }
+    #dir-explainer .why-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 600;
+    }
+    #dir-explainer .why-chip.why-pass {
+        background: rgba(25,135,84,0.15);
+        color: rgb(25,135,84);
+    }
+    #dir-explainer .why-chip.why-block {
+        background: rgba(220,53,69,0.15);
+        color: rgb(200,35,51);
+    }
+    #dir-explainer .why-chip.why-warn {
+        background: rgba(255,193,7,0.18);
+        color: rgb(133,100,0);
+    }
+    #dir-explainer .why-chip.why-info {
+        background: rgba(70,130,180,0.15);
+        color: rgb(46,104,145);
+    }
+    #dir-explainer .dir-headline {
+        margin-bottom: 0.35rem;
+        font-weight: 600;
+    }
+    #scalar-mode-note[data-mode="manual"] {
+        opacity: 0.65;
+    }
+
+    #app .secondary-panel {
+        display: none;
+    }
+    body.secondary-open {
+        overflow: hidden;
+    }
+    .secondary-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        z-index: 1000;
+    }
+    .secondary-modal.is-open {
+        display: grid;
+    }
+    .secondary-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(8, 12, 20, 0.55);
+    }
+    .secondary-surface {
+        position: relative;
+        z-index: 1;
+        width: min(1200px, 96vw);
+        max-height: 92vh;
+        overflow: auto;
+        background: #fff;
+        border: 1px solid var(--ui-border, #c9d1d9);
+        border-radius: 1rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .secondary-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        position: sticky;
+        top: 0;
+        background: inherit;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--ui-border, #c9d1d9);
+    }
+    .secondary-heading h2 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+    .secondary-status {
+        margin: 0;
+        font-size: 0.85rem;
+        opacity: 0.7;
+    }
+    .secondary-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .secondary-body {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1rem;
+        align-items: start;
+    }
+    .secondary-body .secondary-panel {
+        display: block;
+    }
+    .secondary-summary {
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+    :root[data-theme="dark"] .secondary-surface {
+        background: #0d1117;
+        color: #e6edf3;
+        border-color: #30363d;
+    }
+    :root[data-theme="dark"] .secondary-backdrop {
+        background: rgba(3, 6, 12, 0.7);
+    }
+/* Specific override for axis tick labels with high specificity */
+html :root[data-density] #vis_inner_V_svg .tick text,
+html :root[data-density] #vis_inner_I_svg .tick text,
+html :root[data-density] #vis_inner_Z_svg .tick text,
+html :root[data-density] #vis_KN_svg .tick text {
+  font-size: 10px !important;
+}

@@ -587,8 +587,17 @@ export default function Lab3() {
       .domain(domain_I)
       .range([p0y * 2 - svgPadding, 0]);
 
-    const xAxis_I = d3.axisBottom(xScale_I).ticks(8).tickSize(-5);
-    const yAxis_I = d3.axisLeft(yScale_I).ticks(8).tickSize(-5);
+    const xAxis_I = d3
+      .axisBottom(xScale_I)
+      .ticks(5)
+      .tickSize(-5)
+      .tickPadding(8);
+    const yAxis_I = d3
+      .axisLeft(yScale_I)
+      .ticks(5)
+      .tickSize(-5)
+      .tickPadding(8)
+      .tickFormat((d: any) => (d === 0 ? "" : d));
 
     const xCenter_I = p0x;
     const yCenter_I = p0y;
@@ -597,13 +606,17 @@ export default function Lab3() {
       .append("g")
       .attr("class", "x-axis_I")
       .attr("transform", `translate(${svgPadding / 2},${xCenter_I})`)
-      .call(xAxis_I);
+      .call(xAxis_I)
+      .selectAll("text")
+      .style("font-size", "10px");
 
     axisLayer_I
       .append("g")
       .attr("class", "y-axis_I")
       .attr("transform", `translate(${yCenter_I},${svgPadding / 2})`)
-      .call(yAxis_I);
+      .call(yAxis_I)
+      .selectAll("text")
+      .style("font-size", "10px");
 
     d3.selectAll(
       ".y-axis_I path, .x-axis_I path, .y-axis_I line, .x-axis_I line",
@@ -633,8 +646,17 @@ export default function Lab3() {
       .domain(domain_V)
       .range([p0y * 2 - svgPadding, 0]);
 
-    const xAxis_V = d3.axisBottom(xScale_V).ticks(8).tickSize(-5);
-    const yAxis_V = d3.axisLeft(yScale_V).ticks(8).tickSize(-10);
+    const xAxis_V = d3
+      .axisBottom(xScale_V)
+      .ticks(5)
+      .tickSize(-5)
+      .tickPadding(8);
+    const yAxis_V = d3
+      .axisLeft(yScale_V)
+      .ticks(5)
+      .tickSize(-10)
+      .tickPadding(8)
+      .tickFormat((d: any) => (d === 0 ? "" : d));
 
     const xCenter_V = yScale_V(0) + svgPadding / 2;
     const yCenter_V = xScale_V(0) + svgPadding / 2;
@@ -643,13 +665,17 @@ export default function Lab3() {
       .append("g")
       .attr("class", "x-axis_V")
       .attr("transform", `translate(${svgPadding / 2},${xCenter_V})`)
-      .call(xAxis_V);
+      .call(xAxis_V)
+      .selectAll("text")
+      .style("font-size", "10px");
 
     axisLayer_V
       .append("g")
       .attr("class", "y-axis_V")
       .attr("transform", `translate(${yCenter_V},${svgPadding / 2})`)
-      .call(yAxis_V);
+      .call(yAxis_V)
+      .selectAll("text")
+      .style("font-size", "10px");
 
     d3.selectAll(
       ".y-axis_V path, .x-axis_V path, .y-axis_V line, .x-axis_V line",
@@ -679,8 +705,17 @@ export default function Lab3() {
       .domain(domain_Z)
       .range([p0y * 2 - svgPadding, 0]);
 
-    const xAxis_Z = d3.axisBottom(xScale_Z).ticks(8).tickSize(-5);
-    const yAxis_Z = d3.axisLeft(yScale_Z).ticks(8).tickSize(-5);
+    const xAxis_Z = d3
+      .axisBottom(xScale_Z)
+      .ticks(5)
+      .tickSize(-5)
+      .tickPadding(8);
+    const yAxis_Z = d3
+      .axisLeft(yScale_Z)
+      .ticks(5)
+      .tickSize(-5)
+      .tickPadding(8)
+      .tickFormat((d: any) => (d === 0 ? "" : d));
 
     const xCenter_Z = yScale_Z(0) + svgPadding / 2;
     const yCenter_Z = xScale_Z(0) + svgPadding / 2;
@@ -689,12 +724,17 @@ export default function Lab3() {
       .append("g")
       .attr("class", "x-axis_Z")
       .attr("transform", `translate(${svgPadding / 2},${xCenter_Z})`)
-      .call(xAxis_Z);
+      .call(xAxis_Z)
+      .selectAll("text")
+      .style("font-size", "10px");
+
     axisLayer_Z
       .append("g")
       .attr("class", "y-axis_Z")
       .attr("transform", `translate(${yCenter_Z},${svgPadding / 2})`)
-      .call(yAxis_Z);
+      .call(yAxis_Z)
+      .selectAll("text")
+      .style("font-size", "10px");
 
     let SCALE_Z = xScale_Z(1) - xScale_Z(0);
     let PIX_PER_AMP_Z = SCALE_Z;
@@ -702,7 +742,10 @@ export default function Lab3() {
     // --- KN Axis Setup ---
     // Note: The HTML for this must replace the #KN_svg if it exists or be added.
     // main.js expects .vis_KN_svg
-    const svgAxis_KN = d3.select(".vis_KN_svg");
+    const svgAxis_KN = d3
+      .select(".vis_KN_svg")
+      .attr("viewBox", `0 0 ${w / 2} ${h / 2}`)
+      .attr("preserveAspectRatio", "xMidYMid meet") as any;
     let vis_KN = svgAxis_KN.select("g.vis_KN_svg_g") as any;
     if (vis_KN.empty()) {
       vis_KN = svgAxis_KN.append("g").attr("class", "vis_KN_svg_g") as any;
@@ -3600,1198 +3643,903 @@ export default function Lab3() {
           </nav>
         </div>
       </header>
-      <main
-        id="app"
-        className="flex flex-col lg:flex-row items-start gap-4 p-4 min-w-0"
-      >
-        <aside
-          id="Left_Table"
-          className="w-full lg:w-96 flex flex-col gap-4 p-4 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0"
-        >
-          <section
-            id="option4"
-            className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
-          >
-            {/* Z Line */}
-            <article>
-              <header id="headingTwo_Z" className="mb-4">
-                <div className="flex flex-col gap-1">
-                  <div
-                    id="collapse0"
-                    className="text-lg font-bold text-slate-800 dark:text-slate-100"
-                  >
-                    Positive Sequence Z<sub>1</sub>
+      <main id="app" className="flex flex-col gap-8 p-4 min-w-0">
+        <div className="flex flex-col lg:flex-row items-stretch gap-4">
+          <div className="animationControl flex-1 min-w-0">
+            <div className="h-full">
+              <section
+                id="vis_inner_Z"
+                className="flex flex-col lg:flex-row items-stretch gap-4 p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700"
+              >
+                {/* LEFT SIDE */}
+                <div className="flex-1 min-w-0 space-y-2">
+                  {/* Z Display Toggle */}
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div
+                      className="flex items-center gap-3"
+                      role="radiogroup"
+                      aria-label="Impedance display base"
+                    >
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                        Z display:
+                      </span>
+
+                      <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-lg">
+                        <label className="flex items-center gap-2 px-3 py-1 rounded-md cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+                          <input
+                            type="radio"
+                            name="z-display"
+                            value="secondary"
+                            className="hidden"
+                          />
+                          <span className="text-xs font-semibold">
+                            Secondary
+                          </span>
+                        </label>
+
+                        <label className="flex items-center gap-2 px-3 py-1 rounded-md cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+                          <input
+                            type="radio"
+                            name="z-display"
+                            value="primary"
+                            className="hidden"
+                          />
+                          <span className="text-xs font-semibold">Primary</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      <span id="metering-summary">
+                        CT ratio -- | VT ratio -- | Z scale --
+                      </span>
+                    </div>
                   </div>
+
                   <div
-                    id="collapseZ0"
-                    className="text-md font-semibold text-slate-500 dark:text-slate-400"
-                  >
-                    Zero Sequence Z<sub>0</sub>
+                    id="metering-feedback"
+                    className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase"
+                    role="status"
+                    aria-live="polite"
+                  />
+
+                  {/* Z SVG */}
+                  <div className="relative aspect-square w-full max-w-md mx-auto">
+                    <svg
+                      id="vis_inner_Z_svg"
+                      className="w-full h-full bg-slate-50 dark:bg-slate-900 rounded-xl overflow-hidden"
+                    />
                   </div>
                 </div>
-              </header>
 
-              <hr className="mb-4 border-slate-200 dark:border-slate-700" />
+                {/* RIGHT SIDE */}
+                <div className="w-full lg:w-56 space-y-6 shrink-0">
+                  {/* Blinder */}
+                  <fieldset className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          id="blinderShow"
+                          type="checkbox"
+                          className="w-4 h-4 rounded text-blue-600"
+                        />
+                        Show Blinder
+                      </label>
+                    </legend>
 
-              <div id="collapseOne_Z">
-                <section id="components_Z_Line_row4" className="zline">
-                  <form
-                    id="zline-form"
-                    className="space-y-4"
-                    role="group"
-                    aria-labelledby="headingTwo_Z"
-                  >
-                    {/* Line parameters */}
-                    <fieldset className="space-y-4">
-                      <legend className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                        Line parameters
-                      </legend>
+                    <div className="mt-4 space-y-3">
+                      <label className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-slate-600 dark:text-slate-400">
+                          ∠ Angle
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            id="blinderAngle"
+                            type="number"
+                            defaultValue="30"
+                            step="0.1"
+                            className="w-20 px-2 py-1 bg-white dark:bg-slate-800 rounded text-right shadow-sm"
+                          />
+                          <span className="text-xs text-slate-400 w-4">°</span>
+                        </div>
+                      </label>
 
-                      <div className="grid gap-3">
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Positive Sequence Ohms per unit of length"
-                          >
-                            Z <sub>1</sub>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z_ratio"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0.29"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span
-                              className="text-xs text-slate-400 spanOhmsPerUnit min-w-[3rem]"
-                              aria-hidden="true"
-                            >
-                              Ω/km
-                            </span>
-                          </div>
-                        </label>
+                      <label className="flex items-center justify-between text-sm">
+                        <span className="font-medium text-slate-600 dark:text-slate-400">
+                          Radius
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <input
+                            id="blinderArcRadius"
+                            type="number"
+                            defaultValue="10"
+                            step="0.1"
+                            className="w-20 px-2 py-1 bg-white dark:bg-slate-800 rounded text-right shadow-sm"
+                          />
+                          <span className="text-xs text-slate-400 w-4">Ω</span>
+                        </div>
+                      </label>
+                    </div>
+                  </fieldset>
 
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Zero Sequence Ohms per unit of length"
-                          >
-                            Z <sub>0</sub>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z0_ratio"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0.9"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span
-                              className="text-xs text-slate-400 spanOhmsPerUnit min-w-[3rem]"
-                              aria-hidden="true"
-                            >
-                              Ω/km
-                            </span>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Length in km or miles"
-                          >
-                            ℓ
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z_l"
-                              type="number"
-                              step="0.01"
-                              defaultValue="20"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button
-                              type="button"
-                              id="spanUnit"
-                              className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold rounded min-w-[3rem] hover:bg-blue-200 transition-colors"
-                              title="Toggle unit"
-                            >
-                              km
-                            </button>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Positive-sequence line magnitude |Z1| = Z1_ratio · ℓ"
-                          >
-                            |Z<sub>1</sub>| (line)
-                          </span>
-                          <div className="flex items-center gap-2 text-sm text-slate-400">
-                            <input
-                              id="ZLmag"
-                              type="number"
-                              step="0.001"
-                              defaultValue="5.800"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="min-w-[3rem]">Ω</span>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                            Z <sub>1</sub> ∠
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z_angle"
-                              type="number"
-                              step="0.01"
-                              defaultValue="80"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="text-xs text-slate-400 min-w-[3rem]">
-                              °
-                            </span>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                            Z <sub>0</sub> ∠
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z0_angle"
-                              type="number"
-                              step="0.01"
-                              defaultValue="77.5"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="text-xs text-slate-400 min-w-[3rem]">
-                              °
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                    </fieldset>
-
-                    {/* Zones */}
-                    <fieldset className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                      <legend className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                        Reach (Zones)
-                      </legend>
-
-                      <div className="grid gap-3">
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Zone 1 reach typically set at 80% of the line"
-                          >
-                            Zone<sub>1</sub>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z1"
-                              type="number"
-                              step="0.01"
-                              defaultValue="80"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="text-xs text-slate-400 min-w-[3rem]">
-                              %
-                            </span>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span
-                            className="text-sm font-medium text-slate-600 dark:text-slate-300"
-                            title="Zone 2 reach typically set at 120% of the line"
-                          >
-                            Zone<sub>2</sub>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z2"
-                              type="number"
-                              step="0.01"
-                              defaultValue="120"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="text-xs text-slate-400 min-w-[3rem]">
-                              %
-                            </span>
-                          </div>
-                        </label>
-
-                        <label className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                            Zone<sub>3</sub>
-                          </span>
-                          <div className="flex items-center gap-2">
-                            <input
-                              id="Z3"
-                              type="number"
-                              step="0.01"
-                              defaultValue="200"
-                              inputMode="decimal"
-                              className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                            />
-                            <span className="text-xs text-slate-400 min-w-[3rem]">
-                              %
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                    </fieldset>
-                  </form>
-                </section>
-              </div>
-            </article>
-          </section>
-
-          <section
-            id="option5"
-            className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
-          >
-            {/* Fault presets matrix */}
-            <table className="w-full text-center">
-              <tbody
-                id="fault-presets-body"
-                className="grid grid-cols-3 gap-2"
-                role="radiogroup"
-                aria-label="Fault presets"
-              >
-                <tr className="contents">
-                  <td className="contents">
-                    <label
-                      id="AG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all active-fault"
-                      title="simulate A to ground fault"
-                    >
+                  {/* Characteristic Type */}
+                  <fieldset className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                    <label className="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm text-xs font-bold uppercase">
                       <input
                         type="radio"
-                        name="options"
-                        autoComplete="off"
+                        name="charType"
+                        value="MHO"
                         defaultChecked
                         className="hidden"
                       />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        A-G
-                      </span>
+                      MHO
                     </label>
-                  </td>
 
-                  <td className="contents">
-                    <label
-                      id="BG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate B to ground fault"
-                    >
+                    <label className="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm text-xs font-bold uppercase">
                       <input
                         type="radio"
-                        name="options"
-                        autoComplete="off"
+                        name="charType"
+                        value="QUAD"
                         className="hidden"
                       />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        B-G
-                      </span>
+                      Quad
                     </label>
-                  </td>
+                  </fieldset>
+                  <section
+                    id="option5"
+                    className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
+                  >
+                    {/* Fault presets matrix */}
+                    <table className="w-full text-center">
+                      <tbody
+                        id="fault-presets-body"
+                        className="grid grid-cols-3 gap-2"
+                        role="radiogroup"
+                        aria-label="Fault presets"
+                      >
+                        <tr className="contents">
+                          <td className="contents">
+                            <label
+                              id="AG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all active-fault"
+                              title="simulate A to ground fault"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                defaultChecked
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                A-G
+                              </span>
+                            </label>
+                          </td>
 
-                  <td className="contents">
-                    <label
-                      id="CG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate C to ground fault"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        C-G
-                      </span>
-                    </label>
-                  </td>
-                </tr>
+                          <td className="contents">
+                            <label
+                              id="BG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate B to ground fault"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                B-G
+                              </span>
+                            </label>
+                          </td>
 
-                <tr className="contents">
-                  <td className="contents">
-                    <label
-                      id="AB"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate fault between B and A"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        AB
-                      </span>
-                    </label>
-                  </td>
+                          <td className="contents">
+                            <label
+                              id="CG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate C to ground fault"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                C-G
+                              </span>
+                            </label>
+                          </td>
+                        </tr>
 
-                  <td className="contents">
-                    <label
-                      id="BC"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate fault between C and B"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        BC
-                      </span>
-                    </label>
-                  </td>
+                        <tr className="contents">
+                          <td className="contents">
+                            <label
+                              id="AB"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate fault between B and A"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                AB
+                              </span>
+                            </label>
+                          </td>
 
-                  <td className="contents">
-                    <label
-                      id="CA"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate fault between A and C"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        CA
-                      </span>
-                    </label>
-                  </td>
-                </tr>
+                          <td className="contents">
+                            <label
+                              id="BC"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate fault between C and B"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                BC
+                              </span>
+                            </label>
+                          </td>
 
-                <tr className="contents">
-                  <td className="contents">
-                    <label
-                      id="ABG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate AB to ground"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        AB-G
-                      </span>
-                    </label>
-                  </td>
+                          <td className="contents">
+                            <label
+                              id="CA"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate fault between A and C"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                CA
+                              </span>
+                            </label>
+                          </td>
+                        </tr>
 
-                  <td className="contents">
-                    <label
-                      id="BCG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate BC to ground"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        BC-G
-                      </span>
-                    </label>
-                  </td>
+                        <tr className="contents">
+                          <td className="contents">
+                            <label
+                              id="ABG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate AB to ground"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                AB-G
+                              </span>
+                            </label>
+                          </td>
 
-                  <td className="contents">
-                    <label
-                      id="CAG"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate CA to ground"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        CA-G
-                      </span>
-                    </label>
-                  </td>
-                </tr>
+                          <td className="contents">
+                            <label
+                              id="BCG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate BC to ground"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                BC-G
+                              </span>
+                            </label>
+                          </td>
 
-                <tr className="contents">
-                  <td></td>
+                          <td className="contents">
+                            <label
+                              id="CAG"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate CA to ground"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                CA-G
+                              </span>
+                            </label>
+                          </td>
+                        </tr>
 
-                  <td className="contents">
-                    <label
-                      id="ABC"
-                      className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
-                      title="simulate three phase fault"
-                    >
-                      <input
-                        type="radio"
-                        name="options"
-                        autoComplete="off"
-                        className="hidden"
-                      />
-                      <span className="text-xs font-bold dark:text-slate-200">
-                        ABC
-                      </span>
-                    </label>
-                  </td>
+                        <tr className="contents">
+                          <td></td>
 
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+                          <td className="contents">
+                            <label
+                              id="ABC"
+                              className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-transparent bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer transition-all"
+                              title="simulate three phase fault"
+                            >
+                              <input
+                                type="radio"
+                                name="options"
+                                autoComplete="off"
+                                className="hidden"
+                              />
+                              <span className="text-xs font-bold dark:text-slate-200">
+                                ABC
+                              </span>
+                            </label>
+                          </td>
 
-          <section
-            id="source-gsu"
-            className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-4"
+                          <td></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </section>
+                </div>
+              </section>
+            </div>
+          </div>
+          <aside
+            id="Left_Table"
+            className="w-full lg:w-96 flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0"
           >
-            <header className="flex flex-col gap-2">
-              <strong className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                IBR / Weak system model
-              </strong>
-
-              <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
-                <svg
-                  id="i0-schematic"
-                  aria-hidden="true"
-                  width="100%"
-                  height="30"
-                  viewBox="0 0 168 24"
-                  className="mx-auto border-none shadow-none"
-                >
-                  <title>—</title>
-
-                  {/* Left: Yg */}
-                  <g
-                    id="sym-left-Yg"
-                    transform="translate(4,2)"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M6 0 L6 8 M0 8 L12 8 M6 8 L6 14" />
-                    <g id="gnd-left">
-                      <circle cx="6" cy="14" r="1.2" fill="currentColor" />
-                      <path d="M6 15 L6 19 M2 19 L10 19 M3 20.5 L9 20.5 M4 22 L8 22" />
-                    </g>
-                    <text
-                      x="14"
-                      y="10"
-                      fontSize="8"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                    >
-                      Yg
-                    </text>
-                  </g>
-
-                  {/* Transformer core */}
-                  <g
-                    id="sym-T"
-                    transform="translate(70,3)"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeWidth="1.5"
-                  >
-                    <rect x="0" y="0" width="24" height="18" rx="2" />
-                    <text
-                      x="12"
-                      y="9.3"
-                      fontSize="9"
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                    >
-                      T
-                    </text>
-                  </g>
-
-                  <text
-                    id="phase-label"
-                    x="94"
-                    y="6"
-                    fontSize="7"
-                    style={{ display: "none" }}
-                    fill="currentColor"
-                  >
-                    30°
-                  </text>
-
-                  {/* Right: Δg (default) */}
-                  <g
-                    id="sym-right-Delta"
-                    transform="translate(124,2)"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeWidth="1.5"
-                  >
-                    <path d="M6 0 L12 10 L0 10 Z" />
-                    <g id="gnd-right" transform="translate(6,10)">
-                      <circle cx="0" cy="0" r="1.2" fill="currentColor" />
-                      <path d="M0 1 L0 5 M-4 5 L4 5 M-3 6.5 L3 6.5 M-2 8 L2 8" />
-                    </g>
-                    <text
-                      x="16"
-                      y="8"
-                      fontSize="8"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                    >
-                      Δg
-                    </text>
-                  </g>
-
-                  {/* Right: Yg (hidden unless YYg) */}
-                  <g
-                    id="sym-right-Yg"
-                    transform="translate(124,2)"
-                    stroke="currentColor"
-                    fill="none"
-                    strokeWidth="1.5"
-                    style={{ display: "none" }}
-                  >
-                    <path d="M6 0 L6 8 M0 8 L12 8 M6 8 L6 14" />
-                    <g id="gnd-right-Y">
-                      <circle cx="6" cy="14" r="1.2" fill="currentColor" />
-                      <path d="M6 15 L6 19 M2 19 L10 19 M3 20.5 L9 20.5 M4 22 L8 22" />
-                    </g>
-                    <text
-                      x="14"
-                      y="10"
-                      fontSize="8"
-                      dominantBaseline="middle"
-                      fill="currentColor"
-                    >
-                      Yg
-                    </text>
-                  </g>
-                </svg>
-              </div>
-            </header>
-
-            <div className="flex flex-wrap gap-2 text-xs">
-              <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                <input
-                  id="z0inf-local"
-                  type="checkbox"
-                  className="w-3 h-3 rounded shadow-sm"
-                />
-                Local Z₀ = ∞
-              </label>
-
-              <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                <input
-                  id="z0inf-remote"
-                  type="checkbox"
-                  className="w-3 h-3 rounded shadow-sm"
-                />
-                Remote Z₀ = ∞
-              </label>
-
-              <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
-                <input
-                  id="link-quad"
-                  type="checkbox"
-                  defaultChecked
-                  className="w-3 h-3 rounded shadow-sm"
-                />
-                Link quad to I₀
-              </label>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-              <label className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">
-                  GSU preset
-                </span>
-                <select
-                  id="gsu-preset"
-                  className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-sm focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">none</option>
-                  <option value="DY1g">DY1 (Yg–Δ) + grounded tertiary</option>
-                  <option value="DY5g">DY5 (Yg–Δ) + grounded tertiary</option>
-                  <option value="YYg">YY (Yg–Yg) + grounded tertiary</option>
-                </select>
-              </label>
-
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-slate-500">
-                    Neutral R<sub>n</sub> (Ω)
-                  </span>
-                  <input
-                    id="Rn"
-                    type="number"
-                    step="0.01"
-                    defaultValue="0.00"
-                    className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                  />
-                </label>
-
-                <label className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold text-slate-500">
-                    Neutral X<sub>n</sub> (Ω)
-                  </span>
-                  <input
-                    id="Xn"
-                    type="number"
-                    step="0.01"
-                    defaultValue="0.00"
-                    className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                  />
-                </label>
-              </div>
-            </div>
-
-            <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-700">
-              <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
-                <input
-                  id="rev-slg"
-                  type="checkbox"
-                  className="w-3 h-3 rounded shadow-sm"
-                />
-                Reverse SLG (behind GSU)
-              </label>
-
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">
-                    I2 scale
-                  </span>
-                  <output
-                    id="qscale-out"
-                    htmlFor="qscale"
-                    className="text-xs font-bold text-blue-600 dark:text-blue-400"
-                  >
-                    1.00x
-                  </output>
-                </div>
-
-                <input
-                  id="qscale"
-                  type="range"
-                  min="0.10"
-                  max="1.50"
-                  step="0.05"
-                  defaultValue="1"
-                  className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2 pt-2">
-              <span
-                id="i0-path-badge"
-                className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded uppercase tracking-wider"
-              >
-                I₀ path: strong
-              </span>
-
-              <span
-                id="z0-seen-badge"
-                className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded uppercase tracking-wider"
-              >
-                Z₀(seen): — Ω / —°
-              </span>
-            </div>
-
-            <p
-              id="z0model-note"
-              className="text-[10px] text-slate-400 italic leading-snug"
-            ></p>
-
-            <p className="text-[10px] text-slate-400 leading-relaxed pt-2 border-t border-slate-100 dark:border-slate-700">
-              Model scales 3V₀/3I₀ used by 32V/Q from a simple sequence-network:
-              Z₀(term) = 3(R<sub>n</sub>+jX<sub>n</sub>), terminals in parallel,
-              ∞ when toggled. Optional link nudges quad resistive sides with I₀
-              strength.
-            </p>
-          </section>
-        </aside>
-        <div className="animationControl flex-1 min-w-0">
-          <div className="h-full">
             <section
-              id="vis_inner_Z"
-              className="flex flex-col lg:flex-row items-stretch gap-6 p-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700"
+              id="option4"
+              className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
             >
-              {/* LEFT SIDE */}
-              <div className="flex-1 min-w-0 space-y-4">
-                {/* Z Display Toggle */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <div
-                    className="flex items-center gap-3"
-                    role="radiogroup"
-                    aria-label="Impedance display base"
-                  >
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      Z display:
-                    </span>
-
-                    <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-lg">
-                      <label className="flex items-center gap-2 px-3 py-1 rounded-md cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
-                        <input
-                          type="radio"
-                          name="z-display"
-                          value="secondary"
-                          className="hidden"
-                        />
-                        <span className="text-xs font-semibold">Secondary</span>
-                      </label>
-
-                      <label className="flex items-center gap-2 px-3 py-1 rounded-md cursor-pointer transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
-                        <input
-                          type="radio"
-                          name="z-display"
-                          value="primary"
-                          className="hidden"
-                        />
-                        <span className="text-xs font-semibold">Primary</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                    <span id="metering-summary">
-                      CT ratio -- | VT ratio -- | Z scale --
-                    </span>
-                  </div>
-                </div>
-
-                <div
-                  id="metering-feedback"
-                  className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase"
-                  role="status"
-                  aria-live="polite"
-                />
-
-                {/* Z SVG */}
-                <div className="relative aspect-square w-full">
-                  <svg
-                    id="vis_inner_Z_svg"
-                    className="w-full h-full bg-slate-50 dark:bg-slate-900 rounded-xl overflow-hidden"
-                  />
-                </div>
-              </div>
-
-              {/* RIGHT SIDE */}
-              <div className="w-full lg:w-72 space-y-6 shrink-0">
-                {/* Blinder */}
-                <fieldset className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <legend className="px-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        id="blinderShow"
-                        type="checkbox"
-                        className="w-4 h-4 rounded text-blue-600"
-                      />
-                      Show Blinder
-                    </label>
-                  </legend>
-
-                  <div className="mt-4 space-y-3">
-                    <label className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-600 dark:text-slate-400">
-                        ∠ Angle
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <input
-                          id="blinderAngle"
-                          type="number"
-                          defaultValue="30"
-                          step="0.1"
-                          className="w-20 px-2 py-1 bg-white dark:bg-slate-800 rounded text-right shadow-sm"
-                        />
-                        <span className="text-xs text-slate-400 w-4">°</span>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-600 dark:text-slate-400">
-                        Radius
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <input
-                          id="blinderArcRadius"
-                          type="number"
-                          defaultValue="10"
-                          step="0.1"
-                          className="w-20 px-2 py-1 bg-white dark:bg-slate-800 rounded text-right shadow-sm"
-                        />
-                        <span className="text-xs text-slate-400 w-4">Ω</span>
-                      </div>
-                    </label>
-                  </div>
-                </fieldset>
-
-                {/* Characteristic Type */}
-                <fieldset className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                  <label className="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm text-xs font-bold uppercase">
-                    <input
-                      type="radio"
-                      name="charType"
-                      value="MHO"
-                      defaultChecked
-                      className="hidden"
-                    />
-                    MHO
-                  </label>
-
-                  <label className="flex-1 flex items-center justify-center py-1.5 rounded-md cursor-pointer has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm text-xs font-bold uppercase">
-                    <input
-                      type="radio"
-                      name="charType"
-                      value="QUAD"
-                      className="hidden"
-                    />
-                    Quad
-                  </label>
-                </fieldset>
-
-                {/* Kn */}
-                <article className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <header className="mb-3">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                      Factor Kₙ
-                    </span>
-                  </header>
-
-                  <div className="flex gap-3">
-                    <input
-                      id="KN"
-                      type="number"
-                      step="0.01"
-                      defaultValue="0"
-                      className="flex-1 px-2 py-1 bg-white dark:bg-slate-800 rounded text-right text-sm shadow-sm"
-                    />
-
-                    <div className="flex items-center gap-2 flex-1">
-                      <input
-                        id="KN_angle"
-                        type="number"
-                        step="0.01"
-                        defaultValue="0"
-                        className="w-full px-2 py-1 bg-white dark:bg-slate-800 rounded text-right text-sm shadow-sm"
-                      />
+              {/* Z Line */}
+              <article>
+                <header id="headingTwo_Z" className="mb-2">
+                  <div className="flex flex-col gap-1">
+                    <div
+                      id="collapse0"
+                      className="text-lg font-bold text-slate-800 dark:text-slate-100"
+                    >
+                      Positive Sequence Z<sub>1</sub>
                     </div>
                     <div
-                      id="vis_KN"
-                      className="w-full aspect-video bg-slate-100 dark:bg-slate-800/50 rounded-lg overflow-hidden relative"
+                      id="collapseZ0"
+                      className="text-md font-semibold text-slate-500 dark:text-slate-400"
                     >
-                      <svg
-                        id="vis_KN_svg"
-                        className="vis_KN_svg w-full h-full"
-                      ></svg>
+                      Zero Sequence Z<sub>0</sub>
                     </div>
                   </div>
-                </article>
-              </div>
+                </header>
+
+                <hr className="mb-2 border-slate-200 dark:border-slate-700" />
+
+                <div id="collapseOne_Z">
+                  <section id="components_Z_Line_row4" className="zline">
+                    <form
+                      id="zline-form"
+                      className="space-y-2"
+                      role="group"
+                      aria-labelledby="headingTwo_Z"
+                    >
+                      {/* Line parameters */}
+                      <fieldset className="space-y-2">
+                        <legend className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+                          Line parameters
+                        </legend>
+
+                        <div className="grid gap-3">
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Positive Sequence Ohms per unit of length"
+                            >
+                              Z <sub>1</sub>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z_ratio"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0.29"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span
+                                className="text-xs text-slate-400 spanOhmsPerUnit min-w-[3rem]"
+                                aria-hidden="true"
+                              >
+                                Ω/km
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Zero Sequence Ohms per unit of length"
+                            >
+                              Z <sub>0</sub>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z0_ratio"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0.9"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span
+                                className="text-xs text-slate-400 spanOhmsPerUnit min-w-[3rem]"
+                                aria-hidden="true"
+                              >
+                                Ω/km
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Length in km or miles"
+                            >
+                              ℓ
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z_l"
+                                type="number"
+                                step="0.01"
+                                defaultValue="20"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <button
+                                type="button"
+                                id="spanUnit"
+                                className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold rounded min-w-[3rem] hover:bg-blue-200 transition-colors"
+                                title="Toggle unit"
+                              >
+                                km
+                              </button>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Positive-sequence line magnitude |Z1| = Z1_ratio · ℓ"
+                            >
+                              |Z<sub>1</sub>| (line)
+                            </span>
+                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                              <input
+                                id="ZLmag"
+                                type="number"
+                                step="0.001"
+                                defaultValue="5.800"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="min-w-[3rem]">Ω</span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                              Z <sub>1</sub> ∠
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z_angle"
+                                type="number"
+                                step="0.01"
+                                defaultValue="80"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="text-xs text-slate-400 min-w-[3rem]">
+                                °
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                              Z <sub>0</sub> ∠
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z0_angle"
+                                type="number"
+                                step="0.01"
+                                defaultValue="77.5"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="text-xs text-slate-400 min-w-[3rem]">
+                                °
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                      </fieldset>
+
+                      {/* Zones */}
+                      <fieldset className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-700">
+                        <legend className="text-sm font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+                          Reach (Zones)
+                        </legend>
+
+                        <div className="grid gap-3">
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Zone 1 reach typically set at 80% of the line"
+                            >
+                              Zone<sub>1</sub>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z1"
+                                type="number"
+                                step="0.01"
+                                defaultValue="80"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="text-xs text-slate-400 min-w-[3rem]">
+                                %
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span
+                              className="text-sm font-medium text-slate-600 dark:text-slate-300"
+                              title="Zone 2 reach typically set at 120% of the line"
+                            >
+                              Zone<sub>2</sub>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z2"
+                                type="number"
+                                step="0.01"
+                                defaultValue="120"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="text-xs text-slate-400 min-w-[3rem]">
+                                %
+                              </span>
+                            </div>
+                          </label>
+
+                          <label className="flex items-center justify-between gap-4">
+                            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
+                              Zone<sub>3</sub>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <input
+                                id="Z3"
+                                type="number"
+                                step="0.01"
+                                defaultValue="200"
+                                inputMode="decimal"
+                                className="w-24 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="text-xs text-slate-400 min-w-[3rem]">
+                                %
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                      </fieldset>
+                    </form>
+                  </section>
+                </div>
+              </article>
             </section>
-          </div>
+
+            <section
+              id="source-gsu"
+              className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-2"
+            >
+              <header className="flex flex-col gap-2">
+                <strong className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                  IBR / Weak system model
+                </strong>
+
+                <div className="bg-slate-50 dark:bg-slate-900/50 p-2 rounded-lg border border-slate-100 dark:border-slate-800">
+                  <svg
+                    id="i0-schematic"
+                    aria-hidden="true"
+                    width="100%"
+                    height="30"
+                    viewBox="0 0 168 24"
+                    className="mx-auto border-none shadow-none"
+                  >
+                    <title>—</title>
+
+                    {/* Left: Yg */}
+                    <g
+                      id="sym-left-Yg"
+                      transform="translate(4,2)"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M6 0 L6 8 M0 8 L12 8 M6 8 L6 14" />
+                      <g id="gnd-left">
+                        <circle cx="6" cy="14" r="1.2" fill="currentColor" />
+                        <path d="M6 15 L6 19 M2 19 L10 19 M3 20.5 L9 20.5 M4 22 L8 22" />
+                      </g>
+                      <text
+                        x="14"
+                        y="10"
+                        fontSize="8"
+                        dominantBaseline="middle"
+                        fill="currentColor"
+                      >
+                        Yg
+                      </text>
+                    </g>
+
+                    {/* Transformer core */}
+                    <g
+                      id="sym-T"
+                      transform="translate(70,3)"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    >
+                      <rect x="0" y="0" width="24" height="18" rx="2" />
+                      <text
+                        x="12"
+                        y="9.3"
+                        fontSize="9"
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fill="currentColor"
+                      >
+                        T
+                      </text>
+                    </g>
+
+                    <text
+                      id="phase-label"
+                      x="94"
+                      y="6"
+                      fontSize="7"
+                      style={{ display: "none" }}
+                      fill="currentColor"
+                    >
+                      30°
+                    </text>
+
+                    {/* Right: Δg (default) */}
+                    <g
+                      id="sym-right-Delta"
+                      transform="translate(124,2)"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                    >
+                      <path d="M6 0 L12 10 L0 10 Z" />
+                      <g id="gnd-right" transform="translate(6,10)">
+                        <circle cx="0" cy="0" r="1.2" fill="currentColor" />
+                        <path d="M0 1 L0 5 M-4 5 L4 5 M-3 6.5 L3 6.5 M-2 8 L2 8" />
+                      </g>
+                      <text
+                        x="16"
+                        y="8"
+                        fontSize="8"
+                        dominantBaseline="middle"
+                        fill="currentColor"
+                      >
+                        Δg
+                      </text>
+                    </g>
+
+                    {/* Right: Yg (hidden unless YYg) */}
+                    <g
+                      id="sym-right-Yg"
+                      transform="translate(124,2)"
+                      stroke="currentColor"
+                      fill="none"
+                      strokeWidth="1.5"
+                      style={{ display: "none" }}
+                    >
+                      <path d="M6 0 L6 8 M0 8 L12 8 M6 8 L6 14" />
+                      <g id="gnd-right-Y">
+                        <circle cx="6" cy="14" r="1.2" fill="currentColor" />
+                        <path d="M6 15 L6 19 M2 19 L10 19 M3 20.5 L9 20.5 M4 22 L8 22" />
+                      </g>
+                      <text
+                        x="14"
+                        y="10"
+                        fontSize="8"
+                        dominantBaseline="middle"
+                        fill="currentColor"
+                      >
+                        Yg
+                      </text>
+                    </g>
+                  </svg>
+                </div>
+              </header>
+
+              <div className="flex flex-wrap gap-2 text-xs">
+                <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                  <input
+                    id="z0inf-local"
+                    type="checkbox"
+                    className="w-3 h-3 rounded shadow-sm"
+                  />
+                  Local Z₀ = ∞
+                </label>
+
+                <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                  <input
+                    id="z0inf-remote"
+                    type="checkbox"
+                    className="w-3 h-3 rounded shadow-sm"
+                  />
+                  Remote Z₀ = ∞
+                </label>
+
+                <label className="flex items-center gap-2 px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded-full cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                  <input
+                    id="link-quad"
+                    type="checkbox"
+                    defaultChecked
+                    className="w-3 h-3 rounded shadow-sm"
+                  />
+                  Link quad to I₀
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <label className="flex flex-col gap-1">
+                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">
+                    GSU preset
+                  </span>
+                  <select
+                    id="gsu-preset"
+                    className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">none</option>
+                    <option value="DY1g">DY1 (Yg–Δ) + grounded tertiary</option>
+                    <option value="DY5g">DY5 (Yg–Δ) + grounded tertiary</option>
+                    <option value="YYg">YY (Yg–Yg) + grounded tertiary</option>
+                  </select>
+                </label>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Neutral R<sub>n</sub> (Ω)
+                    </span>
+                    <input
+                      id="Rn"
+                      type="number"
+                      step="0.01"
+                      defaultValue="0.00"
+                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Neutral X<sub>n</sub> (Ω)
+                    </span>
+                    <input
+                      id="Xn"
+                      type="number"
+                      step="0.01"
+                      defaultValue="0.00"
+                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-700">
+                <label className="flex items-center gap-2 text-xs font-medium cursor-pointer">
+                  <input
+                    id="rev-slg"
+                    type="checkbox"
+                    className="w-3 h-3 rounded shadow-sm"
+                  />
+                  Reverse SLG (behind GSU)
+                </label>
+
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-tight">
+                      I2 scale
+                    </span>
+                    <output
+                      id="qscale-out"
+                      htmlFor="qscale"
+                      className="text-xs font-bold text-blue-600 dark:text-blue-400"
+                    >
+                      1.00x
+                    </output>
+                  </div>
+
+                  <input
+                    id="qscale"
+                    type="range"
+                    min="0.10"
+                    max="1.50"
+                    step="0.05"
+                    defaultValue="1"
+                    className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span
+                  id="i0-path-badge"
+                  className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-bold rounded uppercase tracking-wider"
+                >
+                  I₀ path: strong
+                </span>
+
+                <span
+                  id="z0-seen-badge"
+                  className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 text-[10px] font-bold rounded uppercase tracking-wider"
+                >
+                  Z₀(seen): — Ω / —°
+                </span>
+              </div>
+
+              <p
+                id="z0model-note"
+                className="text-[10px] text-slate-400 italic leading-snug"
+              ></p>
+
+              <p className="text-[10px] text-slate-400 leading-relaxed pt-2 border-t border-slate-100 dark:border-slate-700">
+                Model scales 3V₀/3I₀ used by 32V/Q from a simple
+                sequence-network: Z₀(term) = 3(R<sub>n</sub>+jX<sub>n</sub>),
+                terminals in parallel, ∞ when toggled. Optional link nudges quad
+                resistive sides with I₀ strength.
+              </p>
+            </section>
+          </aside>
         </div>
         <aside
           id="Right_Table"
-          className="w-full lg:w-[480px] flex flex-col gap-6 p-6 bg-slate-50 dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 shrink-0 overflow-y-auto"
+          className="w-full flex flex-col gap-4 p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0"
           aria-label="Vectors"
         >
-          <section className="flex flex-col gap-6 w-full">
+          <section className="flex flex-col lg:flex-row gap-4 w-full">
             <div
               id="vis_inner_V"
-              className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
+              className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 min-w-0 flex flex-col lg:flex-row gap-4 items-start"
             >
-              <fieldset className="mb-4" id="meteringBaseVT">
-                <legend className="flex items-center gap-3 w-full border-b border-slate-100 dark:border-slate-700 pb-2 mb-4">
-                  <span className="text-sm font-bold uppercase tracking-wider text-slate-400">
-                    VT / PT Ratio
-                  </span>
-                  <div className="flex items-center gap-2 ml-auto">
-                    <output
-                      id="vt-ratio"
-                      className="text-xs font-bold text-blue-600 dark:text-blue-400"
-                    >
-                      --
-                    </output>
-                    <select
-                      id="vt-mode"
-                      className="text-[10px] px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border-none rounded font-bold uppercase cursor-pointer"
-                    >
-                      <option value="LN">LN</option>
-                      <option value="LL">LL</option>
-                    </select>
-                  </div>
-                </legend>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">
-                      Primary (V LL)
-                    </span>
-                    <input
-                      id="vt-primary"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.1"
-                      min="0"
-                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </label>
-
-                  <label className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">
-                      Secondary (V)
-                    </span>
-                    <input
-                      id="vt-secondary"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.1"
-                      min="0"
-                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </label>
-
-                  <input
-                    id="vt-nominal"
-                    type="number"
-                    inputMode="decimal"
-                    step="0.1"
-                    min="0"
-                    className="hidden"
+              <div className="flex-1 min-w-0 w-full">
+                <div className="relative aspect-square w-full max-w-[280px] mx-auto mb-2">
+                  <svg
+                    id="vis_inner_V_svg"
+                    className="w-full h-full border-none shadow-none bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
                   />
                 </div>
-              </fieldset>
-
-              <div className="relative aspect-square w-full mb-4">
-                <svg
-                  id="vis_inner_V_svg"
-                  className="w-full h-full border-none shadow-none bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
-                />
-              </div>
-
-              <div
-                id="table_V"
-                className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700"
-              >
-                <div className="flex items-center justify-between">
-                  <form
-                    id="form_toggle"
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    title="click to lock voltage VA, VB, VC balanced"
-                  >
-                    <img
-                      src="./img/closed unlock.svg"
-                      id="img_toggleon"
-                      className="w-8 h-8 opacity-80"
-                      alt="Toggle V lock"
-                    />
-                    <input
-                      type="text"
-                      defaultValue="0"
-                      id="toggleon"
-                      className="hidden"
-                    />
-                    <output
-                      name="toggle"
-                      htmlFor="toggleon"
-                      className="hidden"
-                    />
-                  </form>
-
-                  <button
-                    type="button"
-                    className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
-                    id="Reset_All_Data_V_ABC"
-                  >
-                    Reset V
-                  </button>
-                </div>
-
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-slate-400 font-bold uppercase text-[10px]">
-                      <th className="text-left pb-2">Phase</th>
-                      <th className="pb-2"></th>
-                      <th className="text-right pb-2">(V)</th>
-                      <th className="text-right pb-2">∠(°)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                    <tr className="group">
-                      <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                        VA
-                      </td>
-                      <td className="py-2 text-slate-400 font-medium">=</td>
-                      <td className="py-2">
-                        <form id="form_Amp_A" onBlur={() => {}}>
-                          <input
-                            id="Amp_A"
-                            type="number"
-                            step="0.01"
-                            defaultValue="0"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                      <td className="py-2">
-                        <form id="form_Angle_A" onBlur={() => {}}>
-                          <input
-                            id="Angle_A"
-                            type="number"
-                            step="0.01"
-                            defaultValue="0"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                        VB
-                      </td>
-                      <td className="py-2 text-slate-400 font-medium">=</td>
-                      <td className="py-2">
-                        <form id="form_Amp_B" onBlur={() => {}}>
-                          <input
-                            id="Amp_B"
-                            type="number"
-                            step="0.01"
-                            defaultValue="115"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                      <td className="py-2">
-                        <form id="form_Angle_B" onBlur={() => {}}>
-                          <input
-                            id="Angle_B"
-                            type="number"
-                            step="0.01"
-                            defaultValue="0"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                    </tr>
-                    <tr className="group">
-                      <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                        VC
-                      </td>
-                      <td className="py-2 text-slate-400 font-medium">=</td>
-                      <td className="py-2">
-                        <form id="form_Amp_C" onBlur={() => {}}>
-                          <input
-                            id="Amp_C"
-                            type="number"
-                            step="0.01"
-                            defaultValue="0"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                      <td className="py-2">
-                        <form id="form_Angle_C" onBlur={() => {}}>
-                          <input
-                            id="Angle_C"
-                            type="number"
-                            step="0.01"
-                            defaultValue="0"
-                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                          />
-                        </form>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <div className="grid grid-cols-3 gap-2 px-2 py-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
-                  <div className="flex flex-col gap-1 items-center">
-                    <span className="text-[10px] font-bold text-slate-400">
-                      VAB
-                    </span>
-                    <div className="flex flex-col items-center">
-                      <span
-                        id="Amp_AB_Ph2Ph"
-                        className="text-xs font-bold text-slate-700 dark:text-slate-200"
-                      >
-                        199.2
-                      </span>
-                      <span
-                        id="Angle_AB_Ph2Ph"
-                        className="text-[10px] text-slate-400"
-                      >
-                        ∠-150.0
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 items-center border-x border-slate-200 dark:border-slate-700">
-                    <span className="text-[10px] font-bold text-slate-400">
-                      VBC
-                    </span>
-                    <div className="flex flex-col items-center">
-                      <span
-                        id="Amp_BC_Ph2Ph"
-                        className="text-xs font-bold text-slate-700 dark:text-slate-200"
-                      >
-                        199.2
-                      </span>
-                      <span
-                        id="Angle_BC_Ph2Ph"
-                        className="text-[10px] text-slate-400"
-                      >
-                        ∠90.0
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 items-center">
-                    <span className="text-[10px] font-bold text-slate-400">
-                      VCA
-                    </span>
-                    <div className="flex flex-col items-center">
-                      <span
-                        id="Amp_CA_Ph2Ph"
-                        className="text-xs font-bold text-slate-700 dark:text-slate-200"
-                      >
-                        199.2
-                      </span>
-                      <span
-                        id="Angle_CA_Ph2Ph"
-                        className="text-[10px] text-slate-400"
-                      >
-                        ∠-30.0
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
                 <table className="w-full text-xs opacity-80 pt-2">
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                     <tr>
@@ -4875,144 +4623,127 @@ export default function Lab3() {
                   </tbody>
                 </table>
               </div>
-            </div>
 
-            {/* Current Section */}
+              <div className="flex-[1.5] min-w-0 w-full space-y-4">
+                <fieldset className="mb-4" id="meteringBaseVT">
+                  <legend className="flex items-center gap-3 w-full border-b border-slate-100 dark:border-slate-700 pb-2 mb-4">
+                    <span className="text-sm font-bold uppercase tracking-wider text-slate-400">
+                      VT / PT Ratio
+                    </span>
+                    <div className="flex items-center gap-2 ml-auto">
+                      <output
+                        id="vt-ratio"
+                        className="text-xs font-bold text-blue-600 dark:text-blue-400"
+                      >
+                        --
+                      </output>
+                      <select
+                        id="vt-mode"
+                        className="text-[10px] px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border-none rounded font-bold uppercase cursor-pointer"
+                      >
+                        <option value="LN">LN</option>
+                        <option value="LL">LL</option>
+                      </select>
+                    </div>
+                  </legend>
 
-            <div
-              id="vis_inner_I"
-              className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700"
-            >
-              <fieldset className="mb-4" id="meteringBaseCT">
-                <legend className="flex items-center gap-3 w-full border-b border-slate-100 dark:border-slate-700 pb-2 mb-4">
-                  <span className="text-sm font-bold uppercase tracking-wider text-slate-400">
-                    CT Ratio
-                  </span>
-                  <output
-                    id="ct-ratio"
-                    className="text-xs font-bold text-blue-600 dark:text-blue-400 ml-auto"
-                  >
-                    --
-                  </output>
-
-                  <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
-                    <label className="px-2 py-0.5 text-[10px] font-bold cursor-pointer rounded transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        Primary (V LL)
+                      </span>
                       <input
-                        type="radio"
-                        name="ct-nominal"
-                        value="5"
-                        className="hidden"
+                        id="vt-primary"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min="0"
+                        className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
                       />
-                      5 A
                     </label>
-                    <label className="px-2 py-0.5 text-[10px] font-bold cursor-pointer rounded transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        Secondary (V)
+                      </span>
                       <input
-                        type="radio"
-                        name="ct-nominal"
-                        value="1"
-                        className="hidden"
+                        id="vt-secondary"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.1"
+                        min="0"
+                        className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
                       />
-                      1 A
                     </label>
+
+                    <input
+                      id="vt-nominal"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      min="0"
+                      className="hidden"
+                    />
                   </div>
-                </legend>
+                </fieldset>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <label className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">
-                      Primary
-                    </span>
-                    <input
-                      id="ct-primary"
-                      type="number"
-                      inputMode="decimal"
-                      step="1"
-                      min="0"
-                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </label>
+                <div
+                  id="table_V"
+                  className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <form
+                      id="form_toggle"
+                      className="cursor-pointer transition-transform hover:scale-110"
+                      title="click to lock voltage VA, VB, VC balanced"
+                    >
+                      <img
+                        src="./img/closed unlock.svg"
+                        id="img_toggleon"
+                        className="w-8 h-8 opacity-80"
+                        alt="Toggle V lock"
+                      />
+                      <input
+                        type="text"
+                        defaultValue="0"
+                        id="toggleon"
+                        className="hidden"
+                      />
+                      <output
+                        name="toggle"
+                        htmlFor="toggleon"
+                        className="hidden"
+                      />
+                    </form>
 
-                  <label className="flex flex-col gap-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase">
-                      Secondary
-                    </span>
-                    <input
-                      id="ct-secondary"
-                      type="number"
-                      inputMode="decimal"
-                      step="0.01"
-                      min="0"
-                      className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                  </label>
-                </div>
-              </fieldset>
+                    <button
+                      type="button"
+                      className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
+                      id="Reset_All_Data_V_ABC"
+                    >
+                      Reset V
+                    </button>
+                  </div>
 
-              <div className="relative aspect-square w-full mb-4">
-                <svg
-                  id="vis_inner_I_svg"
-                  className="w-full h-full border-none shadow-none bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
-                />
-              </div>
-
-              <div
-                id="table_I"
-                className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700"
-              >
-                <div className="flex items-center justify-between">
-                  <form
-                    id="form_toggle_I"
-                    className="cursor-pointer transition-transform hover:scale-110"
-                    title="click to lock currents IA, IB, IC balanced"
-                  >
-                    <img
-                      src="./img/closed unlock.svg"
-                      id="img_toggleon_I"
-                      className="w-8 h-8 opacity-80"
-                      alt="Toggle I lock"
-                    />
-                    <input
-                      type="text"
-                      defaultValue="0"
-                      id="toggleon_I"
-                      className="hidden"
-                    />
-                    <output
-                      name="toggle_I"
-                      htmlFor="toggleon_I"
-                      className="hidden"
-                    />
-                  </form>
-
-                  <button
-                    type="button"
-                    className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
-                    id="Reset_All_Data_I_ABC"
-                  >
-                    Reset I
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4">
                   <table className="w-full text-xs">
                     <thead>
                       <tr className="text-slate-400 font-bold uppercase text-[10px]">
                         <th className="text-left pb-2">Phase</th>
                         <th className="pb-2"></th>
-                        <th className="text-right pb-2">(I)</th>
+                        <th className="text-right pb-2">(V)</th>
                         <th className="text-right pb-2">∠(°)</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                       <tr className="group">
                         <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                          IA
+                          VA
                         </td>
                         <td className="py-2 text-slate-400 font-medium">=</td>
                         <td className="py-2">
-                          <form id="form_Amp_A_I" onBlur={() => {}}>
+                          <form id="form_Amp_A" onBlur={() => {}}>
                             <input
-                              id="Amp_A_I"
+                              id="Amp_A"
                               type="number"
                               step="0.01"
                               defaultValue="0"
@@ -5021,9 +4752,9 @@ export default function Lab3() {
                           </form>
                         </td>
                         <td className="py-2">
-                          <form id="form_Angle_A_I" onBlur={() => {}}>
+                          <form id="form_Angle_A" onBlur={() => {}}>
                             <input
-                              id="Angle_A_I"
+                              id="Angle_A"
                               type="number"
                               step="0.01"
                               defaultValue="0"
@@ -5034,24 +4765,24 @@ export default function Lab3() {
                       </tr>
                       <tr className="group">
                         <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                          IB
+                          VB
                         </td>
                         <td className="py-2 text-slate-400 font-medium">=</td>
                         <td className="py-2">
-                          <form id="form_Amp_B_I" onBlur={() => {}}>
+                          <form id="form_Amp_B" onBlur={() => {}}>
                             <input
-                              id="Amp_B_I"
+                              id="Amp_B"
                               type="number"
                               step="0.01"
-                              defaultValue="5"
+                              defaultValue="115"
                               className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
                             />
                           </form>
                         </td>
                         <td className="py-2">
-                          <form id="form_Angle_B_I" onBlur={() => {}}>
+                          <form id="form_Angle_B" onBlur={() => {}}>
                             <input
-                              id="Angle_B_I"
+                              id="Angle_B"
                               type="number"
                               step="0.01"
                               defaultValue="0"
@@ -5062,13 +4793,13 @@ export default function Lab3() {
                       </tr>
                       <tr className="group">
                         <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
-                          IC
+                          VC
                         </td>
                         <td className="py-2 text-slate-400 font-medium">=</td>
                         <td className="py-2">
-                          <form id="form_Amp_C_I" onBlur={() => {}}>
+                          <form id="form_Amp_C" onBlur={() => {}}>
                             <input
-                              id="Amp_C_I"
+                              id="Amp_C"
                               type="number"
                               step="0.01"
                               defaultValue="0"
@@ -5077,9 +4808,9 @@ export default function Lab3() {
                           </form>
                         </td>
                         <td className="py-2">
-                          <form id="form_Angle_C_I" onBlur={() => {}}>
+                          <form id="form_Angle_C" onBlur={() => {}}>
                             <input
-                              id="Angle_C_I"
+                              id="Angle_C"
                               type="number"
                               step="0.01"
                               defaultValue="0"
@@ -5094,17 +4825,17 @@ export default function Lab3() {
                   <div className="grid grid-cols-3 gap-2 px-2 py-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
                     <div className="flex flex-col gap-1 items-center">
                       <span className="text-[10px] font-bold text-slate-400">
-                        IAB
+                        VAB
                       </span>
                       <div className="flex flex-col items-center">
                         <span
-                          id="Amp_AB_Ph2Ph_I"
+                          id="Amp_AB_Ph2Ph"
                           className="text-xs font-bold text-slate-700 dark:text-slate-200"
                         >
-                          8.7
+                          199.2
                         </span>
                         <span
-                          id="Angle_AB_Ph2Ph_I"
+                          id="Angle_AB_Ph2Ph"
                           className="text-[10px] text-slate-400"
                         >
                           ∠-150.0
@@ -5113,17 +4844,17 @@ export default function Lab3() {
                     </div>
                     <div className="flex flex-col gap-1 items-center border-x border-slate-200 dark:border-slate-700">
                       <span className="text-[10px] font-bold text-slate-400">
-                        IBC
+                        VBC
                       </span>
                       <div className="flex flex-col items-center">
                         <span
-                          id="Amp_BC_Ph2Ph_I"
+                          id="Amp_BC_Ph2Ph"
                           className="text-xs font-bold text-slate-700 dark:text-slate-200"
                         >
-                          8.7
+                          199.2
                         </span>
                         <span
-                          id="Angle_BC_Ph2Ph_I"
+                          id="Angle_BC_Ph2Ph"
                           className="text-[10px] text-slate-400"
                         >
                           ∠90.0
@@ -5132,17 +4863,17 @@ export default function Lab3() {
                     </div>
                     <div className="flex flex-col gap-1 items-center">
                       <span className="text-[10px] font-bold text-slate-400">
-                        ICA
+                        VCA
                       </span>
                       <div className="flex flex-col items-center">
                         <span
-                          id="Amp_CA_Ph2Ph_I"
+                          id="Amp_CA_Ph2Ph"
                           className="text-xs font-bold text-slate-700 dark:text-slate-200"
                         >
-                          8.7
+                          199.2
                         </span>
                         <span
-                          id="Angle_CA_Ph2Ph_I"
+                          id="Angle_CA_Ph2Ph"
                           className="text-[10px] text-slate-400"
                         >
                           ∠-30.0
@@ -5150,89 +4881,370 @@ export default function Lab3() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
 
-                  <table className="w-full text-xs opacity-80 pt-2">
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      <tr>
-                        <td className="py-2 font-bold text-slate-500">I0</td>
-                        <td className="py-2 text-slate-400 font-medium">=</td>
-                        <td className="py-2">
-                          <form id="form_Amp_0_I" onBlur={() => {}}>
-                            <input
-                              id="Amp_0_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                        <td className="py-2">
-                          <form id="form_Angle_0_I" onBlur={() => {}}>
-                            <input
-                              id="Angle_0_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 font-bold text-slate-500">I1</td>
-                        <td className="py-2 text-slate-400 font-medium">=</td>
-                        <td className="py-2">
-                          <form id="form_Amp_1_I" onBlur={() => {}}>
-                            <input
-                              id="Amp_1_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="5"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                        <td className="py-2">
-                          <form id="form_Angle_1_I" onBlur={() => {}}>
-                            <input
-                              id="Angle_1_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 font-bold text-slate-500">I2</td>
-                        <td className="py-2 text-slate-400 font-medium">=</td>
-                        <td className="py-2">
-                          <form id="form_Amp_2_I" onBlur={() => {}}>
-                            <input
-                              id="Amp_2_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                        <td className="py-2">
-                          <form id="form_Angle_2_I" onBlur={() => {}}>
-                            <input
-                              id="Angle_2_I"
-                              type="number"
-                              step="0.01"
-                              defaultValue="0"
-                              className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
-                            />
-                          </form>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+            {/* Current Section */}
+
+            <div
+              id="vis_inner_I"
+              className="bg-white dark:bg-slate-800 p-3 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 min-w-0 flex flex-col lg:flex-row gap-4 items-start"
+            >
+              <div className="flex-1 min-w-0 w-full">
+                <div className="relative aspect-square w-full max-w-[280px] mx-auto mb-2">
+                  <svg
+                    id="vis_inner_I_svg"
+                    className="w-full h-full border-none shadow-none bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
+                  />
+                </div>
+
+                <table className="w-full text-xs opacity-80 pt-2">
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                    <tr>
+                      <td className="py-2 font-bold text-slate-500">I0</td>
+                      <td className="py-2 text-slate-400 font-medium">=</td>
+                      <td className="py-2">
+                        <form id="form_Amp_0_I" onBlur={() => {}}>
+                          <input
+                            id="Amp_0_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="0"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                      <td className="py-2">
+                        <form id="form_Angle_0_I" onBlur={() => {}}>
+                          <input
+                            id="Angle_0_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="0"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 font-bold text-slate-500">I1</td>
+                      <td className="py-2 text-slate-400 font-medium">=</td>
+                      <td className="py-2">
+                        <form id="form_Amp_1_I" onBlur={() => {}}>
+                          <input
+                            id="Amp_1_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="5"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                      <td className="py-2">
+                        <form id="form_Angle_1_I" onBlur={() => {}}>
+                          <input
+                            id="Angle_1_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="0"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 font-bold text-slate-500">I2</td>
+                      <td className="py-2 text-slate-400 font-medium">=</td>
+                      <td className="py-2">
+                        <form id="form_Amp_2_I" onBlur={() => {}}>
+                          <input
+                            id="Amp_2_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="0"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                      <td className="py-2">
+                        <form id="form_Angle_2_I" onBlur={() => {}}>
+                          <input
+                            id="Angle_2_I"
+                            type="number"
+                            step="0.01"
+                            defaultValue="0"
+                            className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                          />
+                        </form>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex-[1.5] min-w-0 w-full space-y-4">
+                <fieldset className="mb-4" id="meteringBaseCT">
+                  <legend className="flex items-center gap-3 w-full border-b border-slate-100 dark:border-slate-700 pb-2 mb-4">
+                    <span className="text-sm font-bold uppercase tracking-wider text-slate-400">
+                      CT Ratio
+                    </span>
+                    <output
+                      id="ct-ratio"
+                      className="text-xs font-bold text-blue-600 dark:text-blue-400 ml-auto"
+                    >
+                      --
+                    </output>
+
+                    <div className="flex bg-slate-100 dark:bg-slate-700 p-1 rounded-lg">
+                      <label className="px-2 py-0.5 text-[10px] font-bold cursor-pointer rounded transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+                        <input
+                          type="radio"
+                          name="ct-nominal"
+                          value="5"
+                          className="hidden"
+                        />
+                        5 A
+                      </label>
+                      <label className="px-2 py-0.5 text-[10px] font-bold cursor-pointer rounded transition-all has-[:checked]:bg-white dark:has-[:checked]:bg-slate-600 has-[:checked]:shadow-sm">
+                        <input
+                          type="radio"
+                          name="ct-nominal"
+                          value="1"
+                          className="hidden"
+                        />
+                        1 A
+                      </label>
+                    </div>
+                  </legend>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        Primary
+                      </span>
+                      <input
+                        id="ct-primary"
+                        type="number"
+                        inputMode="decimal"
+                        step="1"
+                        min="0"
+                        className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                      />
+                    </label>
+
+                    <label className="flex flex-col gap-1">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase">
+                        Secondary
+                      </span>
+                      <input
+                        id="ct-secondary"
+                        type="number"
+                        inputMode="decimal"
+                        step="0.01"
+                        min="0"
+                        className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                      />
+                    </label>
+                  </div>
+                </fieldset>
+
+                <div
+                  id="table_I"
+                  className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-700"
+                >
+                  <div className="flex items-center justify-between">
+                    <form
+                      id="form_toggle_I"
+                      className="cursor-pointer transition-transform hover:scale-110"
+                      title="click to lock currents IA, IB, IC balanced"
+                    >
+                      <img
+                        src="./img/closed unlock.svg"
+                        id="img_toggleon_I"
+                        className="w-8 h-8 opacity-80"
+                        alt="Toggle I lock"
+                      />
+                      <input
+                        type="text"
+                        defaultValue="0"
+                        id="toggleon_I"
+                        className="hidden"
+                      />
+                      <output
+                        name="toggle_I"
+                        htmlFor="toggleon_I"
+                        className="hidden"
+                      />
+                    </form>
+
+                    <button
+                      type="button"
+                      className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
+                      id="Reset_All_Data_I_ABC"
+                    >
+                      Reset I
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="text-slate-400 font-bold uppercase text-[10px]">
+                          <th className="text-left pb-2">Phase</th>
+                          <th className="pb-2"></th>
+                          <th className="text-right pb-2">(I)</th>
+                          <th className="text-right pb-2">∠(°)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                        <tr className="group">
+                          <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
+                            IA
+                          </td>
+                          <td className="py-2 text-slate-400 font-medium">=</td>
+                          <td className="py-2">
+                            <form id="form_Amp_A_I" onBlur={() => {}}>
+                              <input
+                                id="Amp_A_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                          <td className="py-2">
+                            <form id="form_Angle_A_I" onBlur={() => {}}>
+                              <input
+                                id="Angle_A_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                        </tr>
+                        <tr className="group">
+                          <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
+                            IB
+                          </td>
+                          <td className="py-2 text-slate-400 font-medium">=</td>
+                          <td className="py-2">
+                            <form id="form_Amp_B_I" onBlur={() => {}}>
+                              <input
+                                id="Amp_B_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="5"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                          <td className="py-2">
+                            <form id="form_Angle_B_I" onBlur={() => {}}>
+                              <input
+                                id="Angle_B_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                        </tr>
+                        <tr className="group">
+                          <td className="py-2 font-bold text-slate-600 dark:text-slate-300">
+                            IC
+                          </td>
+                          <td className="py-2 text-slate-400 font-medium">=</td>
+                          <td className="py-2">
+                            <form id="form_Amp_C_I" onBlur={() => {}}>
+                              <input
+                                id="Amp_C_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                          <td className="py-2">
+                            <form id="form_Angle_C_I" onBlur={() => {}}>
+                              <input
+                                id="Angle_C_I"
+                                type="number"
+                                step="0.01"
+                                defaultValue="0"
+                                className="w-20 px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right focus:ring-2 focus:ring-blue-500"
+                              />
+                            </form>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    <div className="grid grid-cols-3 gap-2 px-2 py-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-700">
+                      <div className="flex flex-col gap-1 items-center">
+                        <span className="text-[10px] font-bold text-slate-400">
+                          IAB
+                        </span>
+                        <div className="flex flex-col items-center">
+                          <span
+                            id="Amp_AB_Ph2Ph_I"
+                            className="text-xs font-bold text-slate-700 dark:text-slate-200"
+                          >
+                            8.7
+                          </span>
+                          <span
+                            id="Angle_AB_Ph2Ph_I"
+                            className="text-[10px] text-slate-400"
+                          >
+                            ∠-150.0
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 items-center border-x border-slate-200 dark:border-slate-700">
+                        <span className="text-[10px] font-bold text-slate-400">
+                          IBC
+                        </span>
+                        <div className="flex flex-col items-center">
+                          <span
+                            id="Amp_BC_Ph2Ph_I"
+                            className="text-xs font-bold text-slate-700 dark:text-slate-200"
+                          >
+                            8.7
+                          </span>
+                          <span
+                            id="Angle_BC_Ph2Ph_I"
+                            className="text-[10px] text-slate-400"
+                          >
+                            ∠90.0
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1 items-center">
+                        <span className="text-[10px] font-bold text-slate-400">
+                          ICA
+                        </span>
+                        <div className="flex flex-col items-center">
+                          <span
+                            id="Amp_CA_Ph2Ph_I"
+                            className="text-xs font-bold text-slate-700 dark:text-slate-200"
+                          >
+                            8.7
+                          </span>
+                          <span
+                            id="Angle_CA_Ph2Ph_I"
+                            className="text-[10px] text-slate-400"
+                          >
+                            ∠-30.0
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

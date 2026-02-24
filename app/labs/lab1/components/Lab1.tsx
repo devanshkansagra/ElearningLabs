@@ -2173,10 +2173,10 @@ export default function Lab1() {
         {/* Header */}
         <header className="mb-8 border-b border-slate-200 pb-6">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-            Dynamic Fault Current Analysis
+            Directional Overcurrent (Type 67)
           </h1>
           <p className="text-slate-500 mt-2">
-            Interactive directional overcurrent relay tool (Type 67)
+            Directional overcurrent relaying (67) refers to relaying that can use the phase relationship of voltage and current to determine direction to a fault.
           </p>
         </header>
 

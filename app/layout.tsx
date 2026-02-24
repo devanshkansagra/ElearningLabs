@@ -26,10 +26,6 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.js"></script>
-        <link
-          href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.css"
-          rel="stylesheet"
-        />
         {/* jQuery Library */}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.js"></script>
         {/* jQuery UI Library */}

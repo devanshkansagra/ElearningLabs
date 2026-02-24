@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import * as d3 from 'd3'
+import * as d3 from "d3";
 // Type declarations for global window objects
 declare global {
   interface Window {
@@ -96,6 +96,31 @@ export default function Lab1() {
     const graph2 = vis2_trig.append("g");
     const graph3 = vis3_trig.append("g");
 
+    // Add axis lines and labels for characteristic graph (graph2)
+    // X-axis (Real axis
+    
+    
+    // Origin label
+    graph2
+      .append("text")
+      .attr("x", 315)
+      .attr("y", 245)
+      .attr("text-anchor", "end")
+      .style("fill", "#666")
+      .style("font-size", "12px")
+      .text("0");
+    
+    // Graph title
+    graph2
+      .append("text")
+      .attr("x", 325)
+      .attr("y", 20)
+      .attr("text-anchor", "middle")
+      .style("fill", "#333")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .text("Directional Relay Characteristic");
+
     // Initialize data arrays
     const dataB: number[] = [];
     const dataR: number[] = [];
@@ -127,10 +152,37 @@ export default function Lab1() {
         .style("stroke-width", 0.1);
     };
 
+    // Add smaller markers for Va, Vb, Vc voltage vectors
+    const addSmallMarker = (id: string, color: string) => {
+      vis_trig
+        .append("defs")
+        .selectAll("marker")
+        .data(["arrow"])
+        .enter()
+        .append("marker")
+        .attr("id", id)
+        .attr("viewBox", "0 -2 3 4")
+        .attr("refX", 3)
+        .attr("refY", 0)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 7)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-2L3,0L0,2,z")
+        .style("fill", color)
+        .style("stroke-width", 0.1);
+    };
+
     addMarker("markR", "#DC143C");
     addMarker("markY", "gold");
     addMarker("markB", "blue");
+    addSmallMarker("markR_small", "#DC143C");
+    addSmallMarker("markY_small", "gold");
+    addSmallMarker("markB_small", "blue");
     addMarker("markPol", "SteelBlue");
+    addMarker("markB_perp", "blue");
+    addMarker("markR_perp", "#DC143C");
+    addMarker("markY_perp", "gold");
 
     // Add restraint marker for characteristic
     vis2_trig
@@ -207,7 +259,7 @@ export default function Lab1() {
       .attr("cy", yScale(0))
       .attr("r", xScale(1) - xScale(0))
       .style("fill", "none")
-      .style("stroke", "#777")
+      .style("stroke", "#777");
     //   .style("stroke-dasharray", "1,4");
 
     // Create path elements for sine waves
@@ -301,6 +353,46 @@ export default function Lab1() {
       .style("font-size", "14px")
       .style("font-weight", "bold");
 
+    // Polarization vector labels
+    const labelVab = graph
+      .append("text")
+      .attr("id", "vab_label")
+      .style("fill", "SteelBlue")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+    const labelVbc = graph
+      .append("text")
+      .attr("id", "vbc_label")
+      .style("fill", "SteelBlue")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+    const labelVca = graph
+      .append("text")
+      .attr("id", "vca_label")
+      .style("fill", "SteelBlue")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+
+    // Current vector labels
+    const labelIa = graph
+      .append("text")
+      .attr("id", "ia_label")
+      .style("fill", "#DC143C")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+    const labelIb = graph
+      .append("text")
+      .attr("id", "ib_label")
+      .style("fill", "gold")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+    const labelIc = graph
+      .append("text")
+      .attr("id", "ic_label")
+      .style("fill", "blue")
+      .style("font-size", "12px")
+      .style("font-weight", "bold");
+
     // Characteristic chart elements
     const characteristic = graph2
       .append("path")
@@ -356,6 +448,74 @@ export default function Lab1() {
       .style("stroke", "SteelBlue")
       .style("stroke-width", "2px");
 
+    // Arc paths for angle visualization between Vab/Vbc/Vca and Vpol
+    const angleArcAB = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "1.5px");
+    const angleArcBC = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "1.5px");
+    const angleArcCA = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "1.5px");
+
+    // Arc paths for angle visualization between fault current vectors (Ia/Ib/Ic) and voltage vectors (Va/Vb/Vc)
+    const faultAngleArcAB = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "#DC143C")
+      .style("stroke-width", "1.5px");
+    const faultAngleArcBC = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "gold")
+      .style("stroke-width", "1.5px");
+    const faultAngleArcCA = graph2
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "blue")
+      .style("stroke-width", "1.5px");
+
+    // Angle value labels for fault current arcs
+    const faultAngleLabelAB = graph2
+      .append("text")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .style("fill", "#DC143C");
+    const faultAngleLabelBC = graph2
+      .append("text")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .style("fill", "gold");
+    const faultAngleLabelCA = graph2
+      .append("text")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .style("fill", "blue");
+
+    // Angle value labels
+    const angleLabelAB = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const angleLabelBC = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const angleLabelCA = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+
     // Fault current vectors in characteristic
     const Ia_Faultbis = graph2
       .append("path")
@@ -410,6 +570,64 @@ export default function Lab1() {
       .style("font-size", "16px")
       .style("font-weight", "normal");
 
+    // Labels for characteristic graph vectors
+    const labelVab_bis = graph2
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const labelVbc_bis = graph2
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const labelVca_bis = graph2
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+
+    // Labels for fault current vectors in characteristic
+    const labelIa_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "#DC143C");
+    const labelIb_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "gold");
+    const labelIc_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "blue");
+
+    // Labels for voltage vectors in characteristic
+    const labelVa_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "#DC143C");
+    const labelVb_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "gold");
+    const labelVc_bis = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "blue");
+
+    // Label for Vpol (characteristic direction vector)
+    const labelVpol = graph2
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+
     // Trip/No Trip labels
     const Trip = graph2
       .append("text")
@@ -441,6 +659,32 @@ export default function Lab1() {
       .style("font-size", "34px")
       .style("font-weight", "bold")
       .style("fill", "red");
+
+    // Trip/No Trip region labels with background
+    // Background rectangles (created first so they appear behind text)
+    const NoTripRegionBg = graph2
+      .append("rect")
+      .attr("fill", "none")
+      .attr("rx", 5)
+      .style("display", "none");
+    const TripRegionBg = graph2
+      .append("rect")
+      .attr("fill", "none")
+      .attr("rx", 10)
+      .style("display", "none");
+
+    const NoTripRegion = graph2
+      .append("text")
+      .attr("id", "no_trip_region")
+      .style("font-size", "24px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const TripRegion = graph2
+      .append("text")
+      .attr("id", "trip_region")
+      .style("font-size", "24px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
 
     // Labels for fragment_animation_2
     const Va_Faultter = graph3
@@ -570,6 +814,80 @@ export default function Lab1() {
       .attr("height", "18")
       .attr("fill", "none");
 
+    // Phase voltage arrows for fragment_animation_2 (rotational arrows)
+    const Vab_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "3px")
+      .style("stroke-linecap", "round");
+    const Vbc_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "3px")
+      .style("stroke-linecap", "round");
+    const Vca_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "SteelBlue")
+      .style("stroke-width", "3px")
+      .style("stroke-linecap", "round");
+
+    // Perpendicular arrows (Vc for AB, Va for BC, Vb for CA)
+    const Vc_perp_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "blue")
+      .style("stroke-width", "2.5px")
+      .style("stroke-linecap", "round");
+    const Va_perp_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "#DC143C")
+      .style("stroke-width", "2.5px")
+      .style("stroke-linecap", "round");
+    const Vb_perp_arrow_rot = graph3
+      .append("path")
+      .style("fill", "none")
+      .style("stroke", "gold")
+      .style("stroke-width", "2.5px")
+      .style("stroke-linecap", "round");
+
+    // Labels for phase voltage arrows
+    const labelVab_rot = graph3
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const labelVbc_rot = graph3
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+    const labelVca_rot = graph3
+      .append("text")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .style("fill", "SteelBlue");
+
+    // Labels for perpendicular arrows
+    const labelVc_rot = graph3
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "blue");
+    const labelVa_rot = graph3
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "#DC143C");
+    const labelVb_rot = graph3
+      .append("text")
+      .style("font-size", "14px")
+      .style("font-weight", "bold")
+      .style("fill", "gold");
+
     // Initialize values
     if ($) {
       $("#Freeze_OFF").val(1);
@@ -626,30 +944,101 @@ export default function Lab1() {
       // Draw voltage vectors
       Va_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${vax},${vay}`).attr(
         "marker-end",
-        "url(#markR)",
+        "url(#markR_small)",
       );
       Vb_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${vbx},${vby}`).attr(
         "marker-end",
-        "url(#markY)",
+        "url(#markY_small)",
       );
       Vc_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${vcx},${vcy}`).attr(
         "marker-end",
-        "url(#markB)",
+        "url(#markB_small)",
       );
 
       // Draw current vectors
-      Ia_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Iax},${Iay}`).attr(
-        "marker-end",
-        "url(#markR)",
-      );
-      Ib_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Ibx},${Iby}`).attr(
-        "marker-end",
-        "url(#markY)",
-      );
-      Ic_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Icx},${Icy}`).attr(
-        "marker-end",
-        "url(#markB)",
-      );
+      // Show Ic for AB, Ia for BC, Ib for CA
+      if (activePhase === "AB") {
+        Ia_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Iax},${Iay}`)
+          .attr("marker-end", "url(#markR_small)")
+          .style("display", "none");
+        Ib_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Ibx},${Iby}`)
+          .attr("marker-end", "url(#markY_small)")
+          .style("display", "none");
+        Ic_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Icx},${Icy}`)
+          .attr("marker-end", "url(#markB_small)")
+          .style("display", "inline");
+      } else if (activePhase === "BC") {
+        Ia_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Iax},${Iay}`)
+          .attr("marker-end", "url(#markR_small)")
+          .style("display", "inline");
+        Ib_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Ibx},${Iby}`)
+          .attr("marker-end", "url(#markY_small)")
+          .style("display", "none");
+        Ic_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Icx},${Icy}`)
+          .attr("marker-end", "url(#markB_small)")
+          .style("display", "none");
+      } else if (activePhase === "CA") {
+        Ia_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Iax},${Iay}`)
+          .attr("marker-end", "url(#markR_small)")
+          .style("display", "none");
+        Ib_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Ibx},${Iby}`)
+          .attr("marker-end", "url(#markY_small)")
+          .style("display", "inline");
+        Ic_Fault.attr("d", `m${centerX_svg},${centerY_svg} L${Icx},${Icy}`)
+          .attr("marker-end", "url(#markB_small)")
+          .style("display", "none");
+      }
+
+      // Update current vector labels (Ic for AB, Ia for BC, Ib for CA)
+      if (activePhase === "AB") {
+        labelIa
+          .attr("x", Iax + 5)
+          .attr("y", Iay + 5)
+          .text("Ia")
+          .style("display", "none");
+        labelIb
+          .attr("x", Ibx + 5)
+          .attr("y", Iby + 5)
+          .text("Ib")
+          .style("display", "none");
+        labelIc
+          .attr("x", Icx + 5)
+          .attr("y", Icy + 5)
+          .text("Ic")
+          .style("display", "inline");
+      } else if (activePhase === "BC") {
+        labelIa
+          .attr("x", Iax + 5)
+          .attr("y", Iay + 5)
+          .text("Ia")
+          .style("display", "inline");
+        labelIb
+          .attr("x", Ibx + 5)
+          .attr("y", Iby + 5)
+          .text("Ib")
+          .style("display", "none");
+        labelIc
+          .attr("x", Icx + 5)
+          .attr("y", Icy + 5)
+          .text("Ic")
+          .style("display", "none");
+      } else if (activePhase === "CA") {
+        labelIa
+          .attr("x", Iax + 5)
+          .attr("y", Iay + 5)
+          .text("Ia")
+          .style("display", "none");
+        labelIb
+          .attr("x", Ibx + 5)
+          .attr("y", Iby + 5)
+          .text("Ib")
+          .style("display", "inline");
+        labelIc
+          .attr("x", Icx + 5)
+          .attr("y", Icy + 5)
+          .text("Ic")
+          .style("display", "none");
+      }
 
       // Update labels
       labelVa
@@ -672,20 +1061,47 @@ export default function Lab1() {
       if (activePhase === "AB") {
         cPolRY
           .attr("d", `m${vbx},${vby} L${vax},${vay}`)
+          .attr("marker-end", "url(#markPol)")
           .style("display", "inline");
         cPolYB.style("display", "none");
         cPolBR.style("display", "none");
+        // Update Vab label
+        labelVab
+          .attr("x", (vbx + vax) / 2 + 5)
+          .attr("y", (vby + vay) / 2 + 5)
+          .text("Vab")
+          .style("display", "inline");
+        labelVbc.style("display", "none");
+        labelVca.style("display", "none");
       } else if (activePhase === "BC") {
         cPolRY.style("display", "none");
         cPolYB
           .attr("d", `m${vcx},${vcy} L${vbx},${vby}`)
+          .attr("marker-end", "url(#markPol)")
           .style("display", "inline");
         cPolBR.style("display", "none");
+        // Update Vbc label
+        labelVab.style("display", "none");
+        labelVbc
+          .attr("x", (vcx + vbx) / 2 + 5)
+          .attr("y", (vcy + vby) / 2 + 5)
+          .text("Vbc")
+          .style("display", "inline");
+        labelVca.style("display", "none");
       } else if (activePhase === "CA") {
         cPolRY.style("display", "none");
         cPolYB.style("display", "none");
         cPolBR
           .attr("d", `m${vax},${vay} L${vcx},${vcy}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+        // Update Vca label
+        labelVab.style("display", "none");
+        labelVbc.style("display", "none");
+        labelVca
+          .attr("x", (vax + vcx) / 2 + 5)
+          .attr("y", (vay + vcy) / 2 + 5)
+          .text("Vca")
           .style("display", "inline");
       }
 
@@ -775,43 +1191,143 @@ export default function Lab1() {
           .attr("marker-start", "url(#markRestrain)")
           .style("display", "inline");
 
-        // Fault current vectors
+        // Fault current vectors - positioned based on X/R ratio (current lags voltage by X/R angle)
+        const xrAngleRad = (Math.PI * XoverR) / 180; // Convert X/R degrees to radians
+        const VaAngleRad = Math.atan2(vay - centerY_svg, vax - centerX_svg); // Voltage Va angle
+        const IaAngleRad = VaAngleRad - xrAngleRad; // Current lags voltage by X/R angle
+        const currentRadiusAB = 80; // Shorter current vector
+        const IaPosX = centerX + currentRadiusAB * Math.cos(IaAngleRad);
+        const IaPosY = centerY + currentRadiusAB * Math.sin(IaAngleRad);
         Ia_Faultbis.attr(
           "d",
-          `m${centerX},${centerY} L${centerX + Iax - centerX_svg},${centerY + Iay - centerY_svg}`,
+          `m${centerX},${centerY} L${IaPosX},${IaPosY}`,
         )
           .attr("marker-end", "url(#markR)")
           .style("display", "inline");
         Ib_Faultbis.style("display", "none");
         Ic_Faultbis.style("display", "none");
 
+        // Voltage vectors - longer than current vectors
+        const voltageScaleAB = 1.8; // Scale factor to make voltage vectors longer
         Va_Faultbis.attr(
           "d",
-          `m${centerX},${centerY} L${centerX + vax - centerX_svg},${centerY + vay - centerY_svg}`,
+          `m${centerX},${centerY} L${centerX + (vax - centerX_svg) * voltageScaleAB},${centerY + (vay - centerY_svg) * voltageScaleAB}`,
         )
-          .attr("marker-end", "url(#markR)")
+          .attr("marker-end", "url(#markR_small)")
           .style("display", "inline");
         Vb_Faultbis.style("display", "none");
         Vc_Faultbis.style("display", "none");
 
-        // Labels
-        arc_labelRY
-          .text(`+${Rchar}°`)
-          .attr(
-            "x",
-            centerX +
-              0.9 *
-                Math.sqrt((vax - vbx) ** 2 + (vay - vby) ** 2) *
-                Math.cos(characteristic_angle + relay_angle / 2 + Math.PI / 2),
-          )
-          .attr(
-            "y",
-            centerY +
-              0.9 *
-                Math.sqrt((vax - vbx) ** 2 + (vay - vby) ** 2) *
-                Math.sin(characteristic_angle + relay_angle / 2 + Math.PI / 2),
-          )
+        // Arc from Ia to Va
+        const IaAngle = Math.atan2(IaPosY - centerY, IaPosX - centerX);
+        const VaAngle = Math.atan2((centerY + vay - centerY_svg) - centerY, (centerX + vax - centerX_svg) - centerX);
+        const arcRadiusIaVa = currentRadiusAB * 0.7;
+        const arcStartX_IaVa = centerX + arcRadiusIaVa * Math.cos(IaAngle);
+        const arcStartY_IaVa = centerY + arcRadiusIaVa * Math.sin(IaAngle);
+        const arcEndX_IaVa = centerX + arcRadiusIaVa * Math.cos(VaAngle);
+        const arcEndY_IaVa = centerY + arcRadiusIaVa * Math.sin(VaAngle);
+        let angleDiffIaVa = VaAngle - IaAngle;
+        if (angleDiffIaVa > Math.PI) angleDiffIaVa -= 2 * Math.PI;
+        if (angleDiffIaVa < -Math.PI) angleDiffIaVa += 2 * Math.PI;
+        const midAngleIaVa = IaAngle + angleDiffIaVa / 2;
+        const ctrlRadiusIaVa = arcRadiusIaVa * 1.15;
+        const ctrlX_IaVa = centerX + ctrlRadiusIaVa * Math.cos(midAngleIaVa);
+        const ctrlY_IaVa = centerY + ctrlRadiusIaVa * Math.sin(midAngleIaVa);
+        faultAngleArcAB
+          .attr("d", `M${arcStartX_IaVa},${arcStartY_IaVa} Q${ctrlX_IaVa},${ctrlY_IaVa} ${arcEndX_IaVa},${arcEndY_IaVa}`)
+          .attr("marker-end", "url(#markR)")
           .style("display", "inline");
+        
+        // Fault current angle label (angle between Ia and Va)
+        const faultAngleDegAB = (angleDiffIaVa * 180 / Math.PI).toFixed(1);
+        const faultLabelRadiusAB = arcRadiusIaVa * 1.3;
+        const faultLabelX_AB = centerX + faultLabelRadiusAB * Math.cos(midAngleIaVa);
+        const faultLabelY_AB = centerY + faultLabelRadiusAB * Math.sin(midAngleIaVa);
+        faultAngleLabelAB
+          .text(`${faultAngleDegAB}°`)
+          .attr("x", faultLabelX_AB)
+          .attr("y", faultLabelY_AB)
+          .style("display", "inline");
+        faultAngleLabelBC.style("display", "none");
+        faultAngleLabelCA.style("display", "none");
+        
+        // Hide BC and CA fault angle arcs when in AB phase
+        faultAngleArcBC.style("display", "none");
+        faultAngleArcCA.style("display", "none");
+
+        // Vector labels for AB phase
+        // Vab polarization vector label (at arrow tip)
+        labelVab_bis
+          .text("Vab")
+          .attr("x", centerX + (vax - vbx) + 10)
+          .attr("y", centerY + (vay - vby))
+          .style("display", "inline");
+        labelVbc_bis.style("display", "none");
+        labelVca_bis.style("display", "none");
+
+        // Fault current label (Ia for AB phase, at arrow tip in No Trip region)
+        labelIa_bis
+          .text("Ia")
+          .attr("x", IaPosX + 10)
+          .attr("y", IaPosY)
+          .style("display", "inline");
+        labelIb_bis.style("display", "none");
+        labelIc_bis.style("display", "none");
+
+        // Voltage vector label (Va for AB phase, at arrow tip)
+        labelVa_bis
+          .text("Va")
+          .attr("x", centerX + (vax - centerX_svg) + 10)
+          .attr("y", centerY + (vay - centerY_svg))
+          .style("display", "inline");
+        labelVb_bis.style("display", "none");
+        labelVc_bis.style("display", "none");
+
+        // Vpol label for characteristic direction vector (at arrow tip)
+        const vpolEndX_AB = centerX + Math.sqrt((vax - vbx) ** 2 + (vay - vby) ** 2) * Math.cos(characteristic_angle + relay_angle + Math.PI / 2);
+        const vpolEndY_AB = centerY + Math.sqrt((vax - vbx) ** 2 + (vay - vby) ** 2) * Math.sin(characteristic_angle + relay_angle + Math.PI / 2);
+        labelVpol
+          .text("Vpol")
+          .attr("x", vpolEndX_AB + 10)
+          .attr("y", vpolEndY_AB)
+          .style("display", "inline");
+
+        // Draw curved arc showing the angle between Vab and Vpol (at middle radius from center)
+        const vabTipX = centerX + (vax - vbx);
+        const vabTipY = centerY + (vay - vby);
+        const vabAngle = Math.atan2(vabTipY - centerY, vabTipX - centerX);
+        const vpolAngleAB = Math.atan2(vpolEndY_AB - centerY, vpolEndX_AB - centerX);
+        const arcRadiusAB = Math.sqrt((vabTipX - centerX) ** 2 + (vabTipY - centerY) ** 2) * 0.6;
+        const arcStartX_AB = centerX + arcRadiusAB * Math.cos(vabAngle);
+        const arcStartY_AB = centerY + arcRadiusAB * Math.sin(vabAngle);
+        const arcEndX_AB = centerX + arcRadiusAB * Math.cos(vpolAngleAB);
+        const arcEndY_AB = centerY + arcRadiusAB * Math.sin(vpolAngleAB);
+        // Calculate control point for the arc (curved along the circle)
+        // Handle angle wrapping for proper midpoint calculation
+        let angleDiffAB = vpolAngleAB - vabAngle;
+        if (angleDiffAB > Math.PI) angleDiffAB -= 2 * Math.PI;
+        if (angleDiffAB < -Math.PI) angleDiffAB += 2 * Math.PI;
+        const midAngleAB = vabAngle + angleDiffAB / 2;
+        const ctrlRadiusAB = arcRadiusAB * 1.15;
+        const ctrlX_AB = centerX + ctrlRadiusAB * Math.cos(midAngleAB);
+        const ctrlY_AB = centerY + ctrlRadiusAB * Math.sin(midAngleAB);
+        angleArcAB
+          .attr("d", `M${arcStartX_AB},${arcStartY_AB} Q${ctrlX_AB},${ctrlY_AB} ${arcEndX_AB},${arcEndY_AB}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+        angleArcBC.style("display", "none");
+        angleArcCA.style("display", "none");
+
+        // Angle label - positioned at midpoint of the arc
+        const labelRadiusAB = arcRadiusAB * 1.15;
+        const labelX_AB = centerX + labelRadiusAB * Math.cos(midAngleAB);
+        const labelY_AB = centerY + labelRadiusAB * Math.sin(midAngleAB);
+        angleLabelAB.style("display", "none");
+        angleLabelBC.style("display", "none");
+        angleLabelCA.style("display", "none");
+
+        // Labels
+        arc_labelRY.style("display", "none");
         arc_labelYB.style("display", "none");
         arc_labelBR.style("display", "none");
 
@@ -842,7 +1358,50 @@ export default function Lab1() {
         NoTripBC.style("display", "none");
         TripCA.style("display", "none");
         NoTripCA.style("display", "none");
+
+        // Hide BC and CA region labels when in AB mode
+        NoTripRegion.style("display", "none");
+        NoTripRegionBg.style("display", "none");
+        TripRegion.style("display", "none");
+        TripRegionBg.style("display", "none");
+
+        // Trip/No Trip region labels with background - AB
+        // Position based on characteristic angle - Trip in white region (outside characteristic), No Trip in SteelBlue region (inside)
+        const tripAngleAB = characteristic_angle + relay_angle - Math.PI / 4;
+        const noTripAngleAB = characteristic_angle + relay_angle + Math.PI / 4;
+        const labelRadius = 180;
+
+        NoTripRegion.attr("x", centerX + labelRadius * Math.cos(noTripAngleAB))
+          .attr("y", centerY + labelRadius * Math.sin(noTripAngleAB))
+          .text("No Trip")
+          .style("display", "inline");
+        NoTripRegionBg.attr(
+          "x",
+          centerX + labelRadius * Math.cos(noTripAngleAB) - 45,
+        )
+          .attr("y", centerY + labelRadius * Math.sin(noTripAngleAB) - 15)
+          .attr("width", 90)
+          .attr("height", 32)
+          .style("display", "inline");
+        TripRegion.attr("x", centerX + labelRadius * Math.cos(tripAngleAB))
+          .attr("y", centerY + labelRadius * Math.sin(tripAngleAB))
+          .text("Trip")
+          .style("display", "inline");
+        TripRegionBg.attr(
+          "x",
+          centerX + labelRadius * Math.cos(tripAngleAB) - 30,
+        )
+          .attr("y", centerY + labelRadius * Math.sin(tripAngleAB) - 15)
+          .attr("width", 60)
+          .attr("height", 32)
+          .style("display", "inline");
       } else if (activePhase === "BC") {
+        // Hide AB and CA region labels
+        NoTripRegion.style("display", "none");
+        NoTripRegionBg.style("display", "none");
+        TripRegion.style("display", "none");
+        TripRegionBg.style("display", "none");
+
         characteristic.style("display", "none");
         characteristicY
           .attr(
@@ -879,42 +1438,147 @@ export default function Lab1() {
           .style("display", "inline");
         cPolBRbis.style("display", "none");
 
+        // Fault current vectors - positioned based on X/R ratio (current lags voltage by X/R angle)
+        const xrAngleRadBC = (Math.PI * XoverR) / 180; // Convert X/R degrees to radians
+        const VbAngleRad = Math.atan2(vby - centerY_svg, vbx - centerX_svg); // Voltage Vb angle
+        const IbAngleRad = VbAngleRad - xrAngleRadBC; // Current lags voltage by X/R angle
+        const currentRadiusBC = 80; // Shorter current vector
+        const IbPosX = centerX + currentRadiusBC * Math.cos(IbAngleRad);
+        const IbPosY = centerY + currentRadiusBC * Math.sin(IbAngleRad);
         Ia_Faultbis.style("display", "none");
         Ib_Faultbis.attr(
           "d",
-          `m${centerX},${centerY} L${centerX + Ibx - centerX_svg},${centerY + Iby - centerY_svg}`,
+          `m${centerX},${centerY} L${IbPosX},${IbPosY}`,
         )
           .attr("marker-end", "url(#markY)")
           .style("display", "inline");
         Ic_Faultbis.style("display", "none");
 
+        // Voltage vectors - longer than current vectors
+        const voltageScaleBC = 1.8; // Scale factor to make voltage vectors longer
         Va_Faultbis.style("display", "none");
         Vb_Faultbis.attr(
           "d",
-          `m${centerX},${centerY} L${centerX + vbx - centerX_svg},${centerY + vby - centerY_svg}`,
+          `m${centerX},${centerY} L${centerX + (vbx - centerX_svg) * voltageScaleBC},${centerY + (vby - centerY_svg) * voltageScaleBC}`,
         )
-          .attr("marker-end", "url(#markY)")
+          .attr("marker-end", "url(#markY_small)")
           .style("display", "inline");
         Vc_Faultbis.style("display", "none");
 
-        arc_labelRY.style("display", "none");
-        arc_labelYB
-          .text(`+${Rchar}°`)
-          .attr(
-            "x",
-            centerX +
-              0.9 *
-                Math.sqrt((vbx - vcx) ** 2 + (vby - vcy) ** 2) *
-                Math.cos(characteristic_angleY + relay_angle / 2 + Math.PI / 2),
-          )
-          .attr(
-            "y",
-            centerY +
-              0.9 *
-                Math.sqrt((vbx - vcx) ** 2 + (vby - vcy) ** 2) *
-                Math.sin(characteristic_angleY + relay_angle / 2 + Math.PI / 2),
-          )
+        // Arc from Ib to Vb
+        const IbAngle = Math.atan2(IbPosY - centerY, IbPosX - centerX);
+        const VbAngle = Math.atan2((centerY + vby - centerY_svg) - centerY, (centerX + vbx - centerX_svg) - centerX);
+        const arcRadiusIbVb = currentRadiusBC * 0.7;
+        const arcStartX_IbVb = centerX + arcRadiusIbVb * Math.cos(IbAngle);
+        const arcStartY_IbVb = centerY + arcRadiusIbVb * Math.sin(IbAngle);
+        const arcEndX_IbVb = centerX + arcRadiusIbVb * Math.cos(VbAngle);
+        const arcEndY_IbVb = centerY + arcRadiusIbVb * Math.sin(VbAngle);
+        let angleDiffIbVb = VbAngle - IbAngle;
+        if (angleDiffIbVb > Math.PI) angleDiffIbVb -= 2 * Math.PI;
+        if (angleDiffIbVb < -Math.PI) angleDiffIbVb += 2 * Math.PI;
+        const midAngleIbVb = IbAngle + angleDiffIbVb / 2;
+        const ctrlRadiusIbVb = arcRadiusIbVb * 1.15;
+        const ctrlX_IbVb = centerX + ctrlRadiusIbVb * Math.cos(midAngleIbVb);
+        const ctrlY_IbVb = centerY + ctrlRadiusIbVb * Math.sin(midAngleIbVb);
+        faultAngleArcBC
+          .attr("d", `M${arcStartX_IbVb},${arcStartY_IbVb} Q${ctrlX_IbVb},${ctrlY_IbVb} ${arcEndX_IbVb},${arcEndY_IbVb}`)
+          .attr("marker-end", "url(#markY)")
           .style("display", "inline");
+        
+        // Fault current angle label (angle between Ib and Vb)
+        const faultAngleDegBC = (angleDiffIbVb * 180 / Math.PI).toFixed(1);
+        const faultLabelRadiusBC = arcRadiusIbVb * 1.3;
+        const faultLabelX_BC = centerX + faultLabelRadiusBC * Math.cos(midAngleIbVb);
+        const faultLabelY_BC = centerY + faultLabelRadiusBC * Math.sin(midAngleIbVb);
+        faultAngleLabelAB.style("display", "none");
+        faultAngleLabelBC
+          .text(`${faultAngleDegBC}°`)
+          .attr("x", faultLabelX_BC)
+          .attr("y", faultLabelY_BC)
+          .style("display", "inline");
+        faultAngleLabelCA.style("display", "none");
+        
+        // Hide AB and CA fault angle arcs when in BC phase
+        faultAngleArcAB.style("display", "none");
+        faultAngleArcCA.style("display", "none");
+
+        // Vector labels for BC phase
+        // Vbc polarization vector label (at arrow tip)
+        labelVab_bis.style("display", "none");
+        labelVbc_bis
+          .text("Vbc")
+          .attr("x", centerX + (vbx - vcx) + 10)
+          .attr("y", centerY + (vby - vcy))
+          .style("display", "inline");
+        labelVca_bis.style("display", "none");
+
+        // Fault current label (Ib for BC phase, at arrow tip)
+        labelIa_bis.style("display", "none");
+        labelIb_bis
+          .text("Ib")
+          .attr("x", IbPosX + 10)
+          .attr("y", IbPosY)
+          .style("display", "inline");
+        labelIc_bis.style("display", "none");
+
+        // Voltage vector label (Vb for BC phase, at arrow tip)
+        labelVa_bis.style("display", "none");
+        labelVb_bis
+          .text("Vb")
+          .attr("x", centerX + (vbx - centerX_svg) + 10)
+          .attr("y", centerY + (vby - centerY_svg))
+          .style("display", "inline");
+        labelVc_bis.style("display", "none");
+
+        // Vpol label for characteristic direction vector (at arrow tip)
+        const vpolEndX_BC = centerX + Math.sqrt((vbx - vcx) ** 2 + (vby - vcy) ** 2) * Math.cos(characteristic_angleY + relay_angle + Math.PI / 2);
+        const vpolEndY_BC = centerY + Math.sqrt((vbx - vcx) ** 2 + (vby - vcy) ** 2) * Math.sin(characteristic_angleY + relay_angle + Math.PI / 2);
+        labelVpol
+          .text("Vpol")
+          .attr("x", vpolEndX_BC + 10)
+          .attr("y", vpolEndY_BC)
+          .style("display", "inline");
+
+        // Draw curved arc showing the angle between Vbc and Vpol (at middle radius from center)
+        const vbcTipX = centerX + (vbx - vcx);
+        const vbcTipY = centerY + (vby - vcy);
+        const vbcAngle = Math.atan2(vbcTipY - centerY, vbcTipX - centerX);
+        const vpolAngleBC = Math.atan2(vpolEndY_BC - centerY, vpolEndX_BC - centerX);
+        const arcRadiusBC = Math.sqrt((vbcTipX - centerX) ** 2 + (vbcTipY - centerY) ** 2) * 0.6;
+        const arcStartX_BC = centerX + arcRadiusBC * Math.cos(vbcAngle);
+        const arcStartY_BC = centerY + arcRadiusBC * Math.sin(vbcAngle);
+        const arcEndX_BC = centerX + arcRadiusBC * Math.cos(vpolAngleBC);
+        const arcEndY_BC = centerY + arcRadiusBC * Math.sin(vpolAngleBC);
+        // Calculate control point for the arc (curved along the circle)
+        // Handle angle wrapping for proper midpoint calculation
+        let angleDiffBC = vpolAngleBC - vbcAngle;
+        if (angleDiffBC > Math.PI) angleDiffBC -= 2 * Math.PI;
+        if (angleDiffBC < -Math.PI) angleDiffBC += 2 * Math.PI;
+        const midAngleBC = vbcAngle + angleDiffBC / 2;
+        const ctrlRadiusBC = arcRadiusBC * 1.15;
+        const ctrlX_BC = centerX + ctrlRadiusBC * Math.cos(midAngleBC);
+        const ctrlY_BC = centerY + ctrlRadiusBC * Math.sin(midAngleBC);
+        angleArcAB.style("display", "none");
+        angleArcBC
+          .attr("d", `M${arcStartX_BC},${arcStartY_BC} Q${ctrlX_BC},${ctrlY_BC} ${arcEndX_BC},${arcEndY_BC}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+        angleArcCA.style("display", "none");
+
+        // Angle label - positioned at midpoint of the arc
+        const arcLabelRadiusBC = arcRadiusBC * 1.15;
+        const labelX_BC = centerX + arcLabelRadiusBC * Math.cos(midAngleBC);
+        const labelY_BC = centerY + arcLabelRadiusBC * Math.sin(midAngleBC);
+        angleLabelAB.style("display", "none");
+        angleLabelBC
+          .text(`+${Rchar}°`)
+          .attr("x", labelX_BC + 10)
+          .attr("y", labelY_BC - 5)
+          .style("display", "inline");
+        angleLabelCA.style("display", "none");
+
+        arc_labelRY.style("display", "none");
+        arc_labelYB.style("display", "none");
         arc_labelBR.style("display", "none");
 
         Trip.style("display", "none");
@@ -943,7 +1607,47 @@ export default function Lab1() {
           .attr("y", centerY - 0.75 * (vby - vcy));
         TripCA.style("display", "none");
         NoTripCA.style("display", "none");
+
+        // Trip/No Trip region labels - BC
+        // Position based on characteristic angle - Trip in white region (outside characteristic), No Trip in SteelBlue region (inside)
+        const tripAngleBC = characteristic_angleY + relay_angle - Math.PI / 4;
+        const noTripAngleBC = characteristic_angleY + relay_angle + Math.PI / 4;
+        const labelRadiusBC = 180;
+
+        NoTripRegion.attr(
+          "x",
+          centerX + labelRadiusBC * Math.cos(noTripAngleBC),
+        )
+          .attr("y", centerY + labelRadiusBC * Math.sin(noTripAngleBC))
+          .text("No Trip")
+          .style("display", "inline");
+        NoTripRegionBg.attr(
+          "x",
+          centerX + labelRadiusBC * Math.cos(noTripAngleBC) - 45,
+        )
+          .attr("y", centerY + labelRadiusBC * Math.sin(noTripAngleBC) - 15)
+          .attr("width", 90)
+          .attr("height", 32)
+          .style("display", "inline");
+        TripRegion.attr("x", centerX + labelRadiusBC * Math.cos(tripAngleBC))
+          .attr("y", centerY + labelRadiusBC * Math.sin(tripAngleBC))
+          .text("Trip")
+          .style("display", "inline");
+        TripRegionBg.attr(
+          "x",
+          centerX + labelRadiusBC * Math.cos(tripAngleBC) - 30,
+        )
+          .attr("y", centerY + labelRadiusBC * Math.sin(tripAngleBC) - 15)
+          .attr("width", 60)
+          .attr("height", 32)
+          .style("display", "inline");
       } else {
+        // Hide AB and BC region labels
+        NoTripRegion.style("display", "none");
+        NoTripRegionBg.style("display", "none");
+        TripRegion.style("display", "none");
+        TripRegionBg.style("display", "none");
+
         characteristic.style("display", "none");
         characteristicY.style("display", "none");
         characteristicB
@@ -980,11 +1684,18 @@ export default function Lab1() {
           .attr("marker-start", "url(#markRestrain)")
           .style("display", "inline");
 
+        // Fault current vectors - positioned based on X/R ratio (current lags voltage by X/R angle)
+        const xrAngleRadCA = (Math.PI * XoverR) / 180; // Convert X/R degrees to radians
+        const VcAngleRad = Math.atan2(vcy - centerY_svg, vcx - centerX_svg); // Voltage Vc angle
+        const IcAngleRad = VcAngleRad - xrAngleRadCA; // Current lags voltage by X/R angle
+        const currentRadiusCA = 150;
+        const IcPosX = centerX + currentRadiusCA * Math.cos(IcAngleRad);
+        const IcPosY = centerY + currentRadiusCA * Math.sin(IcAngleRad);
         Ia_Faultbis.style("display", "none");
         Ib_Faultbis.style("display", "none");
         Ic_Faultbis.attr(
           "d",
-          `m${centerX},${centerY} L${centerX + Icx - centerX_svg},${centerY + Icy - centerY_svg}`,
+          `m${centerX},${centerY} L${IcPosX},${IcPosY}`,
         )
           .attr("marker-end", "url(#markB)")
           .style("display", "inline");
@@ -995,28 +1706,124 @@ export default function Lab1() {
           "d",
           `m${centerX},${centerY} L${centerX + vcx - centerX_svg},${centerY + vcy - centerY_svg}`,
         )
+          .attr("marker-end", "url(#markB_small)")
+          .style("display", "inline");
+
+        // Arc from Ic to Vc
+        const IcAngle = Math.atan2(IcPosY - centerY, IcPosX - centerX);
+        const VcAngle = Math.atan2((centerY + vcy - centerY_svg) - centerY, (centerX + vcx - centerX_svg) - centerX);
+        const arcRadiusIcVc = currentRadiusCA * 0.7;
+        const arcStartX_IcVc = centerX + arcRadiusIcVc * Math.cos(IcAngle);
+        const arcStartY_IcVc = centerY + arcRadiusIcVc * Math.sin(IcAngle);
+        const arcEndX_IcVc = centerX + arcRadiusIcVc * Math.cos(VcAngle);
+        const arcEndY_IcVc = centerY + arcRadiusIcVc * Math.sin(VcAngle);
+        let angleDiffIcVc = VcAngle - IcAngle;
+        if (angleDiffIcVc > Math.PI) angleDiffIcVc -= 2 * Math.PI;
+        if (angleDiffIcVc < -Math.PI) angleDiffIcVc += 2 * Math.PI;
+        const midAngleIcVc = IcAngle + angleDiffIcVc / 2;
+        const ctrlRadiusIcVc = arcRadiusIcVc * 1.15;
+        const ctrlX_IcVc = centerX + ctrlRadiusIcVc * Math.cos(midAngleIcVc);
+        const ctrlY_IcVc = centerY + ctrlRadiusIcVc * Math.sin(midAngleIcVc);
+        faultAngleArcCA
+          .attr("d", `M${arcStartX_IcVc},${arcStartY_IcVc} Q${ctrlX_IcVc},${ctrlY_IcVc} ${arcEndX_IcVc},${arcEndY_IcVc}`)
           .attr("marker-end", "url(#markB)")
+          .style("display", "inline");
+        
+        // Fault current angle label (angle between Ic and Vc)
+        const faultAngleDegCA = (angleDiffIcVc * 180 / Math.PI).toFixed(1);
+        const faultLabelRadiusCA = arcRadiusIcVc * 1.3;
+        const faultLabelX_CA = centerX + faultLabelRadiusCA * Math.cos(midAngleIcVc);
+        const faultLabelY_CA = centerY + faultLabelRadiusCA * Math.sin(midAngleIcVc);
+        faultAngleLabelAB.style("display", "none");
+        faultAngleLabelBC.style("display", "none");
+        faultAngleLabelCA
+          .text(`${faultAngleDegCA}°`)
+          .attr("x", faultLabelX_CA)
+          .attr("y", faultLabelY_CA)
+          .style("display", "inline");
+        
+        // Hide AB and BC fault angle arcs when in CA phase
+        faultAngleArcAB.style("display", "none");
+        faultAngleArcBC.style("display", "none");
+
+        // Vector labels for CA phase
+        // Vca polarization vector label (at arrow tip)
+        labelVab_bis.style("display", "none");
+        labelVbc_bis.style("display", "none");
+        labelVca_bis
+          .text("Vca")
+          .attr("x", centerX + (vcx - vax) + 10)
+          .attr("y", centerY + (vcy - vay))
+          .style("display", "inline");
+
+        // Fault current label (Ic for CA phase, at arrow tip)
+        labelIa_bis.style("display", "none");
+        labelIb_bis.style("display", "none");
+        labelIc_bis
+          .text("Ic")
+          .attr("x", IcPosX + 10)
+          .attr("y", IcPosY)
+          .style("display", "inline");
+
+        // Voltage vector label (Vc for CA phase, at arrow tip)
+        labelVa_bis.style("display", "none");
+        labelVb_bis.style("display", "none");
+        labelVc_bis
+          .text("Vc")
+          .attr("x", centerX + (vcx - centerX_svg) + 10)
+          .attr("y", centerY + (vcy - centerY_svg))
+          .style("display", "inline");
+
+        // Vpol label for characteristic direction vector (at arrow tip)
+        const vpolEndX_CA = centerX + Math.sqrt((vcx - vax) ** 2 + (vcy - vay) ** 2) * Math.cos(characteristic_angleB + relay_angle + Math.PI / 2);
+        const vpolEndY_CA = centerY + Math.sqrt((vcx - vax) ** 2 + (vcy - vay) ** 2) * Math.sin(characteristic_angleB + relay_angle + Math.PI / 2);
+        labelVpol
+          .text("Vpol")
+          .attr("x", vpolEndX_CA + 10)
+          .attr("y", vpolEndY_CA)
+          .style("display", "inline");
+
+        // Draw curved arc showing the angle between Vca and Vpol (at middle radius from center)
+        const vcaTipX = centerX + (vcx - vax);
+        const vcaTipY = centerY + (vcy - vay);
+        const vcaAngle = Math.atan2(vcaTipY - centerY, vcaTipX - centerX);
+        const vpolAngleCA = Math.atan2(vpolEndY_CA - centerY, vpolEndX_CA - centerX);
+        const arcRadiusCA = Math.sqrt((vcaTipX - centerX) ** 2 + (vcaTipY - centerY) ** 2) * 0.6;
+        const arcStartX_CA = centerX + arcRadiusCA * Math.cos(vcaAngle);
+        const arcStartY_CA = centerY + arcRadiusCA * Math.sin(vcaAngle);
+        const arcEndX_CA = centerX + arcRadiusCA * Math.cos(vpolAngleCA);
+        const arcEndY_CA = centerY + arcRadiusCA * Math.sin(vpolAngleCA);
+        // Calculate control point for the arc (curved along the circle)
+        // Handle angle wrapping for proper midpoint calculation
+        let angleDiffCA = vpolAngleCA - vcaAngle;
+        if (angleDiffCA > Math.PI) angleDiffCA -= 2 * Math.PI;
+        if (angleDiffCA < -Math.PI) angleDiffCA += 2 * Math.PI;
+        const midAngleCA = vcaAngle + angleDiffCA / 2;
+        const ctrlRadiusCA = arcRadiusCA * 1.15;
+        const ctrlX_CA = centerX + ctrlRadiusCA * Math.cos(midAngleCA);
+        const ctrlY_CA = centerY + ctrlRadiusCA * Math.sin(midAngleCA);
+        angleArcAB.style("display", "none");
+        angleArcBC.style("display", "none");
+        angleArcCA
+          .attr("d", `M${arcStartX_CA},${arcStartY_CA} Q${ctrlX_CA},${ctrlY_CA} ${arcEndX_CA},${arcEndY_CA}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+
+        // Angle label - positioned at midpoint of the arc
+        const arcLabelRadiusCA = arcRadiusCA * 1.15;
+        const labelX_CA = centerX + arcLabelRadiusCA * Math.cos(midAngleCA);
+        const labelY_CA = centerY + arcLabelRadiusCA * Math.sin(midAngleCA);
+        angleLabelAB.style("display", "none");
+        angleLabelBC.style("display", "none");
+        angleLabelCA
+          .text(`+${Rchar}°`)
+          .attr("x", labelX_CA + 10)
+          .attr("y", labelY_CA - 5)
           .style("display", "inline");
 
         arc_labelRY.style("display", "none");
         arc_labelYB.style("display", "none");
-        arc_labelBR
-          .text(`+${Rchar}°`)
-          .attr(
-            "x",
-            centerX +
-              0.9 *
-                Math.sqrt((vcx - vax) ** 2 + (vcy - vay) ** 2) *
-                Math.cos(characteristic_angleB + relay_angle / 2 + Math.PI / 2),
-          )
-          .attr(
-            "y",
-            centerY +
-              0.9 *
-                Math.sqrt((vcx - vax) ** 2 + (vcy - vay) ** 2) *
-                Math.sin(characteristic_angleB + relay_angle / 2 + Math.PI / 2),
-          )
-          .style("display", "inline");
+        arc_labelBR.style("display", "none");
 
         Trip.style("display", "none");
         NoTrip.style("display", "none");
@@ -1044,21 +1851,55 @@ export default function Lab1() {
         NoTripCA.style("display", "inline")
           .attr("x", centerX - 0.75 * (vcx - vax))
           .attr("y", centerY - 0.75 * (vcy - vay));
+
+        // Trip/No Trip region labels - CA
+        // Position based on characteristic angle - Trip in white region (outside characteristic), No Trip in SteelBlue region (inside)
+        const tripAngleCA = characteristic_angleB + relay_angle - Math.PI / 4;
+        const noTripAngleCA = characteristic_angleB + relay_angle + Math.PI / 4;
+        const labelRadiusCA = 180;
+
+        NoTripRegion.attr(
+          "x",
+          centerX + labelRadiusCA * Math.cos(noTripAngleCA),
+        )
+          .attr("y", centerY + labelRadiusCA * Math.sin(noTripAngleCA))
+          .text("No Trip")
+          .style("display", "inline");
+        NoTripRegionBg.attr(
+          "x",
+          centerX + labelRadiusCA * Math.cos(noTripAngleCA) - 45,
+        )
+          .attr("y", centerY + labelRadiusCA * Math.sin(noTripAngleCA) - 15)
+          .attr("width", 90)
+          .attr("height", 32)
+          .style("display", "inline");
+        TripRegion.attr("x", centerX + labelRadiusCA * Math.cos(tripAngleCA))
+          .attr("y", centerY + labelRadiusCA * Math.sin(tripAngleCA))
+          .text("Trip")
+          .style("display", "inline");
+        TripRegionBg.attr(
+          "x",
+          centerX + labelRadiusCA * Math.cos(tripAngleCA) - 30,
+        )
+          .attr("y", centerY + labelRadiusCA * Math.sin(tripAngleCA) - 15)
+          .attr("width", 60)
+          .attr("height", 32)
+          .style("display", "inline");
       }
 
       // Fragment animation 2 (third visualization)
       Va_Faultter.attr(
         "d",
         `m${centerX_svg},${centerY_svg} L${vax},${vay}`,
-      ).attr("marker-end", "url(#markR)");
+      ).attr("marker-end", "url(#markR_small)");
       Vb_Faultter.attr(
         "d",
         `m${centerX_svg},${centerY_svg} L${vbx},${vby}`,
-      ).attr("marker-end", "url(#markY)");
+      ).attr("marker-end", "url(#markY_small)");
       Vc_Faultter.attr(
         "d",
         `m${centerX_svg},${centerY_svg} L${vcx},${vcy}`,
-      ).attr("marker-end", "url(#markB)");
+      ).attr("marker-end", "url(#markB_small)");
 
       if (activePhase === "AB") {
         cPolRYter
@@ -1110,6 +1951,189 @@ export default function Lab1() {
         .attr("y", (vcy + centerY_svg) / 2)
         .style("fill", "blue");
 
+      // Update rotational arrows based on activePhase
+      // Fragment animation 2 center (300x220 SVG)
+      const fragCenterX = 150;
+      const fragCenterY = 110;
+      const arrowLength = 100;
+      const perpArrowLength = 90;
+
+      // Calculate angles for phase voltages (rotating with time)
+      const angleVa = -window.time;
+      const angleVb = -window.time + (2 * Math.PI) / 3;
+      const angleVc = -window.time - (2 * Math.PI) / 3;
+
+      // Calculate phase-to-phase voltage angles
+      // Vab = Va - Vb (points from B to A)
+      const angleVab = angleVa + Math.PI;
+      // Vbc = Vb - Vc (points from C to B)
+      const angleVbc = angleVb + Math.PI;
+      // Vca = Vc - Va (points from A to C)
+      const angleVca = angleVc + Math.PI;
+
+      // Arrow endpoints
+      const vabEndX = fragCenterX + arrowLength * Math.cos(angleVab);
+      const vabEndY = fragCenterY + arrowLength * Math.sin(angleVab);
+      const vbcEndX = fragCenterX + arrowLength * Math.cos(angleVbc);
+      const vbcEndY = fragCenterY + arrowLength * Math.sin(angleVbc);
+      const vcaEndX = fragCenterX + arrowLength * Math.cos(angleVca);
+      const vcaEndY = fragCenterY + arrowLength * Math.sin(angleVca);
+
+      // Perpendicular arrow endpoints (90 degrees from main arrow)
+      const vabPerpAngle = angleVab + Math.PI / 2;
+      const vbcPerpAngle = angleVbc + Math.PI / 2;
+      const vcaPerpAngle = angleVca + Math.PI / 2;
+
+      // Midpoints for perpendicular arrows
+      const vabMidX = (fragCenterX + vabEndX) / 2;
+      const vabMidY = (fragCenterY + vabEndY) / 2;
+      const vbcMidX = (fragCenterX + vbcEndX) / 2;
+      const vbcMidY = (fragCenterY + vbcEndY) / 2;
+      const vcaMidX = (fragCenterX + vcaEndX) / 2;
+      const vcaMidY = (fragCenterY + vcaEndY) / 2;
+
+      // Perpendicular arrow endpoints from midpoint
+      const vcPerpEndX = vabMidX + perpArrowLength * Math.cos(vabPerpAngle);
+      const vcPerpEndY = vabMidY + perpArrowLength * Math.sin(vabPerpAngle);
+      const vaPerpEndX = vbcMidX + perpArrowLength * Math.cos(vbcPerpAngle);
+      const vaPerpEndY = vbcMidY + perpArrowLength * Math.sin(vbcPerpAngle);
+      const vbPerpEndX = vcaMidX + perpArrowLength * Math.cos(vcaPerpAngle);
+      const vbPerpEndY = vcaMidY + perpArrowLength * Math.sin(vcaPerpAngle);
+
+      if (activePhase === "AB") {
+        // Show Vab with Vc perpendicular
+        Vab_arrow_rot
+          .attr("d", `m${fragCenterX},${fragCenterY} L${vabEndX},${vabEndY}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+        Vbc_arrow_rot.style("display", "none");
+        Vca_arrow_rot.style("display", "none");
+
+        // Perpendicular Vc arrow
+        Vc_perp_arrow_rot
+          .attr("d", `m${vabMidX},${vabMidY} L${vcPerpEndX},${vcPerpEndY}`)
+          .attr("marker-end", "url(#markB_perp)")
+          .style("display", "inline");
+        Va_perp_arrow_rot.style("display", "none");
+        Vb_perp_arrow_rot.style("display", "none");
+
+        // Hide existing elements
+        Va_Faultter.style("display", "none");
+        Vb_Faultter.style("display", "none");
+        Vc_Faultter.style("display", "none");
+        cPolRYter.style("display", "none");
+        cPolYBter.style("display", "none");
+        cPolBRter.style("display", "none");
+        labelVAter.style("display", "none");
+        labelVBter.style("display", "none");
+        labelVCter.style("display", "none");
+
+        // Labels
+        labelVab_rot
+          .text("Vab")
+          .attr("x", vabEndX + 10)
+          .attr("y", vabEndY)
+          .style("display", "inline");
+        labelVbc_rot.style("display", "none");
+        labelVca_rot.style("display", "none");
+
+        labelVc_rot
+          .text("Vc")
+          .attr("x", vcPerpEndX + 5)
+          .attr("y", vcPerpEndY)
+          .style("display", "inline");
+        labelVa_rot.style("display", "none");
+        labelVb_rot.style("display", "none");
+      } else if (activePhase === "BC") {
+        // Show Vbc with Va perpendicular
+        Vab_arrow_rot.style("display", "none");
+        Vbc_arrow_rot
+          .attr("d", `m${fragCenterX},${fragCenterY} L${vbcEndX},${vbcEndY}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+        Vca_arrow_rot.style("display", "none");
+
+        // Perpendicular Va arrow
+        Vc_perp_arrow_rot.style("display", "none");
+        Va_perp_arrow_rot
+          .attr("d", `m${vbcMidX},${vbcMidY} L${vaPerpEndX},${vaPerpEndY}`)
+          .attr("marker-end", "url(#markR_perp)")
+          .style("display", "inline");
+        Vb_perp_arrow_rot.style("display", "none");
+
+        // Hide existing elements
+        Va_Faultter.style("display", "none");
+        Vb_Faultter.style("display", "none");
+        Vc_Faultter.style("display", "none");
+        cPolRYter.style("display", "none");
+        cPolYBter.style("display", "none");
+        cPolBRter.style("display", "none");
+        labelVAter.style("display", "none");
+        labelVBter.style("display", "none");
+        labelVCter.style("display", "none");
+
+        // Labels
+        labelVab_rot.style("display", "none");
+        labelVbc_rot
+          .text("Vbc")
+          .attr("x", vbcEndX + 10)
+          .attr("y", vbcEndY)
+          .style("display", "inline");
+        labelVca_rot.style("display", "none");
+
+        labelVc_rot.style("display", "none");
+        labelVa_rot
+          .text("Va")
+          .attr("x", vaPerpEndX + 5)
+          .attr("y", vaPerpEndY)
+          .style("display", "inline");
+        labelVb_rot.style("display", "none");
+      } else if (activePhase === "CA") {
+        // Show Vca with Vb perpendicular
+        Vab_arrow_rot.style("display", "none");
+        Vbc_arrow_rot.style("display", "none");
+        Vca_arrow_rot
+          .attr("d", `m${fragCenterX},${fragCenterY} L${vcaEndX},${vcaEndY}`)
+          .attr("marker-end", "url(#markPol)")
+          .style("display", "inline");
+
+        // Perpendicular Vb arrow
+        Vc_perp_arrow_rot.style("display", "none");
+        Va_perp_arrow_rot.style("display", "none");
+        Vb_perp_arrow_rot
+          .attr("d", `m${vcaMidX},${vcaMidY} L${vbPerpEndX},${vbPerpEndY}`)
+          .attr("marker-end", "url(#markY_perp)")
+          .style("display", "inline");
+
+        // Hide existing elements
+        Va_Faultter.style("display", "none");
+        Vb_Faultter.style("display", "none");
+        Vc_Faultter.style("display", "none");
+        cPolRYter.style("display", "none");
+        cPolYBter.style("display", "none");
+        cPolBRter.style("display", "none");
+        labelVAter.style("display", "none");
+        labelVBter.style("display", "none");
+        labelVCter.style("display", "none");
+
+        // Labels
+        labelVab_rot.style("display", "none");
+        labelVbc_rot.style("display", "none");
+        labelVca_rot
+          .text("Vca")
+          .attr("x", vcaEndX + 10)
+          .attr("y", vcaEndY)
+          .style("display", "inline");
+
+        labelVc_rot.style("display", "none");
+        labelVa_rot.style("display", "none");
+        labelVb_rot
+          .text("Vb")
+          .attr("x", vbPerpEndX + 5)
+          .attr("y", vbPerpEndY)
+          .style("display", "inline");
+      }
+
       // Update time
       if (!freezeOn) {
         window.time += 0.03;
@@ -1160,7 +2184,7 @@ export default function Lab1() {
           {/* Left Column: Visualization & Controls (7 Cols) */}
           <div className="lg:col-span-7 space-y-6">
             {/* Visualization Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
               <div className="bg-gray-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
                 <h2 className="font-bold text-slate-700">
                   Vector & Characteristic Analysis
@@ -1181,9 +2205,12 @@ export default function Lab1() {
                 ></div>
               </div>
             </div>
+          </div>
 
-                {/* Controls Card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          {/* Right Column: Description (5 Cols) */}
+          <div className="lg:col-span-5">
+            {/* Simulation Controls - Moved to Right Column */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
                 Simulation Controls
               </h3>
@@ -1287,27 +2314,38 @@ export default function Lab1() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Right Column: Description (5 Cols) */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 h-full min-h-[500px] flex flex-col">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col">
               <div id="tabs" className="flex-1 p-2">
-                <ul className="flex-wrap">
+                <ul className="flex items-center gap-6 bg-white px-6 py-3 rounded-2xl border border-gray-200">
                   <li>
-                    <a href="#option1">Concept (67)</a>
+                    <a
+                      href="#option1"
+                      className="text-gray-600 font-medium hover:text-black transition-colors duration-200"
+                    >
+                      Concept
+                    </a>
                   </li>
                   <li>
-                    <a href="#option2">Directionality</a>
+                    <a
+                      href="#option2"
+                      className="text-gray-600 font-medium hover:text-black transition-colors duration-200"
+                    >
+                      Directionality
+                    </a>
                   </li>
                   <li>
-                    <a href="#option3">RCA Setting</a>
+                    <a
+                      href="#option3"
+                      className="text-gray-600 font-medium hover:text-black transition-colors duration-200"
+                    >
+                      RCA Setting
+                    </a>
                   </li>
                 </ul>
 
                 <div
                   id="option1"
-                  className="px-4 py-6 text-sm text-slate-600 leading-relaxed space-y-4"
+                  className="px-4 py-6 bg-white text-sm text-slate-600 leading-relaxed space-y-4"
                 >
                   <h3 className="text-lg font-bold text-slate-800 mb-2">
                     Directional Overcurrent Protection
@@ -1332,7 +2370,7 @@ export default function Lab1() {
 
                 <div
                   id="option2"
-                  className="px-4 py-6 text-sm text-slate-600 leading-relaxed space-y-4"
+                  className="px-4 bg-white py-6 text-sm text-slate-600 leading-relaxed space-y-4"
                 >
                   <h3 className="text-lg font-bold text-slate-800 mb-2">
                     Principle of Operation
@@ -1367,7 +2405,7 @@ export default function Lab1() {
 
                 <div
                   id="option3"
-                  className="px-4 py-6 text-sm text-slate-600 leading-relaxed space-y-4"
+                  className="px-4 py-6 bg-white text-sm text-slate-600 leading-relaxed space-y-4"
                 >
                   <h3 className="text-lg font-bold text-slate-800 mb-2">
                     Relay Characteristic Angle (RCA)
@@ -1397,11 +2435,8 @@ export default function Lab1() {
             </div>
           </div>
         </div>
-
-        <footer className="mt-12 text-center text-slate-400 text-xs pb-8">
-          <p>&copy; 2024 Dynamic Fault Current Analysis Tool</p>
-        </footer>
       </div>
     </div>
   );
 }
+

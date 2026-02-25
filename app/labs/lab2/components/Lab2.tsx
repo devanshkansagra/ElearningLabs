@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as d3 from "d3";
 import katex from "katex";
+import "katex/dist/katex.min.css";
 import "../style.css";
 
 // Curve constants
@@ -93,6 +94,7 @@ export default function Lab2() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [standard, setStandard] = useState("IEEE");
   const [standardIndex, setStandardIndex] = useState(standards.indexOf("IEEE"));
+  const [renderKey, setRenderKey] = useState(0);
   const [activeTab, setActiveTab] = useState<"primary" | "secondary">(
     "primary",
   );
@@ -164,16 +166,18 @@ export default function Lab2() {
   const width = 650 - margin.left - margin.right;
   const height = 650 - margin.top - margin.bottom;
 
-  // Cycle through standards
-  const cycleStandard = useCallback(() => {
-    const newIndex = (standardIndex + 1) % standards.length;
-    setStandardIndex(newIndex);
-    setStandard(standards[newIndex]);
-    const newCurveOptions =
-      curvesByStandard[standards[newIndex] as keyof typeof curvesByStandard];
-    setCurve1Type(newCurveOptions[0]);
-    setCurve2Type(newCurveOptions[0]);
-  }, [standardIndex]);
+  // Apply selected standard
+  const applyStandard = useCallback(
+    (newIndex: number) => {
+      setStandardIndex(newIndex);
+      setStandard(standards[newIndex]);
+      const newCurveOptions =
+        curvesByStandard[standards[newIndex] as keyof typeof curvesByStandard];
+      setCurve1Type(newCurveOptions[0]);
+      setCurve2Type(newCurveOptions[0]);
+    },
+    [curvesByStandard],
+  );
 
   // Update curve constants when curve type changes
   useEffect(() => {
@@ -186,7 +190,146 @@ export default function Lab2() {
     setCurveConstantsLV(constants);
   }, [curve2Type]);
 
-  // Calculate settings
+  // Run coordination - only check coordination without resetting user values
+  const runCoordination = useCallback(() => {
+    const ctSecondary = standard === "IEC" || standard === "UK" ? 1 : 5;
+
+    // Full Load Current for LV and HV Sides
+    const I_FL_LV = (powerRating * 1e6) / (Math.sqrt(3) * lvVoltage * 1e3);
+    const I_FL_HV = (powerRating * 1e6) / (Math.sqrt(3) * hvVoltage * 1e3);
+    const I_FL_LVsec = I_FL_LV / (ctRatioLV / ctSecondary);
+    const I_FL_HVsec = I_FL_HV / (ctRatioHV / ctSecondary);
+
+    const I_F_LV = I_FL_LV / (impedance / 100);
+    const I_F_HV = I_FL_HV / (impedance / 100);
+    const I_F_LVsec = I_F_LV / (ctRatioLV / ctSecondary);
+    const I_F_HVsec = I_F_HV / (ctRatioHV / ctSecondary);
+
+    // Use CURRENT user values for coordination check
+    const PSM_LV = I_F_LV / curve2Pickup;
+    const PSM_HV = I_F_HV / curve1Pickup;
+
+    // Calculate TMS using current user time dial values
+    const denomLV = Math.pow(PSM_LV, curveConstantsLV.P) - 1;
+    const denomHV = Math.pow(PSM_HV, curveConstantsHV.P) - 1;
+
+    let TMS_LV = curve2TimeDial;
+    let TMS_HV = curve1TimeDial;
+
+    // Only calculate if denominators are valid
+    if (denomLV > 0 && denomHV > 0) {
+      const calculated_TMS_LV =
+        (tripTimeLV - curveConstantsLV.L) /
+        (curveConstantsLV.A / denomLV + curveConstantsLV.B);
+      const calculated_TMS_HV =
+        (tripTimeHV - curveConstantsHV.L) /
+        (curveConstantsHV.A / denomHV + curveConstantsHV.B);
+      
+      // Use calculated TMS if current is at default/zero
+      if (curve2TimeDial <= 0.001) TMS_LV = calculated_TMS_LV;
+      if (curve1TimeDial <= 0.001) TMS_HV = calculated_TMS_HV;
+    }
+
+    // Coordination check using CURRENT user values
+    const coordCurrent = coordinationCurrent || I_F_LV;
+    const tLVCoord = computeTime(
+      coordCurrent,
+      curve2Pickup,
+      curveConstantsLV.A,
+      curveConstantsLV.B,
+      curveConstantsLV.P,
+      curveConstantsLV.L,
+      curve2TimeDial,
+    );
+    const tHVCoord = computeTime(
+      coordCurrent,
+      curve1Pickup,
+      curveConstantsHV.A,
+      curveConstantsHV.B,
+      curveConstantsHV.P,
+      curveConstantsHV.L,
+      curve1TimeDial,
+    );
+
+    let coordResult = null;
+    if (Number.isFinite(tLVCoord) && Number.isFinite(tHVCoord)) {
+      const deltaCoord = tHVCoord - tLVCoord;
+      coordResult = {
+        pass: deltaCoord >= coordinationMargin,
+        delta: deltaCoord,
+        current: coordCurrent,
+        margin: coordinationMargin,
+      };
+      setCoordinationResult(coordResult);
+    }
+
+    // Set primary results based on current values
+    setPrimaryResults({
+      I_FL_HV: I_FL_HV.toFixed(2),
+      I_FL_LV: I_FL_LV.toFixed(2),
+      I_F_LV: I_F_LV.toFixed(2),
+      I_F_HV: I_F_HV.toFixed(2),
+      I_set_LV: curve2Pickup.toFixed(2),
+      I_set_HV: curve1Pickup.toFixed(2),
+      TSM_LV: curve2TimeDial.toFixed(2),
+      TSM_HV: curve1TimeDial.toFixed(2),
+      PSM: PSM_LV.toFixed(2),
+    });
+
+    // Set secondary results
+    setSecondaryResults({
+      I_FL_HV_sec: I_FL_HVsec.toFixed(2),
+      I_FL_LV_sec: I_FL_LVsec.toFixed(2),
+      I_F_LV_sec: I_F_LVsec.toFixed(2),
+      I_F_HV_sec: I_F_HVsec.toFixed(2),
+      I_set_LV_sec: (curve2Pickup / (ctRatioLV / ctSecondary)).toFixed(2),
+      I_set_HV_sec: (curve1Pickup / (ctRatioHV / ctSecondary)).toFixed(2),
+      PSM_LV: PSM_LV.toFixed(2),
+      PSM_HV: PSM_HV.toFixed(2),
+      TSM_LV_sec: curve2TimeDial.toFixed(2),
+      TSM_HV_sec: curve1TimeDial.toFixed(2),
+    });
+
+    // Check warnings using current user values
+    const newWarnings: string[] = [];
+    if (curve1Pickup < 100 || curve1Pickup > 100000) {
+      newWarnings.push("Pickup for HV curve is out of range [100, 100000].");
+    }
+    if (curve2Pickup < 100 || curve2Pickup > 100000) {
+      newWarnings.push("Pickup for LV curve is out of range [100, 100000].");
+    }
+    if (curve1TimeDial < 0.1 || curve1TimeDial > 100) {
+      newWarnings.push("Time Dial for HV curve is out of range [0.1, 100].");
+    }
+    if (curve2TimeDial < 0.1 || curve2TimeDial > 100) {
+      newWarnings.push("Time Dial for LV curve is out of range [0.1, 100].");
+    }
+    setWarnings(newWarnings);
+
+    // Force chart update
+    setRenderKey((k) => k + 1);
+  }, [
+    powerRating,
+    hvVoltage,
+    lvVoltage,
+    impedance,
+    ctRatioHV,
+    ctRatioLV,
+    pickupMargin,
+    coordinationMargin,
+    coordinationCurrent,
+    tripTimeHV,
+    tripTimeLV,
+    curve1Pickup,
+    curve2Pickup,
+    curve1TimeDial,
+    curve2TimeDial,
+    curve1Type,
+    curve2Type,
+    curveConstantsHV,
+    curveConstantsLV,
+    standard,
+  ]);
   const calculateSettings = useCallback(() => {
     const ctSecondary = standard === "IEC" || standard === "UK" ? 1 : 5;
 
@@ -636,6 +779,7 @@ export default function Lab2() {
       .attr("r", 5)
       .attr("fill", "#00FF00");
   }, [
+    renderKey,
     curve1Type,
     curve2Type,
     curve1Pickup,
@@ -655,22 +799,22 @@ export default function Lab2() {
     tripTimeLV,
   ]);
 
-  // Initialize
+  // Initialize - calculate settings when base parameters change
   useEffect(() => {
     calculateSettings();
-  }, [calculateSettings]);
+  }, [powerRating, hvVoltage, lvVoltage, impedance, ctRatioHV, ctRatioLV, pickupMargin, tripTimeHV, tripTimeLV, curve1Type, curve2Type, standard]);
 
   // Equation display
   const renderEquationHV = () => {
     const LText = curveConstantsHV.L === 0 ? "" : ` + ${curveConstantsHV.L}`;
     const BText = curveConstantsHV.B !== 0 ? ` + ${curveConstantsHV.B}` : "";
-    return `t = ${curve1TimeDial.toFixed(2)} * \\left(\\frac{${curveConstantsHV.A.toFixed(2)}}{(I/I_s)^{${curveConstantsHV.P}}-1}${BText}\\right)${LText} { sec}`;
+    return `t = ${curve1TimeDial} * \\left(\\frac{${curveConstantsHV.A.toFixed(2)}}{(I/I_s)^{${curveConstantsHV.P}}-1}${BText}\\right)${LText} { sec}`;
   };
 
   const renderEquationLV = () => {
     const LText = curveConstantsLV.L === 0 ? "" : ` + ${curveConstantsLV.L}`;
     const BText = curveConstantsLV.B !== 0 ? ` + ${curveConstantsLV.B}` : "";
-    return `t = ${curve2TimeDial.toFixed(2)} * \\left(\\frac{${curveConstantsLV.A.toFixed(2)}}{(I/I_s)^{${curveConstantsLV.P}}-1}${BText}\\right)${LText} { sec}`;
+    return `t = ${curve2TimeDial} * \\left(\\frac{${curveConstantsLV.A.toFixed(2)}}{(I/I_s)^{${curveConstantsLV.P}}-1}${BText}\\right)${LText} { sec}`;
   };
 
   return (
@@ -678,7 +822,7 @@ export default function Lab2() {
       <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-            Overcurrent Curves Calculator
+            Time Current Curves Coordination
           </h1>
           <p className="text-slate-500 mt-1">
             Interactive relay coordination and damage curve analyzer
@@ -691,12 +835,29 @@ export default function Lab2() {
           >
             View Curve Constants
           </button>
-          <button
-            onClick={cycleStandard}
-            className="btn-primary text-sm px-6 py-2 shadow-lg"
-          >
-            {standard}
-          </button>
+          <div className="relative group">
+            <div className="mx-3">
+              <select
+                value={standard}
+                onChange={(e) => {
+                  const newIndex = standards.indexOf(e.target.value);
+                  applyStandard(newIndex);
+                }}
+                className="btn-primary text-sm px-8 py-2.5 shadow-lg appearance-none cursor-pointer pr-10 rounded-lg hover:bg-blue-400 text-white font-medium border-0 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all duration-200"
+              >
+                {standards.map((s) => (
+                  <option key={s} value={s} className="bg-white text-gray-800">
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+              <svg className="fill-current h-4 w-4" viewBox="0 0 20 20">
+                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+              </svg>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -957,13 +1118,30 @@ export default function Lab2() {
                   <label className="text-xs uppercase tracking-wider text-slate-500 font-bold">
                     Pickup (A)
                   </label>
-                  <input
-                    type="number"
-                    id="curve1-pickup"
-                    className="custom-input"
-                    value={curve1Pickup.toFixed(2)}
-                    onChange={(e) => setCurve1Pickup(Number(e.target.value))}
-                  />
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-l-md border border-r-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve1Pickup(Math.max(0.01, curve1Pickup - 0.01))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="curve1-pickup"
+                      className="custom-input rounded-none"
+                      value={curve1Pickup.toFixed(2)}
+                      step="0.01"
+                      onChange={(e) => setCurve1Pickup(Number(e.target.value))}
+                    />
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-r-md border border-l-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve1Pickup(curve1Pickup + 0.01)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label
@@ -972,14 +1150,30 @@ export default function Lab2() {
                   >
                     {standard === "IEC" || standard === "UK" ? "TSM" : "TD"}
                   </label>
-                  <input
-                    type="number"
-                    id="curve1TimeDial"
-                    className="custom-input"
-                    value={curve1TimeDial}
-                    step="0.001"
-                    onChange={(e) => setCurve1TimeDial(Number(e.target.value))}
-                  />
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-l-md border border-r-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve1TimeDial(Math.max(0.001, curve1TimeDial - 0.001))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="curve1TimeDial"
+                      className="custom-input rounded-none"
+                      value={curve1TimeDial}
+                      step="0.001"
+                      onChange={(e) => setCurve1TimeDial(Number(e.target.value))}
+                    />
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-r-md border border-l-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve1TimeDial(curve1TimeDial + 0.001)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
               <div
@@ -1025,13 +1219,30 @@ export default function Lab2() {
                   <label className="text-xs uppercase tracking-wider text-slate-500 font-bold">
                     Pickup (A)
                   </label>
-                  <input
-                    type="number"
-                    id="curve2-pickup"
-                    className="custom-input"
-                    value={curve2Pickup.toFixed(2)}
-                    onChange={(e) => setCurve2Pickup(Number(e.target.value))}
-                  />
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-l-md border border-r-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve2Pickup(Math.max(0.01, curve2Pickup - 0.01))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="curve2-pickup"
+                      className="custom-input rounded-none"
+                      value={curve2Pickup.toFixed(2)}
+                      step="0.01"
+                      onChange={(e) => setCurve2Pickup(Number(e.target.value))}
+                    />
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-r-md border border-l-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve2Pickup(curve2Pickup + 0.01)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label
@@ -1040,14 +1251,30 @@ export default function Lab2() {
                   >
                     {standard === "IEC" || standard === "UK" ? "TSM" : "TD"}
                   </label>
-                  <input
-                    type="number"
-                    id="curve2TimeDial"
-                    className="custom-input"
-                    value={curve2TimeDial}
-                    step="0.001"
-                    onChange={(e) => setCurve2TimeDial(Number(e.target.value))}
-                  />
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-l-md border border-r-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve2TimeDial(Math.max(0.001, curve2TimeDial - 0.001))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="curve2TimeDial"
+                      className="custom-input rounded-none"
+                      value={curve2TimeDial}
+                      step="0.001"
+                      onChange={(e) => setCurve2TimeDial(Number(e.target.value))}
+                    />
+                    <button
+                      type="button"
+                      className="px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded-r-md border border-l-0 border-slate-300 text-slate-600"
+                      onClick={() => setCurve2TimeDial(curve2TimeDial + 0.001)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
               <div
@@ -1234,7 +1461,7 @@ export default function Lab2() {
                   <div className="space-y-3">
                     <div className="space-y-1">
                       <label className="text-[10px] text-slate-500 font-bold uppercase">
-                        Current Pts
+                        Current Pts ( Comma Seprated )
                       </label>
                       <input
                         type="text"
@@ -1246,7 +1473,7 @@ export default function Lab2() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-slate-500 font-bold uppercase">
-                        Time Pts
+                        Time Pts ( Comma Seprated )
                       </label>
                       <input
                         type="text"
@@ -1275,7 +1502,7 @@ export default function Lab2() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-slate-500 font-bold uppercase">
-                        Time (s)
+                        Withstand Time (s)
                       </label>
                       <input
                         type="number"
@@ -1296,7 +1523,13 @@ export default function Lab2() {
               <button
                 type="button"
                 id="buttonCalculate"
-                onClick={calculateSettings}
+                onClick={() => {
+                  try {
+                    runCoordination();
+                  } catch (error) {
+                    console.error("Error in runCoordination:", error);
+                  }
+                }}
                 className="w-full mt-6 bg-[#0284c7] hover:bg-[#0284c7]/90 text-dark font-bold py-3 rounded-xl shadow-xl transition-all hover:scale-[1.02] active:scale-95"
               >
                 RUN COORDINATION

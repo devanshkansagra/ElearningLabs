@@ -4,7 +4,59 @@ import { setVoltageInputMode } from "./meteringBase.js";
 import { m, m_inv, M_V } from "./symTransforms.js";
 import * as d3 from "d3";
 import $ from "jquery";
+
+// Global DOM element references - ensure they exist
+var Amp_0, Amp_1, Amp_2, Angle_0, Angle_1, Angle_2;
+var Amp_A, Amp_B, Amp_C, Angle_A, Angle_B, Angle_C;
+var Amp_0_I, Amp_1_I, Amp_2_I, Angle_0_I, Angle_1_I, Angle_2_I;
+var Amp_A_I, Amp_B_I, Amp_C_I, Angle_A_I, Angle_B_I, Angle_C_I;
+var toggleon, toggleon_I, toggleon_Ph, toggleon_Ph_Ph;
+
+// Get constants from window (set by Lab3.tsx)
+const AMP_V_INIT = window.AMP_V_INIT || 115;
+const AMP_I_INIT = window.AMP_I_INIT || 5;
+const PIX_PER_AMP_V = window.PIX_PER_AMP_V || 1;
+const PIX_PER_AMP_I = window.PIX_PER_AMP_I || 1;
+
+// Degree to radian conversion
+const rad = (deg) => deg * Math.PI / 180;
+
+function initGlobalElements() {
+  // Initialize global DOM element references
+  Amp_0 = document.getElementById("Amp_0");
+  Amp_1 = document.getElementById("Amp_1");
+  Amp_2 = document.getElementById("Amp_2");
+  Angle_0 = document.getElementById("Angle_0");
+  Angle_1 = document.getElementById("Angle_1");
+  Angle_2 = document.getElementById("Angle_2");
+  Amp_A = document.getElementById("Amp_A");
+  Amp_B = document.getElementById("Amp_B");
+  Amp_C = document.getElementById("Amp_C");
+  Angle_A = document.getElementById("Angle_A");
+  Angle_B = document.getElementById("Angle_B");
+  Angle_C = document.getElementById("Angle_C");
+  Amp_0_I = document.getElementById("Amp_0_I");
+  Amp_1_I = document.getElementById("Amp_1_I");
+  Amp_2_I = document.getElementById("Amp_2_I");
+  Angle_0_I = document.getElementById("Angle_0_I");
+  Angle_1_I = document.getElementById("Angle_1_I");
+  Angle_2_I = document.getElementById("Angle_2_I");
+  Amp_A_I = document.getElementById("Amp_A_I");
+  Amp_B_I = document.getElementById("Amp_B_I");
+  Amp_C_I = document.getElementById("Amp_C_I");
+  Angle_A_I = document.getElementById("Angle_A_I");
+  Angle_B_I = document.getElementById("Angle_B_I");
+  Angle_C_I = document.getElementById("Angle_C_I");
+  toggleon = document.getElementById("toggleon");
+  toggleon_I = document.getElementById("toggleon_I");
+  toggleon_Ph = document.getElementById("toggleon_Ph");
+  toggleon_Ph_Ph = document.getElementById("toggleon_Ph_Ph");
+}
+
 export function assignValues(recordAndUpdate, History) {
+  // Initialize global DOM element references
+  initGlobalElements();
+  
   // Declare auxiliary variables used in toggle functions
   let Aux, Aux2, Aux3, Aux_I;
 
@@ -575,79 +627,10 @@ export function assignValues(recordAndUpdate, History) {
     change_tab_ABC();
     change_tab_123();
   });
-  d3.selectAll("#Reset_All_Data_V_ABC").on("click", function () {
-    $("#Amp_0").val(0);
-    change_Amp_0();
-    $("#Amp_1").val(AMP_V_INIT);
-    change_Amp_1();
-    $("#Amp_2").val(0);
-    change_Amp_2();
-    $("#Angle_0").val(0);
-    change_Amp_0();
-    $("#Angle_1").val(0);
-    change_Amp_1();
-    $("#Angle_2").val(0);
-    change_Amp_2();
-    if (toggleon.value * 1 === 1) {
-      toggleon.value = 0;
-    }
-    $("#img_toggleon").attr("src", "closed unlock.svg");
-    $("#Amp_A").val(AMP_V_INIT);
-    change_Amp_A();
-    $("#Amp_B").val(AMP_V_INIT);
-    change_Amp_B();
-    $("#Amp_C").val(AMP_V_INIT);
-    change_Amp_C();
-    $("#Angle_A").val(0);
-    change_Amp_A();
-    $("#Angle_B").val(-120);
-    change_Amp_B();
-    $("#Angle_C").val(120);
-    change_Amp_C();
-    if (toggleon.value * 1 === 1) {
-      toggleon.value = 0;
-    }
-    $("#img_toggleon").attr("src", "../img/closed unlock.svg");
-    Three_ph_I = false;
-    Three_ph = false;
-    change_tab_ABC();
-    change_tab_123();
-  });
-  d3.selectAll("#Reset_All_Data_I_ABC").on("click", function () {
-    $("#Amp_0_I").val(0);
-    change_Amp_0_I();
-    $("#Amp_1_I").val(AMP_I_INIT);
-    change_Amp_1_I();
-    $("#Amp_2_I").val(0);
-    change_Amp_2_I();
-    $("#Angle_0_I").val(0);
-    change_Amp_0_I();
-    $("#Angle_1_I").val(0);
-    change_Amp_1_I();
-    $("#Angle_2_I").val(0);
-    change_Amp_2_I();
-    if (toggleon_I.value * 1 === 1) {
-      toggleon_I.value = 0;
-    }
-    $("#img_toggleon_I").attr("src", "closed unlock_I.svg");
-    change_tab_ABC();
-    change_tab_123();
-    $("#Amp_A_I").val(AMP_I_INIT);
-    change_Amp_A_I();
-    $("#Amp_B_I").val(AMP_I_INIT);
-    change_Amp_B_I();
-    $("#Amp_C_I").val(AMP_I_INIT);
-    change_Amp_C_I();
-    $("#Angle_A_I").val(0);
-    change_Amp_A_I();
-    $("#Angle_B_I").val(-120);
-    change_Amp_B_I();
-    $("#Angle_C_I").val(120);
-    change_Amp_C_I();
-    $("#img_toggleon_I").attr("src", "../img/closed unlock_I.svg");
-    Three_ph_I = false;
-    Three_ph = false;
-  });
+  // Reset handlers are now handled via React useState in Lab3.tsx
+  // The React component triggers the reset through state updates
+  // This keeps the logic in sync with React's rendering cycle
+  // Reset I handler is now handled via React useState in Lab3.tsx
 
   function change_three_ph() {
     Aux = toggleon.value * 1;
@@ -884,9 +867,15 @@ export function assignValues(recordAndUpdate, History) {
     ];
 
     const triplet_inv = M_V(m, triplet);
-    va = toScreenXY(triplet_inv[0], p0);
-    vb = toScreenXY(triplet_inv[1], p0);
-    vc = toScreenXY(triplet_inv[2], p0);
+    const toScreenXYFn = window.toScreenXY || function(pt, origin) {
+      const xScale_V = window.xScale_V;
+      const yScale_V = window.yScale_V;
+      return [xScale_V ? xScale_V(pt[0]) : pt[0], yScale_V ? yScale_V(pt[1]) : pt[1]];
+    };
+    const p0 = window.p0 || [window.w / 2 || 300, window.h / 2 || 300];
+    window.va = toScreenXYFn(triplet_inv[0], p0);
+    window.vb = toScreenXYFn(triplet_inv[1], p0);
+    window.vc = toScreenXYFn(triplet_inv[2], p0);
     window.recordAndUpdate();
   }
   function change_Amp_1() {

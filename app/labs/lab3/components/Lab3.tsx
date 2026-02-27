@@ -69,6 +69,20 @@ export default function Lab3() {
     lastDisplayMode: "SEC",
   });
 
+  // React state for reset triggers
+  const [resetVTrigger, setResetVTrigger] = useState(0);
+  const [resetITrigger, setResetITrigger] = useState(0);
+
+  // Handle reset V
+  const handleResetV = () => {
+    setResetVTrigger(prev => prev + 1);
+  };
+
+  // Handle reset I
+  const handleResetI = () => {
+    setResetITrigger(prev => prev + 1);
+  };
+
   useEffect(() => {
     if (typeof document === "undefined") return;
 
@@ -153,6 +167,94 @@ export default function Lab3() {
 
     run();
   }, []);
+
+  // Handle reset V trigger
+  useEffect(() => {
+    if (resetVTrigger === 0) return;
+    
+    // Get the AMP_V_INIT value
+    const AMP_V_INIT = (window as any).AMP_V_INIT || 115;
+    const $ = (window as any).jQuery || require("jquery");
+    
+    if (!$) return;
+    
+    // Set balanced three-phase voltage values
+    $("#Amp_A").val(AMP_V_INIT);
+    $("#Amp_B").val(AMP_V_INIT);
+    $("#Amp_C").val(AMP_V_INIT);
+    $("#Angle_A").val(0);
+    $("#Angle_B").val(-120);
+    $("#Angle_C").val(120);
+    
+    // Reset symmetric components
+    $("#Amp_0").val(0);
+    $("#Amp_1").val(AMP_V_INIT);
+    $("#Amp_2").val(0);
+    $("#Angle_0").val(0);
+    $("#Angle_1").val(0);
+    $("#Angle_2").val(0);
+    
+    // Trigger change events to update the UI
+    $("#Amp_A").trigger("change");
+    $("#Amp_B").trigger("change");
+    $("#Amp_C").trigger("change");
+    $("#Angle_A").trigger("change");
+    $("#Angle_B").trigger("change");
+    $("#Angle_C").trigger("change");
+    
+    // Dispatch custom event for full update
+    setTimeout(() => {
+      const win = window as any;
+      if (win.performUpdateCycle) {
+        win.performUpdateCycle();
+      } else if (win.recordAndUpdate) {
+        win.recordAndUpdate();
+      }
+    }, 50);
+  }, [resetVTrigger]);
+
+  // Handle reset I trigger
+  useEffect(() => {
+    if (resetITrigger === 0) return;
+    
+    const AMP_I_INIT = (window as any).AMP_I_INIT || 5;
+    const $ = (window as any).jQuery || require("jquery");
+    
+    if (!$) return;
+    
+    // Set balanced three-phase current values
+    $("#Amp_A_I").val(AMP_I_INIT);
+    $("#Amp_B_I").val(AMP_I_INIT);
+    $("#Amp_C_I").val(AMP_I_INIT);
+    $("#Angle_A_I").val(0);
+    $("#Angle_B_I").val(-120);
+    $("#Angle_C_I").val(120);
+    
+    // Reset symmetric components
+    $("#Amp_0_I").val(0);
+    $("#Amp_1_I").val(AMP_I_INIT);
+    $("#Amp_2_I").val(0);
+    $("#Angle_0_I").val(0);
+    $("#Angle_1_I").val(0);
+    $("#Angle_2_I").val(0);
+    
+    // Trigger change events
+    $("#Amp_A_I").trigger("change");
+    $("#Amp_B_I").trigger("change");
+    $("#Amp_C_I").trigger("change");
+    $("#Angle_A_I").trigger("change");
+    $("#Angle_B_I").trigger("change");
+    $("#Angle_C_I").trigger("change");
+    
+    setTimeout(() => {
+      const win = window as any;
+      if (win.performUpdateCycle) {
+        win.performUpdateCycle();
+      } else if (win.recordAndUpdate) {
+        win.recordAndUpdate();
+      }
+    }, 50);
+  }, [resetITrigger]);
 
   if (!d3.selection.prototype.nodes) {
     d3.selection.prototype.nodes = function () {
@@ -4720,6 +4822,7 @@ export default function Lab3() {
                       type="button"
                       className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
                       id="Reset_All_Data_V_ABC"
+                      onClick={handleResetV}
                     >
                       Reset V
                     </button>
@@ -5082,6 +5185,7 @@ export default function Lab3() {
                       type="button"
                       className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-lg hover:bg-green-200 transition-colors"
                       id="Reset_All_Data_I_ABC"
+                      onClick={handleResetI}
                     >
                       Reset I
                     </button>

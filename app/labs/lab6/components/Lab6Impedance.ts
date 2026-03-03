@@ -481,10 +481,10 @@ function createQuantityChart(
     .duration(750)
     .call(xAxis)
     .call((g: any) => {
-      g.selectAll(".tick text").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick text").style("fill", "#334155").filter((d: any) => d === 0).remove();
     })
     .select(".domain")
-    .attr("stroke", "white")
+    .attr("stroke", "#94a3b8")
     .each(function (this: Element, d: any, i: number, nodes: any[]) {
       const parent = nodes[i]?.parentNode;
       if (parent) {
@@ -495,7 +495,7 @@ function createQuantityChart(
           .attr("y1", 0.5)
           .attr("y2", 0.5)
           .attr("class", "xAxisAider")
-          .attr("stroke", "white")
+          .attr("stroke", "#94a3b8")
           .attr("marker-end", "url(#markc-xAxis)");
       }
     });
@@ -508,10 +508,10 @@ function createQuantityChart(
     .duration(750)
     .call(yAxis)
     .call((g: any) => {
-      g.selectAll(".tick text").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick text").style("fill", "#334155").filter((d: any) => d === 0).remove();
     })
     .select(".domain")
-    .attr("stroke", "white")
+    .attr("stroke", "#94a3b8")
     .each(function (this: Element, d: any, i: number, nodes: any[]) {
       const parent = nodes[i]?.parentNode;
       if (parent) {
@@ -522,7 +522,7 @@ function createQuantityChart(
           .attr("y1", margin)
           .attr("y2", margin - 15)
           .attr("class", "yAxisAider")
-          .attr("stroke", "white")
+          .attr("stroke", "#94a3b8")
           .attr("marker-end", "url(#markc-yAxis)");
       }
     });

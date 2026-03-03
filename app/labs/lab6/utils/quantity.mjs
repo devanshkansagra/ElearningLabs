@@ -53,10 +53,10 @@ diagramGroup.append("path").attr("d", `m ${w - 17.5 - 10},${margin - 21 + 10} 10
     .transition()               // start the transition
     .duration(750)
     .call(xAxis).call(g => {
-      g.selectAll(".tick text").filter(d => d === 0).remove(); // Remove label "0"
+      g.selectAll(".tick text").style("fill", "#334155").filter(d => d === 0).remove(); // Remove label "0"
     })
     .select(".domain") // Select only the axis line
-    .attr("stroke", "white")
+    .attr("stroke", "#94a3b8")
     .each(function () {
       // Add aider line for X-axis
       d3.select(this.parentNode)
@@ -66,7 +66,7 @@ diagramGroup.append("path").attr("d", `m ${w - 17.5 - 10},${margin - 21 + 10} 10
         .attr("y1", 0.5)
         .attr("y2", 0.5)
         .attr('class', 'xAxisAider')
-        .attr("stroke", "white")
+        .attr("stroke", "#94a3b8")
         .attr("marker-end", "url(#markc-xAxis)");
     });
 
@@ -76,10 +76,10 @@ diagramGroup.append("path").attr("d", `m ${w - 17.5 - 10},${margin - 21 + 10} 10
     .transition()
     .duration(750)
     .call(yAxis)			.call(g => {// Remove edge ticks
-      g.selectAll(".tick text").filter(d => d === 0).remove(); // Remove label "0"
+      g.selectAll(".tick text").style("fill", "#334155").filter(d => d === 0).remove(); // Remove label "0"
     })
     .select(".domain") // Select only the axis line
-    .attr("stroke", "white")
+    .attr("stroke", "#94a3b8")
     .each(function () {
       // Add aider line for Y-axis
       d3.select(this.parentNode)
@@ -89,7 +89,7 @@ diagramGroup.append("path").attr("d", `m ${w - 17.5 - 10},${margin - 21 + 10} 10
         .attr("y1", margin)
         .attr("y2", margin - 15) // Short aider line
         .attr('class', 'yAxisAider')
-        .attr("stroke", "white")
+        .attr("stroke", "#94a3b8")
         .attr("marker-end", "url(#markc-yAxis)");
     }); 
 

@@ -1,6 +1,6 @@
-import * as d3 from 'd3';
+import * as d3 from "d3";
 var _0x4660c9 = _0x24a8;
-(function (t, e) {
+!(function (t, e) {
   for (var r = _0x24a8, a = _0x3e9e(); ; )
     try {
       if (
@@ -322,6 +322,41 @@ function VectorInputs(t, e) {
         B = [s.va0, s[t(142)], s[t(230)]];
       let v = x(st, g, S);
       dataRef = [r, i, v];
+      
+      // Update V0, V1, V2 input fields (using original sequence values)
+      // V2: negative sequence
+      const v2Real = o[2][0][0];
+      const v2Imag = o[2][0][1];
+      const v2Mag = Math.sqrt(v2Real * v2Real + v2Imag * v2Imag);
+      const v2Angle = -Math.atan2(v2Imag, v2Real) * (180 / Math.PI);
+      
+      // V1: positive sequence  
+      const v1Real = o[1][0][0];
+      const v1Imag = o[1][0][1];
+      const v1Mag = Math.sqrt(v1Real * v1Real + v1Imag * v1Imag);
+      const v1Angle = -Math.atan2(v1Imag, v1Real) * (180 / Math.PI);
+      
+      // V0: zero sequence
+      const v0Real = o[0][0][0];
+      const v0Imag = o[0][0][1];
+      const v0Mag = Math.sqrt(v0Real * v0Real + v0Imag * v0Imag);
+      const v0Angle = -Math.atan2(v0Imag, v0Real) * (180 / Math.PI);
+      
+      // Update Cartesian inputs with exact values
+      d3.select("#V2-real").property("value", v2Real.toFixed(3));
+      d3.select("#V2-imaginary").property("value", v2Imag.toFixed(3));
+      d3.select("#V1-real").property("value", v1Real.toFixed(3));
+      d3.select("#V1-imaginary").property("value", v1Imag.toFixed(3));
+      d3.select("#V0-real").property("value", v0Real.toFixed(3));
+      d3.select("#V0-imaginary").property("value", v0Imag.toFixed(3));
+      
+      // Update Polar inputs
+      d3.select("#V2-mag").property("value", v2Mag.toFixed(3));
+      d3.select("#V2-angle").property("value", v2Angle.toFixed(3));
+      d3.select("#V1-mag").property("value", v1Mag.toFixed(3));
+      d3.select("#V1-angle").property("value", v1Angle.toFixed(3));
+      d3.select("#V0-mag").property("value", v0Mag.toFixed(3));
+      d3.select("#V0-angle").property("value", v0Angle.toFixed(3));
     } else {
       var G = o[5][0],
         P = p(G, alpha5),
@@ -444,6 +479,41 @@ function VectorInputs(t, e) {
         (B = [M[t(201)], M[t(142)], M.vc0, M.vd0, M[t(179)], M[t(146)]]));
       let ht = m(st, g, S, vt, ot, dt);
       dataRef = [r, i, v, h, x, ht];
+      
+      // Update V0, V1, V2 input fields for 6-phase case
+      // V2: negative sequence
+      const v2Real = o[2][0][0];
+      const v2Imag = o[2][0][1];
+      const v2Mag = Math.sqrt(v2Real * v2Real + v2Imag * v2Imag);
+      const v2Angle = -Math.atan2(v2Imag, v2Real) * (180 / Math.PI);
+      
+      // V1: positive sequence  
+      const v1Real = o[1][0][0];
+      const v1Imag = o[1][0][1];
+      const v1Mag = Math.sqrt(v1Real * v1Real + v1Imag * v1Imag);
+      const v1Angle = -Math.atan2(v1Imag, v1Real) * (180 / Math.PI);
+      
+      // V0: zero sequence
+      const v0Real = o[0][0][0];
+      const v0Imag = o[0][0][1];
+      const v0Mag = Math.sqrt(v0Real * v0Real + v0Imag * v0Imag);
+      const v0Angle = -Math.atan2(v0Imag, v0Real) * (180 / Math.PI);
+      
+      // Update Cartesian inputs with exact values
+      d3.select("#V2-real").property("value", v2Real.toFixed(3));
+      d3.select("#V2-imaginary").property("value", v2Imag.toFixed(3));
+      d3.select("#V1-real").property("value", v1Real.toFixed(3));
+      d3.select("#V1-imaginary").property("value", v1Imag.toFixed(3));
+      d3.select("#V0-real").property("value", v0Real.toFixed(3));
+      d3.select("#V0-imaginary").property("value", v0Imag.toFixed(3));
+      
+      // Update Polar inputs
+      d3.select("#V2-mag").property("value", v2Mag.toFixed(3));
+      d3.select("#V2-angle").property("value", v2Angle.toFixed(3));
+      d3.select("#V1-mag").property("value", v1Mag.toFixed(3));
+      d3.select("#V1-angle").property("value", v1Angle.toFixed(3));
+      d3.select("#V0-mag").property("value", v0Mag.toFixed(3));
+      d3.select("#V0-angle").property("value", v0Angle.toFixed(3));
     }
     var ht = d3[t(127)]()
       .on(t(134), function (e, r) {
@@ -735,8 +805,8 @@ function VectorInputs(t, e) {
     t[r(149)](r(195), 0.7 * width_vis),
     (window.updateVectors = M));
 }
-(equationsDisplayed(window.vis, numPhases),
-  VectorInputs(window.vis, 3),
+(equationsDisplayed(vis, numPhases),
+  VectorInputs(vis, 3),
   toggleCartesianBtn[_0x4660c9(135)](_0x4660c9(168), (t) => {
     var e = _0x4660c9;
     (console[e(247)](e(224)),

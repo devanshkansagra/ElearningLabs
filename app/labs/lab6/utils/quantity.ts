@@ -7,7 +7,8 @@ export function quantity(
   svg_: d3.Selection<any, any, any, any>,
   colors: { [key: string]: string },
   quantity: string[],
-  chartTitle: string
+  chartTitle: string,
+  isPolar: boolean = true
 ): { updateQuantity: () => void } {
   // Remove any previous chart title
   const parentEl = d3.select(svg_.node()?.parentNode as any);
@@ -20,8 +21,11 @@ export function quantity(
     .style("margin-bottom", "4px")
     .html(`<strong>${chartTitle}</strong>`);
 
+  // Clean up all previous content
   svg_.selectAll(".x-axis").remove();
   svg_.selectAll(".y-axis").remove();
+  svg_.selectAll("#diagramView").remove();
+  svg_.selectAll("#textView").remove();
 
   const w = +svg_.attr("width");
   const h = +svg_.attr("height");
@@ -61,57 +65,93 @@ export function quantity(
   // Determine max scale
   const maxVal = d3.max(sData, d => Math.sqrt(d.value.x ** 2 + d.value.y ** 2)) || 1;
   const scaleX = d3.scaleLinear().domain([-maxVal, maxVal]).range([margin, w - margin]);
-  const scaleY = d3.scaleLinear().domain([maxVal, -maxVal]).range([margin, w - margin]);
+  // Y-axis: domain [-maxVal, maxVal] maps to range [h - margin, margin] (bottom to top)
+  const scaleY = d3.scaleLinear().domain([-maxVal, maxVal]).range([h - margin, margin]);
 
   // Append new axis groups and transition them
   const xAxis = d3.axisBottom(scaleX).ticks(5);
   const yAxis = d3.axisLeft(scaleY).ticks(5);
 
+  // Position axes at origin (0,0) using the scales
+  const xAxisY = scaleY(0);
+  const yAxisX = scaleX(0);
+
   diagramGroup.append("g")
     .attr("class", "x-axis")
-    .attr("transform", `translate(0,${h / 2})`)
+    .attr("transform", `translate(0,${xAxisY})`)
     .transition()
     .duration(750)
     .call(xAxis as any)
     .call((g: any) => {
-      g.selectAll(".tick text").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick text").style("fill", "#000000").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick line").attr("stroke", "#94a3b8");
     })
     .select(".domain")
-    .attr("stroke", "white")
+    .attr("stroke", "#000000")
     .each((d: any, i: any, nodes: any) => {
       d3.select(nodes[i].parentNode as any)
         .append("line")
         .attr("x1", w - margin)
-        .attr("x2", w - margin + 15)
+        .attr("x2", w - margin + 12)
         .attr("y1", 0.5)
         .attr("y2", 0.5)
         .attr('class', 'xAxisAider')
-        .attr("stroke", "white")
+        .attr("stroke", "#000000")
         .attr("marker-end", "url(#markc-xAxis)");
     });
 
   diagramGroup.append("g")
     .attr("class", "y-axis")
-    .attr("transform", `translate(${w / 2},0)`)
+    .attr("transform", `translate(${yAxisX},0)`)
     .transition()
     .duration(750)
     .call(yAxis as any)
     .call((g: any) => {
-      g.selectAll(".tick text").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick text").style("fill", "#000000").filter((d: any) => d === 0).remove();
+      g.selectAll(".tick line").attr("stroke", "#94a3b8");
     })
     .select(".domain")
-    .attr("stroke", "white")
+    .attr("stroke", "#000000")
     .each((d: any, i: any, nodes: any) => {
       d3.select(nodes[i].parentNode as any)
         .append("line")
         .attr("x1", 0.5)
         .attr("x2", 0.5)
         .attr("y1", margin)
-        .attr("y2", margin - 15)
+        .attr("y2", margin - 12)
         .attr('class', 'yAxisAider')
-        .attr("stroke", "white")
+        .attr("stroke", "#000000")
         .attr("marker-end", "url(#markc-yAxis)");
     });
+
+  // Add axis markers (arrowheads) for x and y axes
+  const defs = svg_.select("defs").empty() ? svg_.append("defs") : svg_.select("defs");
+  
+  // X-axis marker
+  defs.append("marker")
+    .attr("id", "markc-xAxis")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 8)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#000000");
+  
+  // Y-axis marker
+  defs.append("marker")
+    .attr("id", "markc-yAxis")
+    .attr("viewBox", "0 -5 10 10")
+    .attr("refX", 8)
+    .attr("refY", 0)
+    .attr("markerWidth", 6)
+    .attr("markerHeight", 6)
+    .attr("orient", "auto")
+    .append("path")
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#000000");
 
   const textItems = textGroup.selectAll("text")
     .data(sData)
@@ -196,17 +236,27 @@ export function quantity(
     .style("font-weight", "bold")
     .style("fill", d => colors[d.key.charAt(1)])
     .each(function(d: any) {
-      const magnitude = Math.sqrt(d.value.x * d.value.x + d.value.y * d.value.y).toFixed(1);
-      const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(0);
-
-      d3.select(this)
-        .append("tspan")
-        .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${magnitude} `);
-
-      d3.select(this)
-        .append("tspan")
-        .style("text-decoration", "underline")
-        .text(`/${angle}°`);
+      if (isPolar) {
+        // Polar format: KEY = magnitude /angle°
+        const magnitude = Math.sqrt(d.value.x * d.value.x + d.value.y * d.value.y).toFixed(1);
+        const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(0);
+        d3.select(this)
+          .append("tspan")
+          .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${magnitude} `);
+        d3.select(this)
+          .append("tspan")
+          .style("text-decoration", "underline")
+          .text(`/${angle}°`);
+      } else {
+        // Cartesian format: KEY = real + j imag
+        const x = d.value.x;
+        const y = d.value.y;
+        const sign = y >= 0 ? '+' : '-';
+        const yAbs = Math.abs(y).toFixed(2);
+        d3.select(this)
+          .append("tspan")
+          .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${x.toFixed(2)} ${sign} j${yAbs}`);
+      }
     });
 
   // Optional update method if values change
@@ -216,7 +266,7 @@ export function quantity(
     });
     const newMax = d3.max(sData, d => Math.sqrt(d.value.x ** 2 + d.value.y ** 2)) || 1;
     scaleX.domain([-newMax, newMax]);
-    scaleY.domain([newMax, -newMax]);
+    scaleY.domain([-newMax, newMax]);
 
     svg_.select(".x-axis")
       .transition()
@@ -241,19 +291,28 @@ export function quantity(
       .attr("x", d => scaleX(d.value.x))
       .attr("y", d => scaleY(d.value.y))
       .each(function(d: any) {
-        const magnitude = Math.sqrt(d.value.x * d.value.x + d.value.y * d.value.y).toFixed(1);
-        const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(1);
-
         d3.select(this).text(null);
-
-        d3.select(this)
-          .append("tspan")
-          .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${magnitude}`);
-
-        d3.select(this)
-          .append("tspan")
-          .style("text-decoration", "underline")
-          .text(`/${angle}°`);
+        if (isPolar) {
+          // Polar format: KEY = magnitude /angle°
+          const magnitude = Math.sqrt(d.value.x * d.value.x + d.value.y * d.value.y).toFixed(1);
+          const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(1);
+          d3.select(this)
+            .append("tspan")
+            .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${magnitude}`);
+          d3.select(this)
+            .append("tspan")
+            .style("text-decoration", "underline")
+            .text(`/${angle}°`);
+        } else {
+          // Cartesian format: KEY = real + j imag
+          const x = d.value.x;
+          const y = d.value.y;
+          const sign = y >= 0 ? '+' : '-';
+          const yAbs = Math.abs(y).toFixed(2);
+          d3.select(this)
+            .append("tspan")
+            .text(`${(d.key === 'ZsymetricalTotal') ? 'ZT' : d.key} = ${x.toFixed(2)} ${sign} j${yAbs}`);
+        }
       });
 
     updateTextView();

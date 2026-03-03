@@ -1,11 +1,16 @@
 @import "tailwindcss";
 :root{--brand-color:steelblue;--negative-sequence:magenta;--positive-sequence:limegreen;--zero-sequence:darkgrey;--vector-a:#dc143c;--vector-b:gold;--vector-c:blue;--vector-d:rgba(255, 0, 0, 0.75);--vector-e:orange;--vector-f:rgba(0, 255, 255);--vector-0:darkgrey;--vector-1:limegreen;--vector-2:magenta;--vector-3:black;--vector-4:#20b2aa;--vector-5:#ff1493}
 
+* {
+  overflow: hidden;
+}
+
 /* Phasor field toggle visibility */
 .phasor-fields.phasor-cartesian,
 .phasor-fields.phasor-polar {
   display: grid;
 }
+
 
 #phasorControls[data-mode=cartesian] .phasor-polar,
 #sequenceControls[data-mode=cartesian] .phasor-polar {
@@ -36,11 +41,11 @@
   max-width: 260px;
 }
 
-#vis {
+/* #vis {
   position: relative;
   width: 100%;
-  min-height: 600px;
-}
+  height: 600px;
+} */
 
 @media (max-width: 900px) {
   #phasorControls {
@@ -63,7 +68,6 @@
 circle{fill:rgba(255,255,255,.1);stroke:#000;stroke-width:.2px}
 circle:hover{stroke-width:1px;cursor:grab}
 
-#Containersvg{overflow:visible}
 
 polyline{stroke-width:5px}
 polyline.vectora{stroke:var(--vector-a);stroke-width:4.5px;stroke-linecap:round}

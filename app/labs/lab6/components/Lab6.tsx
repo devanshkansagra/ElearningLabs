@@ -1,5 +1,5 @@
 "use client";
-import '../style.css'
+import "../style.css";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import * as d3 from "d3";
 import * as ComplexOp from "../utils/ComplexOperatorAid";
@@ -10,7 +10,7 @@ import * as Quantity from "../utils/quantity";
 
 export interface VectorDataValue {
   x: number;
-  y: number; 
+  y: number;
   magnitude?: number;
   angle?: number;
 }
@@ -21,35 +21,65 @@ export interface VectorsData {
 
 const Lab6 = () => {
   const [isPolar, setIsPolar] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const svgMainRef = useRef<SVGSVGElement>(null);
   const hasInitialized = useRef(false);
-  
+
   // Store refs for SVG elements
   const svgRef = useRef<d3.Selection<any, any, any, any> | null>(null);
   const mainGroupRef = useRef<d3.Selection<any, any, any, any> | null>(null);
   const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const yScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const vectorsDataRef = useRef<any>(null);
-  
+
   // Refs for secondary SVGs
-  const svg_apparentPowerRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_admittanceRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_SequenceImpedanceRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_SequenceCurrentAndVoltageRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_PhasePhaseVoltageRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_PhasePhaseCurrentRef = useRef<d3.Selection<any, any, any, any> | null>(null);
-  const svg_PhasePhaseImpedanceRef = useRef<d3.Selection<any, any, any, any> | null>(null);
+  const svg_apparentPowerRef = useRef<d3.Selection<any, any, any, any> | null>(
+    null,
+  );
+  const svg_admittanceRef = useRef<d3.Selection<any, any, any, any> | null>(
+    null,
+  );
+  const svg_SequenceImpedanceRef = useRef<d3.Selection<
+    any,
+    any,
+    any,
+    any
+  > | null>(null);
+  const svg_SequenceCurrentAndVoltageRef = useRef<d3.Selection<
+    any,
+    any,
+    any,
+    any
+  > | null>(null);
+  const svg_PhasePhaseVoltageRef = useRef<d3.Selection<
+    any,
+    any,
+    any,
+    any
+  > | null>(null);
+  const svg_PhasePhaseCurrentRef = useRef<d3.Selection<
+    any,
+    any,
+    any,
+    any
+  > | null>(null);
+  const svg_PhasePhaseImpedanceRef = useRef<d3.Selection<
+    any,
+    any,
+    any,
+    any
+  > | null>(null);
   const svg_ZaidsRef = useRef<d3.Selection<any, any, any, any> | null>(null);
 
   // Store update functions for secondary SVGs
-  const updatePowerSCRef = useRef<(() => void) | null>(null);
-  const updatePowerYCRef = useRef<(() => void) | null>(null);
-  const updatePowerSIRef = useRef<(() => void) | null>(null);
-  const updatePowerSCVRef = useRef<(() => void) | null>(null);
-  const updatePowerPPVRef = useRef<(() => void) | null>(null);
-  const updatePowerPPIRef = useRef<(() => void) | null>(null);
-  const updatePowerPPZRef = useRef<(() => void) | null>(null);
-  const updatePowerZaidsRef = useRef<(() => void) | null>(null);
+  const updatePowerSCRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerYCRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerSIRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerSCVRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerPPVRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerPPIRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerPPZRef = useRef<((isPolar?: boolean) => void) | null>(null);
+  const updatePowerZaidsRef = useRef<((isPolar?: boolean) => void) | null>(null);
 
   // Constants
   const svgWidth = 250;
@@ -85,110 +115,134 @@ const Lab6 = () => {
 
     data.Z0.x = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(data.ZA, data.ZB, data.ZC),
-      ComplexOp.III
+      ComplexOp.III,
     ).x;
     data.Z0.y = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(data.ZA, data.ZB, data.ZC),
-      ComplexOp.III
+      ComplexOp.III,
     ).y;
 
     data.Z1.x = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(
         data.ZA,
         ComplexOp.complexMultiplication(data.ZB, a),
-        ComplexOp.complexMultiplication(data.ZC, a2)
+        ComplexOp.complexMultiplication(data.ZC, a2),
       ),
-      ComplexOp.III
+      ComplexOp.III,
     ).x;
     data.Z1.y = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(
         data.ZA,
         ComplexOp.complexMultiplication(data.ZB, a),
-        ComplexOp.complexMultiplication(data.ZC, a2)
+        ComplexOp.complexMultiplication(data.ZC, a2),
       ),
-      ComplexOp.III
+      ComplexOp.III,
     ).y;
 
     data.Z2.x = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(
         data.ZA,
         ComplexOp.complexMultiplication(data.ZB, a2),
-        ComplexOp.complexMultiplication(data.ZC, a)
+        ComplexOp.complexMultiplication(data.ZC, a),
       ),
-      ComplexOp.III
+      ComplexOp.III,
     ).x;
     data.Z2.y = ComplexOp.complexDivision(
       ComplexOp.complexAdd3(
         data.ZA,
         ComplexOp.complexMultiplication(data.ZB, a2),
-        ComplexOp.complexMultiplication(data.ZC, a)
+        ComplexOp.complexMultiplication(data.ZC, a),
       ),
-      ComplexOp.III
+      ComplexOp.III,
     ).y;
 
     return data;
   }, []);
 
   // Initialize quantity displays
-  const initializeQuantities = useCallback((svg: d3.Selection<any, any, any, any>, svgId: string, quantityKeys: string[], title: string) => {
-    const svgEl = d3.select(`#${svgId}`);
-    svgEl.attr("width", svgWidth).attr("height", svgWidth);
-    return Quantity.quantity(vectorsDataRef.current, svgEl, colors, quantityKeys, title);
-  }, [colors]);
+  const initializeQuantities = useCallback(
+    (
+      svg: d3.Selection<any, any, any, any>,
+      svgId: string,
+      quantityKeys: string[],
+      title: string,
+    ) => {
+      const svgEl = d3.select(`#${svgId}`);
+      svgEl.attr("width", svgWidth).attr("height", svgWidth);
+      return Quantity.quantity(
+        vectorsDataRef.current,
+        svgEl,
+        colors,
+        quantityKeys,
+        title,
+        isPolar,
+      );
+    },
+    [colors, isPolar],
+  );
 
   // Create input fields
-  const createInputFields = useCallback((onInputChanged?: (event: Event, d: any) => void) => {
-    // Impedance table
-    Inputs.Inputs(
-      "#input-fields1",
-      "ImpedanceTable Z",
-      "input-field1",
-      [
-        { key: "ZA", value: vectorsDataRef.current.ZA },
-        { key: "ZB", value: vectorsDataRef.current.ZB },
-        { key: "ZC", value: vectorsDataRef.current.ZC },
-        { key: "Z0", value: vectorsDataRef.current.Z0 },
-        { key: "Z1", value: vectorsDataRef.current.Z1 },
-        { key: "Z2", value: vectorsDataRef.current.Z2 },
-      ],
-      onInputChanged || (() => {})
-    );
+  const createInputFields = useCallback(
+    (onInputChanged?: (event: Event, d: any) => void) => {
+      // Clear existing tables to prevent duplicates
+      const inputFields1 = document.getElementById("input-fields1");
+      const inputFields = document.getElementById("input-fields");
+      if (inputFields1) inputFields1.innerHTML = "";
+      if (inputFields) inputFields.innerHTML = "";
 
-    // Current and voltage table
-    Inputs.Inputs(
-      "#input-fields",
-      "CurrentAndVoltageTable",
-      "input-field",
-      [
-        { key: "VA", value: vectorsDataRef.current.VA },
-        { key: "VB", value: vectorsDataRef.current.VB },
-        { key: "VC", value: vectorsDataRef.current.VC },
-        { key: "IA", value: vectorsDataRef.current.IA },
-        { key: "IB", value: vectorsDataRef.current.IB },
-        { key: "IC", value: vectorsDataRef.current.IC },
-      ],
-      onInputChanged || (() => {})
-    );
+      // Impedance table
+      Inputs.Inputs(
+        "#input-fields1",
+        "ImpedanceTable Z",
+        "input-field1",
+        [
+          { key: "ZA", value: vectorsDataRef.current.ZA },
+          { key: "ZB", value: vectorsDataRef.current.ZB },
+          { key: "ZC", value: vectorsDataRef.current.ZC },
+          { key: "Z0", value: vectorsDataRef.current.Z0 },
+          { key: "Z1", value: vectorsDataRef.current.Z1 },
+          { key: "Z2", value: vectorsDataRef.current.Z2 },
+        ],
+        onInputChanged || (() => {}),
+      );
 
-    // Polar input table
-    Inputs.InputsPolar(
-      "#input-fields",
-      "polarTable",
-      "input-fieldPolar",
-      [
-        { key: "VA", value: vectorsDataRef.current.VA },
-        { key: "VB", value: vectorsDataRef.current.VB },
-        { key: "VC", value: vectorsDataRef.current.VC },
-        { key: "IA", value: vectorsDataRef.current.IA },
-        { key: "IB", value: vectorsDataRef.current.IB },
-        { key: "IC", value: vectorsDataRef.current.IC },
-      ],
-      onInputChanged || (() => {})
-    );
+      // Current and voltage table
+      Inputs.Inputs(
+        "#input-fields",
+        "CurrentAndVoltageTable",
+        "input-field",
+        [
+          { key: "VA", value: vectorsDataRef.current.VA },
+          { key: "VB", value: vectorsDataRef.current.VB },
+          { key: "VC", value: vectorsDataRef.current.VC },
+          { key: "IA", value: vectorsDataRef.current.IA },
+          { key: "IB", value: vectorsDataRef.current.IB },
+          { key: "IC", value: vectorsDataRef.current.IC },
+        ],
+        onInputChanged || (() => {}),
+      );
 
-    // Make Z fields readonly
-    d3.selectAll(".Z").attr("readonly", true).style("pointer-events", "none");
-  }, []);
+      // Polar input table
+      Inputs.InputsPolar(
+        "#input-fields",
+        "polarTable",
+        "input-fieldPolar",
+        [
+          { key: "VA", value: vectorsDataRef.current.VA },
+          { key: "VB", value: vectorsDataRef.current.VB },
+          { key: "VC", value: vectorsDataRef.current.VC },
+          { key: "IA", value: vectorsDataRef.current.IA },
+          { key: "IB", value: vectorsDataRef.current.IB },
+          { key: "IC", value: vectorsDataRef.current.IC },
+        ],
+        onInputChanged || (() => {}),
+      );
+
+      // Make Z fields readonly
+      d3.selectAll(".Z").attr("readonly", true).style("pointer-events", "none");
+    },
+    [],
+  );
 
   useEffect(() => {
     // Prevent double initialization in React StrictMode
@@ -199,196 +253,433 @@ const Lab6 = () => {
     const vectorsData: any = {
       VA: { x: 2, y: 0 },
       VAB: {
-        get x() { return vectorsData.VB.x - vectorsData.VA.x; },
-        get y() { return vectorsData.VB.y - vectorsData.VA.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.VB.x - vectorsData.VA.x;
+        },
+        get y() {
+          return vectorsData.VB.y - vectorsData.VA.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       VB: { x: -1, y: +Math.sqrt(3) },
       VBC: {
-        get x() { return vectorsData.VC.x - vectorsData.VB.x; },
-        get y() { return vectorsData.VC.y - vectorsData.VB.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.VC.x - vectorsData.VB.x;
+        },
+        get y() {
+          return vectorsData.VC.y - vectorsData.VB.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       VC: { x: -1, y: -Math.sqrt(3) },
       VCA: {
-        get x() { return vectorsData.VA.x - vectorsData.VC.x; },
-        get y() { return vectorsData.VA.y - vectorsData.VC.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.VA.x - vectorsData.VC.x;
+        },
+        get y() {
+          return vectorsData.VA.y - vectorsData.VC.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       IA: { x: 1, y: 0 },
       IAB: {
-        get x() { return vectorsData.IB.x - vectorsData.IA.x; },
-        get y() { return vectorsData.IB.y - vectorsData.IA.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.IB.x - vectorsData.IA.x;
+        },
+        get y() {
+          return vectorsData.IB.y - vectorsData.IA.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       IB: { x: -0.5, y: +0.8660254037844386 },
       IBC: {
-        get x() { return vectorsData.IC.x - vectorsData.IB.x; },
-        get y() { return vectorsData.IC.y - vectorsData.IB.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.IC.x - vectorsData.IB.x;
+        },
+        get y() {
+          return vectorsData.IC.y - vectorsData.IB.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       IC: { x: -0.5, y: -0.8660254037844386 },
       ICA: {
-        get x() { return vectorsData.IA.x - vectorsData.IC.x; },
-        get y() { return vectorsData.IA.y - vectorsData.IC.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.IA.x - vectorsData.IC.x;
+        },
+        get y() {
+          return vectorsData.IA.y - vectorsData.IC.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       SA: {
-        get x() { return vectorsData.VA.x * vectorsData.IA.x - vectorsData.VA.y * vectorsData.IA.y; },
-        get y() { return vectorsData.VA.y * vectorsData.IA.x + vectorsData.VA.x * vectorsData.IA.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (
+            vectorsData.VA.x * vectorsData.IA.x -
+            vectorsData.VA.y * vectorsData.IA.y
+          );
+        },
+        get y() {
+          return (
+            vectorsData.VA.y * vectorsData.IA.x +
+            vectorsData.VA.x * vectorsData.IA.y
+          );
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       SB: {
-        get x() { return vectorsData.VB.x * vectorsData.IB.x - vectorsData.VB.y * vectorsData.IB.y; },
-        get y() { return vectorsData.VB.y * vectorsData.IB.x + vectorsData.VB.x * vectorsData.IB.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (
+            vectorsData.VB.x * vectorsData.IB.x -
+            vectorsData.VB.y * vectorsData.IB.y
+          );
+        },
+        get y() {
+          return (
+            vectorsData.VB.y * vectorsData.IB.x +
+            vectorsData.VB.x * vectorsData.IB.y
+          );
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       SC: {
-        get x() { return vectorsData.VC.x * vectorsData.IC.x - vectorsData.VC.y * vectorsData.IC.y; },
-        get y() { return vectorsData.VC.y * vectorsData.IC.x + vectorsData.VC.x * vectorsData.IC.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (
+            vectorsData.VC.x * vectorsData.IC.x -
+            vectorsData.VC.y * vectorsData.IC.y
+          );
+        },
+        get y() {
+          return (
+            vectorsData.VC.y * vectorsData.IC.x +
+            vectorsData.VC.x * vectorsData.IC.y
+          );
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       S0: {
-        get x() { return (vectorsData.SA.x + vectorsData.SB.x + vectorsData.SC.x) / 3; },
-        get y() { return (vectorsData.SA.y + vectorsData.SB.y + vectorsData.SC.y) / 3; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (vectorsData.SA.x + vectorsData.SB.x + vectorsData.SC.x) / 3;
+        },
+        get y() {
+          return (vectorsData.SA.y + vectorsData.SB.y + vectorsData.SC.y) / 3;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       S1: {
         get x() {
-          const SBx_a2 = vectorsData.SB.x * ComplexOp.a2.x - vectorsData.SB.y * ComplexOp.a2.y;
-          const SBy_a2 = vectorsData.SB.x * ComplexOp.a2.y + vectorsData.SB.y * ComplexOp.a2.x;
-          const SCx_a = vectorsData.SC.x * ComplexOp.a.x - vectorsData.SC.y * ComplexOp.a.y;
-          const SCy_a = vectorsData.SC.x * ComplexOp.a.y + vectorsData.SC.y * ComplexOp.a.x;
+          const SBx_a2 =
+            vectorsData.SB.x * ComplexOp.a2.x -
+            vectorsData.SB.y * ComplexOp.a2.y;
+          const SBy_a2 =
+            vectorsData.SB.x * ComplexOp.a2.y +
+            vectorsData.SB.y * ComplexOp.a2.x;
+          const SCx_a =
+            vectorsData.SC.x * ComplexOp.a.x - vectorsData.SC.y * ComplexOp.a.y;
+          const SCy_a =
+            vectorsData.SC.x * ComplexOp.a.y + vectorsData.SC.y * ComplexOp.a.x;
           return (vectorsData.SA.x + SBx_a2 + SCx_a) / 3;
         },
         get y() {
-          const SBx_a2 = vectorsData.SB.x * ComplexOp.a2.x - vectorsData.SB.y * ComplexOp.a2.y;
-          const SBy_a2 = vectorsData.SB.x * ComplexOp.a2.y + vectorsData.SB.y * ComplexOp.a2.x;
-          const SCx_a = vectorsData.SC.x * ComplexOp.a.x - vectorsData.SC.y * ComplexOp.a.y;
-          const SCy_a = vectorsData.SC.x * ComplexOp.a.y + vectorsData.SC.y * ComplexOp.a.x;
+          const SBx_a2 =
+            vectorsData.SB.x * ComplexOp.a2.x -
+            vectorsData.SB.y * ComplexOp.a2.y;
+          const SBy_a2 =
+            vectorsData.SB.x * ComplexOp.a2.y +
+            vectorsData.SB.y * ComplexOp.a2.x;
+          const SCx_a =
+            vectorsData.SC.x * ComplexOp.a.x - vectorsData.SC.y * ComplexOp.a.y;
+          const SCy_a =
+            vectorsData.SC.x * ComplexOp.a.y + vectorsData.SC.y * ComplexOp.a.x;
           return (vectorsData.SA.y + SBy_a2 + SCy_a) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       S2: {
         get x() {
-          const SBx_a = vectorsData.SB.x * ComplexOp.a.x - vectorsData.SB.y * ComplexOp.a.y;
-          const SBy_a = vectorsData.SB.x * ComplexOp.a.y + vectorsData.SB.y * ComplexOp.a.x;
-          const SCx_a2 = vectorsData.SC.x * ComplexOp.a2.x - vectorsData.SC.y * ComplexOp.a2.y;
-          const SCy_a2 = vectorsData.SC.x * ComplexOp.a2.y + vectorsData.SC.y * ComplexOp.a2.x;
+          const SBx_a =
+            vectorsData.SB.x * ComplexOp.a.x - vectorsData.SB.y * ComplexOp.a.y;
+          const SBy_a =
+            vectorsData.SB.x * ComplexOp.a.y + vectorsData.SB.y * ComplexOp.a.x;
+          const SCx_a2 =
+            vectorsData.SC.x * ComplexOp.a2.x -
+            vectorsData.SC.y * ComplexOp.a2.y;
+          const SCy_a2 =
+            vectorsData.SC.x * ComplexOp.a2.y +
+            vectorsData.SC.y * ComplexOp.a2.x;
           return (vectorsData.SA.x + SBx_a + SCx_a2) / 3;
         },
         get y() {
-          const SBx_a = vectorsData.SB.x * ComplexOp.a.x - vectorsData.SB.y * ComplexOp.a.y;
-          const SBy_a = vectorsData.SB.x * ComplexOp.a.y + vectorsData.SB.y * ComplexOp.a.x;
-          const SCx_a2 = vectorsData.SC.x * ComplexOp.a2.x - vectorsData.SC.y * ComplexOp.a2.y;
-          const SCy_a2 = vectorsData.SC.x * ComplexOp.a2.y + vectorsData.SC.y * ComplexOp.a2.x;
+          const SBx_a =
+            vectorsData.SB.x * ComplexOp.a.x - vectorsData.SB.y * ComplexOp.a.y;
+          const SBy_a =
+            vectorsData.SB.x * ComplexOp.a.y + vectorsData.SB.y * ComplexOp.a.x;
+          const SCx_a2 =
+            vectorsData.SC.x * ComplexOp.a2.x -
+            vectorsData.SC.y * ComplexOp.a2.y;
+          const SCy_a2 =
+            vectorsData.SC.x * ComplexOp.a2.y +
+            vectorsData.SC.y * ComplexOp.a2.x;
           return (vectorsData.SA.y + SBy_a + SCy_a2) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       ZA: { x: 2, y: 0 },
       ZB: { x: 2, y: 0 },
       ZC: { x: 2, y: 0 },
       I0: {
-        get x() { return (vectorsData.IA.x + vectorsData.IB.x + vectorsData.IC.x) / 3; },
-        get y() { return (vectorsData.IA.y + vectorsData.IB.y + vectorsData.IC.y) / 3; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (vectorsData.IA.x + vectorsData.IB.x + vectorsData.IC.x) / 3;
+        },
+        get y() {
+          return (vectorsData.IA.y + vectorsData.IB.y + vectorsData.IC.y) / 3;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       I1: {
         get x() {
-          const IBx_a2 = vectorsData.IB.x * ComplexOp.a2.x - vectorsData.IB.y * ComplexOp.a2.y;
-          const IBy_a2 = vectorsData.IB.x * ComplexOp.a2.y + vectorsData.IB.y * ComplexOp.a2.x;
-          const ICx_a = vectorsData.IC.x * ComplexOp.a.x - vectorsData.IC.y * ComplexOp.a.y;
-          const ICy_a = vectorsData.IC.x * ComplexOp.a.y + vectorsData.IC.y * ComplexOp.a.x;
+          const IBx_a2 =
+            vectorsData.IB.x * ComplexOp.a2.x -
+            vectorsData.IB.y * ComplexOp.a2.y;
+          const IBy_a2 =
+            vectorsData.IB.x * ComplexOp.a2.y +
+            vectorsData.IB.y * ComplexOp.a2.x;
+          const ICx_a =
+            vectorsData.IC.x * ComplexOp.a.x - vectorsData.IC.y * ComplexOp.a.y;
+          const ICy_a =
+            vectorsData.IC.x * ComplexOp.a.y + vectorsData.IC.y * ComplexOp.a.x;
           return (vectorsData.IA.x + IBx_a2 + ICx_a) / 3;
         },
         get y() {
-          const IBx_a2 = vectorsData.IB.x * ComplexOp.a2.x - vectorsData.IB.y * ComplexOp.a2.y;
-          const IBy_a2 = vectorsData.IB.x * ComplexOp.a2.y + vectorsData.IB.y * ComplexOp.a2.x;
-          const ICx_a = vectorsData.IC.x * ComplexOp.a.x - vectorsData.IC.y * ComplexOp.a.y;
-          const ICy_a = vectorsData.IC.x * ComplexOp.a.y + vectorsData.IC.y * ComplexOp.a.x;
+          const IBx_a2 =
+            vectorsData.IB.x * ComplexOp.a2.x -
+            vectorsData.IB.y * ComplexOp.a2.y;
+          const IBy_a2 =
+            vectorsData.IB.x * ComplexOp.a2.y +
+            vectorsData.IB.y * ComplexOp.a2.x;
+          const ICx_a =
+            vectorsData.IC.x * ComplexOp.a.x - vectorsData.IC.y * ComplexOp.a.y;
+          const ICy_a =
+            vectorsData.IC.x * ComplexOp.a.y + vectorsData.IC.y * ComplexOp.a.x;
           return (vectorsData.IA.y + IBy_a2 + ICy_a) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       I2: {
         get x() {
-          const IBx_a = vectorsData.IB.x * ComplexOp.a.x - vectorsData.IB.y * ComplexOp.a.y;
-          const IBy_a = vectorsData.IB.x * ComplexOp.a.y + vectorsData.IB.y * ComplexOp.a.x;
-          const ICx_a2 = vectorsData.IC.x * ComplexOp.a2.x - vectorsData.IC.y * ComplexOp.a2.y;
-          const ICy_a2 = vectorsData.IC.x * ComplexOp.a2.y + vectorsData.IC.y * ComplexOp.a2.x;
+          const IBx_a =
+            vectorsData.IB.x * ComplexOp.a.x - vectorsData.IB.y * ComplexOp.a.y;
+          const IBy_a =
+            vectorsData.IB.x * ComplexOp.a.y + vectorsData.IB.y * ComplexOp.a.x;
+          const ICx_a2 =
+            vectorsData.IC.x * ComplexOp.a2.x -
+            vectorsData.IC.y * ComplexOp.a2.y;
+          const ICy_a2 =
+            vectorsData.IC.x * ComplexOp.a2.y +
+            vectorsData.IC.y * ComplexOp.a2.x;
           return (vectorsData.IA.x + IBx_a + ICx_a2) / 3;
         },
         get y() {
-          const IBx_a = vectorsData.IB.x * ComplexOp.a.x - vectorsData.IB.y * ComplexOp.a.y;
-          const IBy_a = vectorsData.IB.x * ComplexOp.a.y + vectorsData.IB.y * ComplexOp.a.x;
-          const ICx_a2 = vectorsData.IC.x * ComplexOp.a2.x - vectorsData.IC.y * ComplexOp.a2.y;
-          const ICy_a2 = vectorsData.IC.x * ComplexOp.a2.y + vectorsData.IC.y * ComplexOp.a2.x;
+          const IBx_a =
+            vectorsData.IB.x * ComplexOp.a.x - vectorsData.IB.y * ComplexOp.a.y;
+          const IBy_a =
+            vectorsData.IB.x * ComplexOp.a.y + vectorsData.IB.y * ComplexOp.a.x;
+          const ICx_a2 =
+            vectorsData.IC.x * ComplexOp.a2.x -
+            vectorsData.IC.y * ComplexOp.a2.y;
+          const ICy_a2 =
+            vectorsData.IC.x * ComplexOp.a2.y +
+            vectorsData.IC.y * ComplexOp.a2.x;
           return (vectorsData.IA.y + IBy_a + ICy_a2) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       V0: {
-        get x() { return (vectorsData.VA.x + vectorsData.VB.x + vectorsData.VC.x) / 3; },
-        get y() { return (vectorsData.VA.y + vectorsData.VB.y + vectorsData.VC.y) / 3; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (vectorsData.VA.x + vectorsData.VB.x + vectorsData.VC.x) / 3;
+        },
+        get y() {
+          return (vectorsData.VA.y + vectorsData.VB.y + vectorsData.VC.y) / 3;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       V1: {
         get x() {
-          const VBx_a2 = vectorsData.VB.x * ComplexOp.a2.x - vectorsData.VB.y * ComplexOp.a2.y;
-          const VBy_a2 = vectorsData.VB.x * ComplexOp.a2.y + vectorsData.VB.y * ComplexOp.a2.x;
-          const VCx_a = vectorsData.VC.x * ComplexOp.a.x - vectorsData.VC.y * ComplexOp.a.y;
-          const VCy_a = vectorsData.VC.x * ComplexOp.a.y + vectorsData.VC.y * ComplexOp.a.x;
+          const VBx_a2 =
+            vectorsData.VB.x * ComplexOp.a2.x -
+            vectorsData.VB.y * ComplexOp.a2.y;
+          const VBy_a2 =
+            vectorsData.VB.x * ComplexOp.a2.y +
+            vectorsData.VB.y * ComplexOp.a2.x;
+          const VCx_a =
+            vectorsData.VC.x * ComplexOp.a.x - vectorsData.VC.y * ComplexOp.a.y;
+          const VCy_a =
+            vectorsData.VC.x * ComplexOp.a.y + vectorsData.VC.y * ComplexOp.a.x;
           return (vectorsData.VA.x + VBx_a2 + VCx_a) / 3;
         },
         get y() {
-          const VBx_a2 = vectorsData.VB.x * ComplexOp.a2.x - vectorsData.VB.y * ComplexOp.a2.y;
-          const VBy_a2 = vectorsData.VB.x * ComplexOp.a2.y + vectorsData.VB.y * ComplexOp.a2.x;
-          const VCx_a = vectorsData.VC.x * ComplexOp.a.x - vectorsData.VC.y * ComplexOp.a.y;
-          const VCy_a = vectorsData.VC.x * ComplexOp.a.y + vectorsData.VC.y * ComplexOp.a.x;
+          const VBx_a2 =
+            vectorsData.VB.x * ComplexOp.a2.x -
+            vectorsData.VB.y * ComplexOp.a2.y;
+          const VBy_a2 =
+            vectorsData.VB.x * ComplexOp.a2.y +
+            vectorsData.VB.y * ComplexOp.a2.x;
+          const VCx_a =
+            vectorsData.VC.x * ComplexOp.a.x - vectorsData.VC.y * ComplexOp.a.y;
+          const VCy_a =
+            vectorsData.VC.x * ComplexOp.a.y + vectorsData.VC.y * ComplexOp.a.x;
           return (vectorsData.VA.y + VBy_a2 + VCy_a) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       V2: {
         get x() {
-          const VBx_a = vectorsData.VB.x * ComplexOp.a.x - vectorsData.VB.y * ComplexOp.a.y;
-          const VBy_a = vectorsData.VB.x * ComplexOp.a.y + vectorsData.VB.y * ComplexOp.a.x;
-          const VCx_a2 = vectorsData.VC.x * ComplexOp.a2.x - vectorsData.VC.y * ComplexOp.a2.y;
-          const VCy_a2 = vectorsData.VC.x * ComplexOp.a2.y + vectorsData.VC.y * ComplexOp.a2.x;
+          const VBx_a =
+            vectorsData.VB.x * ComplexOp.a.x - vectorsData.VB.y * ComplexOp.a.y;
+          const VBy_a =
+            vectorsData.VB.x * ComplexOp.a.y + vectorsData.VB.y * ComplexOp.a.x;
+          const VCx_a2 =
+            vectorsData.VC.x * ComplexOp.a2.x -
+            vectorsData.VC.y * ComplexOp.a2.y;
+          const VCy_a2 =
+            vectorsData.VC.x * ComplexOp.a2.y +
+            vectorsData.VC.y * ComplexOp.a2.x;
           return (vectorsData.VA.x + VBx_a + VCx_a2) / 3;
         },
         get y() {
-          const VBx_a = vectorsData.VB.x * ComplexOp.a.x - vectorsData.VB.y * ComplexOp.a.y;
-          const VBy_a = vectorsData.VB.x * ComplexOp.a.y + vectorsData.VB.y * ComplexOp.a.x;
-          const VCx_a2 = vectorsData.VC.x * ComplexOp.a2.x - vectorsData.VC.y * ComplexOp.a2.y;
-          const VCy_a2 = vectorsData.VC.x * ComplexOp.a2.y + vectorsData.VC.y * ComplexOp.a2.x;
+          const VBx_a =
+            vectorsData.VB.x * ComplexOp.a.x - vectorsData.VB.y * ComplexOp.a.y;
+          const VBy_a =
+            vectorsData.VB.x * ComplexOp.a.y + vectorsData.VB.y * ComplexOp.a.x;
+          const VCx_a2 =
+            vectorsData.VC.x * ComplexOp.a2.x -
+            vectorsData.VC.y * ComplexOp.a2.y;
+          const VCy_a2 =
+            vectorsData.VC.x * ComplexOp.a2.y +
+            vectorsData.VC.y * ComplexOp.a2.x;
           return (vectorsData.VA.y + VBy_a + VCy_a2) / 3;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
-      Z0: { x: 0, y: 0, get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); }, get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; } },
-      Z1: { x: 3, y: 0, get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); }, get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; } },
-      Z2: { x: 0, y: 0, get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); }, get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; } },
+      Z0: {
+        x: 0,
+        y: 0,
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
+      },
+      Z1: {
+        x: 3,
+        y: 0,
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
+      },
+      Z2: {
+        x: 0,
+        y: 0,
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
+      },
       ZAB: {
         get x() {
           const Nx = vectorsData.VB.x - vectorsData.VA.x;
@@ -406,8 +697,12 @@ const Lab6 = () => {
           const denom = Dx * Dx + Dy * Dy;
           return (Ny * Dx - Nx * Dy) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       ZBC: {
         get x() {
@@ -426,8 +721,12 @@ const Lab6 = () => {
           const denom = Dx * Dx + Dy * Dy;
           return (Ny * Dx - Nx * Dy) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       ZCA: {
         get x() {
@@ -446,68 +745,112 @@ const Lab6 = () => {
           const denom = Dx * Dx + Dy * Dy;
           return (Ny * Dx - Nx * Dy) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       ZsymetricalTotal: {
-        get x() { return vectorsData.Z0.x + vectorsData.Z1.x + vectorsData.Z2.x; },
-        get y() { return vectorsData.Z0.y + vectorsData.Z1.y + vectorsData.Z2.y; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return vectorsData.Z0.x + vectorsData.Z1.x + vectorsData.Z2.x;
+        },
+        get y() {
+          return vectorsData.Z0.y + vectorsData.Z1.y + vectorsData.Z2.y;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       Zn: {
-        get x() { return (vectorsData.Z0.x - vectorsData.Z1.x) / 3; },
-        get y() { return (vectorsData.Z0.y - vectorsData.Z1.y) / 3; },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get x() {
+          return (vectorsData.Z0.x - vectorsData.Z1.x) / 3;
+        },
+        get y() {
+          return (vectorsData.Z0.y - vectorsData.Z1.y) / 3;
+        },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       YA: {
         get x() {
-          const Ax = vectorsData.IA.x, Ay = vectorsData.IA.y;
-          const Bx = vectorsData.VA.x, By = vectorsData.VA.y;
+          const Ax = vectorsData.IA.x,
+            Ay = vectorsData.IA.y;
+          const Bx = vectorsData.VA.x,
+            By = vectorsData.VA.y;
           const denom = Bx * Bx + By * By;
           return (Ax * Bx + Ay * By) / denom;
         },
         get y() {
-          const Ax = vectorsData.IA.x, Ay = vectorsData.IA.y;
-          const Bx = vectorsData.VA.x, By = vectorsData.VA.y;
+          const Ax = vectorsData.IA.x,
+            Ay = vectorsData.IA.y;
+          const Bx = vectorsData.VA.x,
+            By = vectorsData.VA.y;
           const denom = Bx * Bx + By * By;
           return (Ay * Bx - Ax * By) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       YB: {
         get x() {
-          const Ax = vectorsData.IB.x, Ay = vectorsData.IB.y;
-          const Bx = vectorsData.VB.x, By = vectorsData.VB.y;
+          const Ax = vectorsData.IB.x,
+            Ay = vectorsData.IB.y;
+          const Bx = vectorsData.VB.x,
+            By = vectorsData.VB.y;
           const denom = Bx * Bx + By * By;
           return (Ax * Bx + Ay * By) / denom;
         },
         get y() {
-          const Ax = vectorsData.IB.x, Ay = vectorsData.IB.y;
-          const Bx = vectorsData.VB.x, By = vectorsData.VB.y;
+          const Ax = vectorsData.IB.x,
+            Ay = vectorsData.IB.y;
+          const Bx = vectorsData.VB.x,
+            By = vectorsData.VB.y;
           const denom = Bx * Bx + By * By;
           return (Ay * Bx - Ax * By) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
       YC: {
         get x() {
-          const Ax = vectorsData.IC.x, Ay = vectorsData.IC.y;
-          const Bx = vectorsData.VC.x, By = vectorsData.VC.y;
+          const Ax = vectorsData.IC.x,
+            Ay = vectorsData.IC.y;
+          const Bx = vectorsData.VC.x,
+            By = vectorsData.VC.y;
           const denom = Bx * Bx + By * By;
           return (Ax * Bx + Ay * By) / denom;
         },
         get y() {
-          const Ax = vectorsData.IC.x, Ay = vectorsData.IC.y;
-          const Bx = vectorsData.VC.x, By = vectorsData.VC.y;
+          const Ax = vectorsData.IC.x,
+            Ay = vectorsData.IC.y;
+          const Bx = vectorsData.VC.x,
+            By = vectorsData.VC.y;
           const denom = Bx * Bx + By * By;
           return (Ay * Bx - Ax * By) / denom;
         },
-        get magnitude() { return Math.sqrt(this.x ** 2 + this.y ** 2); },
-        get angle() { return (Math.atan2(this.y, this.x) * 180) / Math.PI; },
+        get magnitude() {
+          return Math.sqrt(this.x ** 2 + this.y ** 2);
+        },
+        get angle() {
+          return (Math.atan2(this.y, this.x) * 180) / Math.PI;
+        },
       },
     };
 
@@ -515,12 +858,18 @@ const Lab6 = () => {
     vectorsDataRef.current = vectorsData;
 
     // --- MAIN SVG SETUP ---
-    const svg = d3.select("#cell-1").append("svg")
+    const svg = d3
+      .select("#cell-1")
+      .append("svg")
       .attr("width", svgWidth)
       .attr("height", svgWidth)
+      .attr("viewBox", `0 0 ${svgWidth} ${svgWidth}`)
       .attr("id", "svgMainVisual")
-      .style("overflow", "visible");
-    
+      .attr("class", "w-full h-auto")
+      .style("overflow", "visible")
+      .style("max-width", "100%")
+      .style("max-height", "100%");
+
     svgRef.current = svg;
     const mainGroup = svg.append("g").attr("id", "gMainVisual");
     mainGroupRef.current = mainGroup;
@@ -528,9 +877,12 @@ const Lab6 = () => {
     // --- ARROW MARKERS ---
     AddMarkers.Vmarker(svg, Object.keys(colors), arrowSize, colors);
 
-    svg.append("defs").selectAll("marker")
+    svg
+      .append("defs")
+      .selectAll("marker")
       .data(["markc-arc"])
-      .enter().append("marker")
+      .enter()
+      .append("marker")
       .attr("id", "markc-arc")
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", 5)
@@ -542,10 +894,13 @@ const Lab6 = () => {
       .attr("d", "M0,-5L10,0L0,5")
       .style("fill", "darkgrey");
 
-    svg.append("defs").selectAll("marker")
+    svg
+      .append("defs")
+      .selectAll("marker")
       .data(Object.keys(colorAxis))
-      .enter().append("marker")
-      .attr("id", d => `markc-${d}`)
+      .enter()
+      .append("marker")
+      .attr("id", (d) => `markc-${d}`)
       .attr("viewBox", "0 -10 20 20")
       .attr("refX", 10)
       .attr("refY", 0)
@@ -555,24 +910,33 @@ const Lab6 = () => {
       .append("path")
       .attr("d", "M0,-10L20,0L0,10z")
       .attr("class", "axisMarker")
-      .style("fill", d => colorAxis[d as keyof typeof colorAxis]);
+      .style("fill", (d) => colorAxis[d as keyof typeof colorAxis]);
 
     // --- CLOCKWISE ROTATION ICON ---
-    svg.append("path")
-      .attr("d", "M19.89 10.105a8.696 8.696 0 0 0-.789-1.456l-1.658 1.119a6.606 6.606 0 0 1 .987 2.345 6.659 6.659 0 0 1 0 2.648 6.495 6.495 0 0 1-.384 1.231 6.404 6.404 0 0 1-.603 1.112 6.654 6.654 0 0 1-1.776 1.775 6.606 6.606 0 0 1-2.343.987 6.734 6.734 0 0 1-2.646 0 6.55 6.55 0 0 1-3.317-1.788 6.605 6.605 0 0 1-1.408-2.088 6.613 6.613 0 0 1-.382-1.23 6.627 6.627 0 0 1 .382-3.877A6.551 6.551 0 0 1 7.36 8.797 6.628 6.628 0 0 1 9.446 7.39c.395-.167.81-.296 1.23-.382.107-.022.216-.032.324-.049V10l5-4-5-4v2.938a8.805 8.805 0 0 0-.725.111 8.512 8.512 0 0 0-3.063 1.29A8.566 8.566 0 0 0 4.11 16.77a8.535 8.535 0 0 0 1.835 2.724 8.614 8.614 0 0 0 2.721 1.833 8.55 8.55 0 0 0 5.061.499 8.576 8.576 0 0 0 6.162-5.056c.22-.52.389-1.061.5-1.608a8.643 8.643 0 0 0 0-3.45 8.684 8.684 0 0 0-.499-1.607z")
+    svg
+      .append("path")
+      .attr(
+        "d",
+        "M19.89 10.105a8.696 8.696 0 0 0-.789-1.456l-1.658 1.119a6.606 6.606 0 0 1 .987 2.345 6.659 6.659 0 0 1 0 2.648 6.495 6.495 0 0 1-.384 1.231 6.404 6.404 0 0 1-.603 1.112 6.654 6.654 0 0 1-1.776 1.775 6.606 6.606 0 0 1-2.343.987 6.734 6.734 0 0 1-2.646 0 6.55 6.55 0 0 1-3.317-1.788 6.605 6.605 0 0 1-1.408-2.088 6.613 6.613 0 0 1-.382-1.23 6.627 6.627 0 0 1 .382-3.877A6.551 6.551 0 0 1 7.36 8.797 6.628 6.628 0 0 1 9.446 7.39c.395-.167.81-.296 1.23-.382.107-.022.216-.032.324-.049V10l5-4-5-4v2.938a8.805 8.805 0 0 0-.725.111 8.512 8.512 0 0 0-3.063 1.29A8.566 8.566 0 0 0 4.11 16.77a8.535 8.535 0 0 0 1.835 2.724 8.614 8.614 0 0 0 2.721 1.833 8.55 8.55 0 0 0 5.061.499 8.576 8.576 0 0 0 6.162-5.056c.22-.52.389-1.061.5-1.608a8.643 8.643 0 0 0 0-3.45 8.684 8.684 0 0 0-.499-1.607z",
+      )
       .attr("stroke", "none")
       .attr("fill", "darkgrey")
       .attr("class", "clockwise")
-      .attr("transform", `scale(1, -1) translate(${svgWidth - margin.right - 10},${-margin.top - 10}) scale(1.5)`);
+      .attr(
+        "transform",
+        `scale(1, -1) translate(${svgWidth - margin.right - 10},${-margin.top - 10}) scale(1.5)`,
+      );
 
-    svg.append("path")
+    svg
+      .append("path")
       .attr("d", `m ${svgWidth - 12.5 - 10},${margin.top - 26 + 10} 0,10`)
       .attr("stroke", "darkgrey")
       .attr("stroke-width", 2)
       .attr("fill", "none")
       .attr("class", "clockwise");
 
-    svg.append("path")
+    svg
+      .append("path")
       .attr("d", `m ${svgWidth - 17.5 - 10},${margin.top - 21 + 10} 10,0`)
       .attr("stroke", "darkgrey")
       .attr("stroke-width", 2)
@@ -580,8 +944,14 @@ const Lab6 = () => {
       .attr("class", "clockwise");
 
     // --- SCALES ---
-    const xScale = d3.scaleLinear().domain([-3, 3]).range([margin.left, svgWidth - margin.right]);
-    const yScale = d3.scaleLinear().domain([-3, 3]).range([svgWidth - margin.bottom, margin.top]);
+    const xScale = d3
+      .scaleLinear()
+      .domain([-3, 3])
+      .range([margin.left, svgWidth - margin.right]);
+    const yScale = d3
+      .scaleLinear()
+      .domain([-3, 3])
+      .range([svgWidth - margin.bottom, margin.top]);
     xScaleRef.current = xScale;
     yScaleRef.current = yScale;
 
@@ -589,14 +959,21 @@ const Lab6 = () => {
     const xAxis = d3.axisBottom(xScale).ticks(6);
     const yAxis = d3.axisLeft(yScale).ticks(6);
 
-    mainGroup.append("g")
+    mainGroup
+      .append("g")
       .attr("class", "x-axis")
       .attr("transform", `translate(0,${svgWidth / 2})`)
       .call(xAxis)
-      .call(g => g.selectAll(".tick text").filter(d => d === 0).remove())
+      .call((g) =>
+        g
+          .selectAll(".tick text")
+          .style("fill", "#334155")
+          .filter((d) => d === 0)
+          .remove(),
+      )
       .select(".domain")
-      .attr("stroke", "white")
-      .each(function() {
+      .attr("stroke", "#94a3b8")
+      .each(function () {
         const self = this as SVGElement;
         d3.select(self.parentNode as Element)
           .append("line")
@@ -605,18 +982,25 @@ const Lab6 = () => {
           .attr("y1", 0.5)
           .attr("y2", 0.5)
           .attr("class", "xAxisAider")
-          .attr("stroke", "white")
+          .attr("stroke", "#94a3b8")
           .attr("marker-end", "url(#markc-xAxis)");
       });
 
-    mainGroup.append("g")
+    mainGroup
+      .append("g")
       .attr("class", "y-axis")
       .attr("transform", `translate(${svgWidth / 2},0)`)
       .call(yAxis)
-      .call(g => g.selectAll(".tick text").filter(d => d === 0).remove())
+      .call((g) =>
+        g
+          .selectAll(".tick text")
+          .style("fill", "#334155")
+          .filter((d) => d === 0)
+          .remove(),
+      )
       .select(".domain")
-      .attr("stroke", "white")
-      .each(function() {
+      .attr("stroke", "#94a3b8")
+      .each(function () {
         const self = this as SVGElement;
         d3.select(self.parentNode as Element)
           .append("line")
@@ -625,20 +1009,25 @@ const Lab6 = () => {
           .attr("y1", margin.top)
           .attr("y2", margin.top - 15)
           .attr("class", "yAxisAider")
-          .attr("stroke", "white")
+          .attr("stroke", "#94a3b8")
           .attr("marker-end", "url(#markc-yAxis)");
       });
 
     // --- SETUP OTHER SVGs ---
     const setupSvg = (id: string) => {
-      const sel = d3.select(`#${id}`).attr("width", svgWidth).attr("height", svgWidth);
+      const sel = d3
+        .select(`#${id}`)
+        .attr("width", svgWidth)
+        .attr("height", svgWidth);
       return sel;
     };
 
     svg_apparentPowerRef.current = setupSvg("apparentPower");
     svg_admittanceRef.current = setupSvg("admittance");
     svg_SequenceImpedanceRef.current = setupSvg("svgSequenceImpedance");
-    svg_SequenceCurrentAndVoltageRef.current = setupSvg("svgSequenceCurrentAndVoltage");
+    svg_SequenceCurrentAndVoltageRef.current = setupSvg(
+      "svgSequenceCurrentAndVoltage",
+    );
     svg_PhasePhaseVoltageRef.current = setupSvg("svgPhasePhaseVoltage");
     svg_PhasePhaseCurrentRef.current = setupSvg("svgPhasePhaseCurrent");
     svg_PhasePhaseImpedanceRef.current = setupSvg("svgPhasePhaseImpedance");
@@ -646,40 +1035,97 @@ const Lab6 = () => {
 
     // --- INITIALIZE QUANTITIES ---
     if (svg_apparentPowerRef.current) {
-      const resultSC = Quantity.quantity(vectorsData, svg_apparentPowerRef.current, colors, ["SA", "SB", "SC", "S0", "S1", "S2"], "Apparent Power SA SB SC S0 S1 S2");
+      const resultSC = Quantity.quantity(
+        vectorsData,
+        svg_apparentPowerRef.current,
+        colors,
+        ["SA", "SB", "SC", "S0", "S1", "S2"],
+        "",
+        isPolar,
+      );
       updatePowerSCRef.current = resultSC?.updateQuantity || null;
     }
     if (svg_admittanceRef.current) {
-      const resultYC = Quantity.quantity(vectorsData, svg_admittanceRef.current, colors, ["YA", "YB", "YC"], "Admittance YA YB YC");
+      const resultYC = Quantity.quantity(
+        vectorsData,
+        svg_admittanceRef.current,
+        colors,
+        ["YA", "YB", "YC"],
+        "",
+        isPolar,
+      );
       updatePowerYCRef.current = resultYC?.updateQuantity || null;
     }
     if (svg_SequenceImpedanceRef.current) {
-      const resultSI = Quantity.quantity(vectorsData, svg_SequenceImpedanceRef.current, colors, ["Z0", "Z1", "Z2", "ZA", "ZB", "ZC"], "Z0 Z1 Z2 ZA ZB ZC");
+      const resultSI = Quantity.quantity(
+        vectorsData,
+        svg_SequenceImpedanceRef.current,
+        colors,
+        ["Z0", "Z1", "Z2", "ZA", "ZB", "ZC"],
+        "",
+        isPolar,
+      );
       updatePowerSIRef.current = resultSI?.updateQuantity || null;
     }
     if (svg_SequenceCurrentAndVoltageRef.current) {
-      const resultSCV = Quantity.quantity(vectorsData, svg_SequenceCurrentAndVoltageRef.current, colors, ["V0", "V1", "V2", "I0", "I1", "I2"], "V0 V1 V2 I0 I1 I2");
+      const resultSCV = Quantity.quantity(
+        vectorsData,
+        svg_SequenceCurrentAndVoltageRef.current,
+        colors,
+        ["V0", "V1", "V2", "I0", "I1", "I2"],
+        "",
+        isPolar,
+      );
       updatePowerSCVRef.current = resultSCV?.updateQuantity || null;
     }
     if (svg_PhasePhaseVoltageRef.current) {
-      const resultPPV = Quantity.quantity(vectorsData, svg_PhasePhaseVoltageRef.current, colors, ["VAB", "VBC", "VCA"], "Phase-Phase Voltage");
+      const resultPPV = Quantity.quantity(
+        vectorsData,
+        svg_PhasePhaseVoltageRef.current,
+        colors,
+        ["VAB", "VBC", "VCA"],
+        "",
+        isPolar,
+      );
       updatePowerPPVRef.current = resultPPV?.updateQuantity || null;
     }
     if (svg_PhasePhaseCurrentRef.current) {
-      const resultPPI = Quantity.quantity(vectorsData, svg_PhasePhaseCurrentRef.current, colors, ["IAB", "IBC", "ICA"], "Phase-Phase Current");
+      const resultPPI = Quantity.quantity(
+        vectorsData,
+        svg_PhasePhaseCurrentRef.current,
+        colors,
+        ["IAB", "IBC", "ICA"],
+        "",
+        isPolar,
+      );
       updatePowerPPIRef.current = resultPPI?.updateQuantity || null;
     }
     if (svg_PhasePhaseImpedanceRef.current) {
-      const resultPPZ = Quantity.quantity(vectorsData, svg_PhasePhaseImpedanceRef.current, colors, ["ZAB", "ZBC", "ZCA"], "Phase-Phase Impedance");
+      const resultPPZ = Quantity.quantity(
+        vectorsData,
+        svg_PhasePhaseImpedanceRef.current,
+        colors,
+        ["ZAB", "ZBC", "ZCA"],
+        "",
+        isPolar,
+      );
       updatePowerPPZRef.current = resultPPZ?.updateQuantity || null;
     }
     if (svg_ZaidsRef.current) {
-      const resultZaids = Quantity.quantity(vectorsData, svg_ZaidsRef.current, colors, ["ZsymetricalTotal", "Zn"], "ZT = Z1+Z2+Z0, Zn");
+      const resultZaids = Quantity.quantity(
+        vectorsData,
+        svg_ZaidsRef.current,
+        colors,
+        ["ZsymetricalTotal", "Zn"],
+        "",
+        isPolar,
+      );
       updatePowerZaidsRef.current = resultZaids?.updateQuantity || null;
     }
 
     // --- CREATE VECTORS ---
-    const drag = d3.drag()
+    const drag = d3
+      .drag()
       .on("start", dragstarted)
       .on("drag", dragged)
       .on("end", dragended);
@@ -696,10 +1142,70 @@ const Lab6 = () => {
       { key: "IC", value: vectorsData.IC },
     ];
 
-    MainSVG.GroupSVG(vectorsDataArray, drag, colors, mainGroup, xScale, yScale);
+    MainSVG.GroupSVG(
+      vectorsDataArray,
+      drag,
+      colors,
+      mainGroup,
+      xScale,
+      yScale,
+      isPolar,
+    );
 
     // --- CREATE INPUT FIELDS ---
-    createInputFields();
+    const handleInputChanged = (event: Event, d: Inputs.VectorData) => {
+      const target = event.target as HTMLInputElement;
+      const inputId = target.id;
+      const newValue = parseFloat(target.value) || 0;
+      const key = d.key;
+
+      if (!vectorsDataRef.current[key]) return;
+
+      // Update based on which input field changed
+      if (inputId.includes("-real")) {
+        vectorsDataRef.current[key].x = newValue;
+      } else if (inputId.includes("-imaginary")) {
+        vectorsDataRef.current[key].y = newValue;
+      } else if (inputId.includes("-amplitude")) {
+        const angle = vectorsDataRef.current[key].angle || 0;
+        vectorsDataRef.current[key].x = newValue * Math.cos((angle * Math.PI) / 180);
+        vectorsDataRef.current[key].y = newValue * Math.sin((angle * Math.PI) / 180);
+        vectorsDataRef.current[key].magnitude = newValue;
+      } else if (inputId.includes("-angle")) {
+        const magnitude = vectorsDataRef.current[key].magnitude || 0;
+        vectorsDataRef.current[key].x = magnitude * Math.cos((newValue * Math.PI) / 180);
+        vectorsDataRef.current[key].y = magnitude * Math.sin((newValue * Math.PI) / 180);
+        vectorsDataRef.current[key].angle = newValue;
+      }
+
+      // Update main visualizations
+      if (mainGroupRef.current && xScaleRef.current && yScaleRef.current) {
+        mainGroupRef.current
+          .selectAll(`.${key}`)
+          .attr("x2", xScaleRef.current(vectorsDataRef.current[key].x))
+          .attr("y2", yScaleRef.current(vectorsDataRef.current[key].y))
+          .attr("x", xScaleRef.current(vectorsDataRef.current[key].x))
+          .attr("y", yScaleRef.current(vectorsDataRef.current[key].y))
+          .attr("cx", xScaleRef.current(vectorsDataRef.current[key].x))
+          .attr("cy", yScaleRef.current(vectorsDataRef.current[key].y));
+      }
+
+      // Recalculate and update all cells
+      calculateImpedances(vectorsDataRef.current);
+      calculateSequenceImpedances(vectorsDataRef.current);
+
+      // Update secondary visualizations
+      if (updatePowerSCRef.current) updatePowerSCRef.current(isPolar);
+      if (updatePowerYCRef.current) updatePowerYCRef.current(isPolar);
+      if (updatePowerSIRef.current) updatePowerSIRef.current(isPolar);
+      if (updatePowerSCVRef.current) updatePowerSCVRef.current(isPolar);
+      if (updatePowerPPVRef.current) updatePowerPPVRef.current(isPolar);
+      if (updatePowerPPIRef.current) updatePowerPPIRef.current(isPolar);
+      if (updatePowerPPZRef.current) updatePowerPPZRef.current(isPolar);
+      if (updatePowerZaidsRef.current) updatePowerZaidsRef.current(isPolar);
+    };
+
+    createInputFields(handleInputChanged);
 
     // --- CALCULATE IMPEDANCES ---
     calculateImpedances(vectorsData);
@@ -721,24 +1227,40 @@ const Lab6 = () => {
         },
         {
           title: "Sequence Components",
-          data: { V0: "0.0", V1: "2.0", V2: "0.0", I0: "0.0", I1: "1.0", I2: "0.0" },
+          data: {
+            V0: "0.0",
+            V1: "2.0",
+            V2: "0.0",
+            I0: "0.0",
+            I1: "1.0",
+            I2: "0.0",
+          },
           insight: `<p>Positive-sequence indicates balanced operation; negative suggests unbalance.</p>`,
         },
       ];
 
       tablesData.forEach((table) => {
         const title = document.createElement("h3");
-        title.className = "text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 mt-4 border-b border-slate-200 pb-1";
+        title.className =
+          "text-sm font-bold text-slate-800 uppercase tracking-wider mb-2 mt-4 border-b border-slate-200 pb-1";
         title.textContent = table.title;
         tablesContainer.appendChild(title);
 
         const tableEl = document.createElement("table");
         tableEl.className = "w-full text-sm text-left border-collapse";
-        tableEl.innerHTML = `<tbody class="text-slate-700">${Object.entries(table.data).map(([k, v]) => `<tr class="border-b border-slate-100"><td class="p-2 font-mono text-xs font-semibold">${k}</td><td class="p-2 font-mono text-xs">${v}</td></tr>`).join("")}</tbody>`;
+        tableEl.innerHTML = `<tbody class="text-slate-700">${Object.entries(
+          table.data,
+        )
+          .map(
+            ([k, v]) =>
+              `<tr class="border-b border-slate-100"><td class="p-2 font-mono text-xs font-semibold">${k}</td><td class="p-2 font-mono text-xs">${v}</td></tr>`,
+          )
+          .join("")}</tbody>`;
         tablesContainer.appendChild(tableEl);
 
         const insight = document.createElement("div");
-        insight.className = "text-xs text-slate-500 p-3 bg-slate-50 rounded-lg mt-2 border border-slate-100";
+        insight.className =
+          "text-xs text-slate-500 p-3 bg-slate-50 rounded-lg mt-2 border border-slate-100";
         insight.innerHTML = table.insight;
         tablesContainer.appendChild(insight);
       });
@@ -759,15 +1281,23 @@ const Lab6 = () => {
           Math.abs(vectorsData["V" + allPhases[i]].x),
           Math.abs(vectorsData["V" + allPhases[i]].y),
           Math.abs(vectorsData["Z" + allPhases[i]].x),
-          Math.abs(vectorsData["Z" + allPhases[i]].y)
+          Math.abs(vectorsData["Z" + allPhases[i]].y),
         );
         max = Math.max(max, magnitude);
       }
 
       xScale.domain([-max, max]);
       yScale.domain([-max, max]);
-      mainGroup.select(".x-axis").transition().duration(1000).call(xAxis as any);
-      mainGroup.select(".y-axis").transition().duration(1000).call(yAxis as any);
+      mainGroup
+        .select(".x-axis")
+        .transition()
+        .duration(1000)
+        .call(xAxis as any);
+      mainGroup
+        .select(".y-axis")
+        .transition()
+        .duration(1000)
+        .call(yAxis as any);
 
       d3.select(this).classed("active", false);
     }
@@ -790,56 +1320,94 @@ const Lab6 = () => {
         vectorsData[d.key].magnitude = mag;
         vectorsData[d.key].angle = ang;
 
-        d3.selectAll(".input-field").each(function(d: any) {
+        d3.selectAll(".input-field").each(function (d: any) {
           d3.select(`#${d.key}-real`).property("value", d.value.x.toFixed(2));
-          d3.select(`#${d.key}-imaginary`).property("value", d.value.y.toFixed(2));
+          d3.select(`#${d.key}-imaginary`).property(
+            "value",
+            d.value.y.toFixed(2),
+          );
         });
-        d3.selectAll(".input-fieldPolar").each(function(d: any) {
-          d3.select(`#${d.key}-amplitude`).property("value", d.value.magnitude?.toFixed(2));
-          d3.select(`#${d.key}-angle`).property("value", d.value.angle?.toFixed(2));
+        d3.selectAll(".input-fieldPolar").each(function (d: any) {
+          d3.select(`#${d.key}-amplitude`).property(
+            "value",
+            d.value.magnitude?.toFixed(2),
+          );
+          d3.select(`#${d.key}-angle`).property(
+            "value",
+            d.value.angle?.toFixed(2),
+          );
         });
 
         d3.select(this).select("line").attr("x2", event.x).attr("y2", event.y);
-        d3.select(this).select("circle").attr("cx", event.x).attr("cy", event.y);
-        d3.select(this).select("text")
+        d3.select(this)
+          .select("circle")
+          .attr("cx", event.x)
+          .attr("cy", event.y);
+        const textSelection = d3
+          .select(this)
+          .select("text")
           .attr("x", event.x + 5)
-          .attr("y", event.y - 5)
-          .text(`${d.key} ${Math.sqrt(d.value.x ** 2 + d.value.y ** 2).toFixed(1)}/${((Math.atan2(d.value.y, d.value.x) * 180) / Math.PI).toFixed(0)}°`);
+          .attr("y", event.y - 5);
+
+        if (isPolar) {
+          // Polar format
+          textSelection.text(
+            `${d.key} ${Math.sqrt(d.value.x ** 2 + d.value.y ** 2).toFixed(1)}/${((Math.atan2(d.value.y, d.value.x) * 180) / Math.PI).toFixed(0)}°`,
+          );
+        } else {
+          // Cartesian format
+          const sign = d.value.y >= 0 ? "+" : "-";
+          const yAbs = Math.abs(d.value.y).toFixed(2);
+          textSelection.text(
+            `${d.key} ${d.value.x.toFixed(2)} ${sign} j${yAbs}`,
+          );
+        }
 
         vectorsData[d.key].x = d.value.x;
         vectorsData[d.key].y = d.value.y;
-        
+
         // Calculate and update impedance
         if (["A", "B", "C"].includes(d.key.charAt(1))) {
           const z = ComplexOp.complexDivision(
             vectorsData["V" + d.key.charAt(1)],
-            vectorsData["I" + d.key.charAt(1)]
+            vectorsData["I" + d.key.charAt(1)],
           );
 
-          d3.select(`#Z${d.key.charAt(1)}-real`).property("value", z.x.toFixed(2));
-          d3.select(`#Z${d.key.charAt(1)}-imaginary`).property("value", z.y.toFixed(2));
+          d3.select(`#Z${d.key.charAt(1)}-real`).property(
+            "value",
+            z.x.toFixed(2),
+          );
+          d3.select(`#Z${d.key.charAt(1)}-imaginary`).property(
+            "value",
+            z.y.toFixed(2),
+          );
           vectorsData["Z" + d.key.charAt(1)].x = z.x;
           vectorsData["Z" + d.key.charAt(1)].y = z.y;
-          
+
           calculateSequenceImpedances(vectorsData);
         }
 
         // Update visualizations
-        mainGroup.selectAll(`.${d.key}`).attr("x2", xScale(d.value.x)).attr("y2", yScale(d.value.y))
-          .attr("x", xScale(d.value.x)).attr("y", yScale(d.value.y))
-          .attr("cx", xScale(d.value.x)).attr("cy", yScale(d.value.y));
+        mainGroup
+          .selectAll(`.${d.key}`)
+          .attr("x2", xScale(d.value.x))
+          .attr("y2", yScale(d.value.y))
+          .attr("x", xScale(d.value.x))
+          .attr("y", yScale(d.value.y))
+          .attr("cx", xScale(d.value.x))
+          .attr("cy", yScale(d.value.y));
 
         calculateImpedances(vectorsData);
 
         // Update secondary visualizations
-        if (updatePowerSCRef.current) updatePowerSCRef.current();
-        if (updatePowerYCRef.current) updatePowerYCRef.current();
-        if (updatePowerSIRef.current) updatePowerSIRef.current();
-        if (updatePowerSCVRef.current) updatePowerSCVRef.current();
-        if (updatePowerPPVRef.current) updatePowerPPVRef.current();
-        if (updatePowerPPIRef.current) updatePowerPPIRef.current();
-        if (updatePowerPPZRef.current) updatePowerPPZRef.current();
-        if (updatePowerZaidsRef.current) updatePowerZaidsRef.current();
+        if (updatePowerSCRef.current) updatePowerSCRef.current(isPolar);
+        if (updatePowerYCRef.current) updatePowerYCRef.current(isPolar);
+        if (updatePowerSIRef.current) updatePowerSIRef.current(isPolar);
+        if (updatePowerSCVRef.current) updatePowerSCVRef.current(isPolar);
+        if (updatePowerPPVRef.current) updatePowerPPVRef.current(isPolar);
+        if (updatePowerPPIRef.current) updatePowerPPIRef.current(isPolar);
+        if (updatePowerPPZRef.current) updatePowerPPZRef.current(isPolar);
+        if (updatePowerZaidsRef.current) updatePowerZaidsRef.current(isPolar);
       }
     }
 
@@ -847,14 +1415,34 @@ const Lab6 = () => {
     const mosaicContainer = document.getElementById("mosaic-container");
     const svgAll = [
       { svg: "svgMainVisual", layout: "custom-layout", cell: "cell-1" },
-      { svg: "svgSequenceImpedance", layout: "custom-layoutTopMiddle", cell: "cell-2" },
+      {
+        svg: "svgSequenceImpedance",
+        layout: "custom-layoutTopMiddle",
+        cell: "cell-2",
+      },
       { svg: "apparentPower", layout: "custom-layoutTopRight", cell: "cell-3" },
-      { svg: "svgSequenceCurrentAndVoltage", layout: "custom-layoutMiddleLeft", cell: "cell-4" },
+      {
+        svg: "svgSequenceCurrentAndVoltage",
+        layout: "custom-layoutMiddleLeft",
+        cell: "cell-4",
+      },
       { svg: "svgZaids", layout: "custom-layoutMiddleMiddle", cell: "cell-5" },
       { svg: "admittance", layout: "custom-layoutMiddleRight", cell: "cell-6" },
-      { svg: "svgPhasePhaseVoltage", layout: "custom-layoutBottomLeft", cell: "cell-7" },
-      { svg: "svgPhasePhaseCurrent", layout: "custom-layoutBottomMiddle", cell: "cell-8" },
-      { svg: "svgPhasePhaseImpedance", layout: "custom-layoutBottomRight", cell: "cell-9" },
+      {
+        svg: "svgPhasePhaseVoltage",
+        layout: "custom-layoutBottomLeft",
+        cell: "cell-7",
+      },
+      {
+        svg: "svgPhasePhaseCurrent",
+        layout: "custom-layoutBottomMiddle",
+        cell: "cell-8",
+      },
+      {
+        svg: "svgPhasePhaseImpedance",
+        layout: "custom-layoutBottomRight",
+        cell: "cell-9",
+      },
     ];
 
     if (mosaicContainer) {
@@ -869,6 +1457,7 @@ const Lab6 = () => {
 
         thisSvgElement.addEventListener("dblclick", () => {
           const previousSibling = thisSvgElement.previousElementSibling;
+          const isMainVisual = svgElement.svg === "svgMainVisual";
 
           if (mosaicContainer.classList.contains("default-layout")) {
             mosaicContainer.classList.remove("default-layout");
@@ -876,51 +1465,109 @@ const Lab6 = () => {
 
             if (previousSibling && previousSibling instanceof HTMLElement) {
               const firstChild = previousSibling.childNodes[0] as HTMLElement;
-              if (firstChild) {
+              if (firstChild && firstChild instanceof HTMLElement) {
                 firstChild.style.fontSize = "2rem";
               }
               previousSibling.style.marginBottom = "125px";
             }
 
-            scaleSvg(thisSvgElement, 2);
+            scaleSvg(thisSvgElement, 2, isMainVisual);
           } else {
             mosaicContainer.classList.remove(svgElement.layout);
             mosaicContainer.classList.add("default-layout");
 
             if (previousSibling && previousSibling instanceof HTMLElement) {
               const firstChild = previousSibling.childNodes[0] as HTMLElement;
-              if (firstChild) {
+              if (firstChild && firstChild instanceof HTMLElement) {
                 firstChild.style.fontSize = "14px";
               }
               previousSibling.style.marginBottom = "4px";
             }
 
-            scaleSvg(thisSvgElement, 1);
+            scaleSvg(thisSvgElement, 1, isMainVisual);
           }
         });
       });
     }
 
-    function scaleSvg(svgElement: HTMLElement, scaleFactor: number) {
-      svgElement.style.transform = `scale(${scaleFactor})`;
-      svgElement.style.transformOrigin = "center";
+    function scaleSvg(
+      svgElement: HTMLElement,
+      scaleFactor: number,
+      isMainVisual: boolean = false,
+    ) {
+      // For the main visual (cell-1), don't use CSS transform
+      // Let the CSS grid expansion handle the sizing
+      if (isMainVisual) {
+        if (scaleFactor > 1) {
+          // Remove any existing transform
+          svgElement.style.transform = "none";
+          svgElement.style.transformOrigin = "";
+          // Ensure SVG fills the expanded cell
+          svgElement.style.width = "100%";
+          svgElement.style.height = "100%";
+        } else {
+          // Reset to original size
+          svgElement.style.transform = "";
+          svgElement.style.transformOrigin = "";
+          svgElement.style.width = "";
+          svgElement.style.height = "";
+        }
+      } else {
+        // For other cells, use the original scale approach
+        svgElement.style.transform = `scale(${scaleFactor})`;
+        svgElement.style.transformOrigin = "center";
+      }
     }
 
     // --- CLEANUP ---
     return () => {
       hasInitialized.current = false;
+      // Clear all SVG contents to prevent accumulation when isPolar changes
+      svg_apparentPowerRef.current?.selectAll("*").remove();
+      svg_admittanceRef.current?.selectAll("*").remove();
+      svg_SequenceImpedanceRef.current?.selectAll("*").remove();
+      svg_SequenceCurrentAndVoltageRef.current?.selectAll("*").remove();
+      svg_PhasePhaseVoltageRef.current?.selectAll("*").remove();
+      svg_PhasePhaseCurrentRef.current?.selectAll("*").remove();
+      svg_PhasePhaseImpedanceRef.current?.selectAll("*").remove();
+      svg_ZaidsRef.current?.selectAll("*").remove();
+      mainGroupRef.current?.selectAll("*").remove();
+      svgRef.current?.remove();
     };
-  }, [colors, colorAxis, arrowSize, svgWidth, margin, calculateImpedances, calculateSequenceImpedances, createInputFields]);
+  }, [
+    colors,
+    colorAxis,
+    arrowSize,
+    svgWidth,
+    margin,
+    calculateImpedances,
+    calculateSequenceImpedances,
+    createInputFields,
+    isPolar,
+  ]);
+
+  // Update all cells when isPolar changes
+  useEffect(() => {
+    if (!hasInitialized.current) return;
+    
+    // Update all secondary visualizations with the new isPolar value
+    if (updatePowerSCRef.current) updatePowerSCRef.current(isPolar);
+    if (updatePowerYCRef.current) updatePowerYCRef.current(isPolar);
+    if (updatePowerSIRef.current) updatePowerSIRef.current(isPolar);
+    if (updatePowerSCVRef.current) updatePowerSCVRef.current(isPolar);
+    if (updatePowerPPVRef.current) updatePowerPPVRef.current(isPolar);
+    if (updatePowerPPIRef.current) updatePowerPPIRef.current(isPolar);
+    if (updatePowerPPZRef.current) updatePowerPPZRef.current(isPolar);
+    if (updatePowerZaidsRef.current) updatePowerZaidsRef.current(isPolar);
+  }, [isPolar]);
 
   // --- BUTTON HANDLERS ---
   const handleToggleInfo = () => {
-    const content = document.getElementById("dynamic-tables-container");
-    const icon = document.getElementById("showInfoIcon");
-    if (content) content.classList.toggle("hidden");
-    if (icon) {
-      icon.classList.toggle("bx-info-circle");
-      icon.classList.toggle("bx-hide");
-    }
+    setIsInfoModalOpen(!isInfoModalOpen);
+  };
+
+  const handleCloseInfoModal = () => {
+    setIsInfoModalOpen(false);
   };
 
   const handleToggleInput = () => {
@@ -929,8 +1576,9 @@ const Lab6 = () => {
   };
 
   const handleReset = () => {
-    d3.selectAll("svg g").attr("transform", null);
-    const dynamicTablesContainer = document.getElementById("dynamic-tables-container");
+    const dynamicTablesContainer = document.getElementById(
+      "dynamic-tables-container",
+    );
     const tableInput = document.getElementById("table-input");
     if (dynamicTablesContainer) {
       dynamicTablesContainer.classList.remove("hidden");
@@ -941,8 +1589,116 @@ const Lab6 = () => {
 
     const mosaicContainer = document.getElementById("mosaic-container");
     if (mosaicContainer) {
-      mosaicContainer.className = "lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr default-layout";
+      // Remove all custom layout classes and reset to default
+      const allLayoutClasses = [
+        "custom-layout",
+        "custom-layoutTopMiddle",
+        "custom-layoutTopRight",
+        "custom-layoutMiddleLeft",
+        "custom-layoutMiddleMiddle",
+        "custom-layoutMiddleRight",
+        "custom-layoutBottomLeft",
+        "custom-layoutBottomMiddle",
+        "custom-layoutBottomRight",
+      ];
+      allLayoutClasses.forEach((cls) => mosaicContainer.classList.remove(cls));
+      mosaicContainer.classList.add("default-layout");
+
+      // Reset all SVG transforms and sizes
+      const svgs = mosaicContainer.querySelectorAll("svg");
+      svgs.forEach((svg) => {
+        const svgElement = svg as unknown as HTMLElement;
+        svgElement.style.transform = "";
+        svgElement.style.transformOrigin = "";
+        svgElement.style.width = "";
+        svgElement.style.height = "";
+      });
     }
+
+    // Reset vectors data to default values
+    if (vectorsDataRef.current) {
+      vectorsDataRef.current.VA = { x: 2, y: 0 };
+      vectorsDataRef.current.VB = { x: -1, y: +Math.sqrt(3) };
+      vectorsDataRef.current.VC = { x: -1, y: -Math.sqrt(3) };
+      vectorsDataRef.current.IA = { x: 1, y: 0 };
+      vectorsDataRef.current.IB = { x: -0.5, y: +0.8660254037844386 };
+      vectorsDataRef.current.IC = { x: -0.5, y: -0.8660254037844386 };
+      vectorsDataRef.current.ZA = { x: 2, y: 0 };
+      vectorsDataRef.current.ZB = { x: 2, y: 0 };
+      vectorsDataRef.current.ZC = { x: 2, y: 0 };
+    }
+
+    // Default values for resetting input fields
+    const defaultValues: { [key: string]: { x: number; y: number } } = {
+      VA: { x: 2, y: 0 },
+      VB: { x: -1, y: +Math.sqrt(3) },
+      VC: { x: -1, y: -Math.sqrt(3) },
+      IA: { x: 1, y: 0 },
+      IB: { x: -0.5, y: +0.8660254037844386 },
+      IC: { x: -0.5, y: -0.8660254037844386 },
+      ZA: { x: 2, y: 0 },
+      ZB: { x: 2, y: 0 },
+      ZC: { x: 2, y: 0 },
+    };
+
+    // Update input fields with reset values
+    const phases = ["VA", "VB", "VC", "IA", "IB", "IC"];
+    phases.forEach((phase) => {
+      const realInput = document.getElementById(
+        `${phase}-real`,
+      ) as HTMLInputElement;
+      const imagInput = document.getElementById(
+        `${phase}-imaginary`,
+      ) as HTMLInputElement;
+      if (realInput) realInput.value = defaultValues[phase].x.toFixed(2);
+      if (imagInput) imagInput.value = defaultValues[phase].y.toFixed(2);
+    });
+
+    const zPhases = ["ZA", "ZB", "ZC"];
+    zPhases.forEach((phase) => {
+      const realInput = document.getElementById(
+        `${phase}-real`,
+      ) as HTMLInputElement;
+      const imagInput = document.getElementById(
+        `${phase}-imaginary`,
+      ) as HTMLInputElement;
+      if (realInput) realInput.value = defaultValues[phase].x.toFixed(2);
+      if (imagInput) imagInput.value = defaultValues[phase].y.toFixed(2);
+    });
+
+    // Update main visualization
+    const mainGroup = mainGroupRef.current;
+    const xScale = xScaleRef.current;
+    const yScale = yScaleRef.current;
+    if (mainGroup && xScale && yScale && vectorsDataRef.current) {
+      const allPhases = ["VA", "VB", "VC", "IA", "IB", "IC"];
+      allPhases.forEach((phase) => {
+        const data = vectorsDataRef.current[phase];
+        mainGroup
+          .selectAll(`.${phase}`)
+          .attr("x2", xScale(data.x))
+          .attr("y2", yScale(data.y))
+          .attr("x", xScale(data.x))
+          .attr("y", yScale(data.y))
+          .attr("cx", xScale(data.x))
+          .attr("cy", yScale(data.y));
+      });
+    }
+
+    // Recalculate sequence impedances (Z0, Z1, Z2)
+    if (vectorsDataRef.current) {
+      calculateSequenceImpedances(vectorsDataRef.current);
+    }
+
+    // Update secondary visualizations
+    if (updatePowerSCRef.current) updatePowerSCRef.current(isPolar);
+    if (updatePowerYCRef.current) updatePowerYCRef.current(isPolar);
+    if (updatePowerSIRef.current) updatePowerSIRef.current(isPolar);
+    if (updatePowerSCVRef.current) updatePowerSCVRef.current(isPolar);
+    if (updatePowerPPVRef.current) updatePowerPPVRef.current(isPolar);
+    if (updatePowerPPIRef.current) updatePowerPPIRef.current(isPolar);
+    if (updatePowerPPZRef.current) updatePowerPPZRef.current(isPolar);
+    if (updatePowerZaidsRef.current) updatePowerZaidsRef.current(isPolar);
   };
 
   return (
@@ -961,30 +1717,116 @@ const Lab6 = () => {
         <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-slate-200 shadow-sm">
           <button
             onClick={() => setIsPolar(!isPolar)}
-            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors"
+            className=" flex items-center justify-center rounded-lg"
             title="Toggle Polar/Cartesian"
           >
             {isPolar ? (
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 12 L20 4" />
+              <svg
+                width="50"
+                height="50"
+                viewBox="0 0 120 120"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <rect
+                  x="5"
+                  y="5"
+                  width="110"
+                  height="110"
+                  rx="15"
+                  fill="white"
+                />
+
+                <defs>
+                  <marker
+                    id="arrowYellow"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 6 3, 0 6" fill="#f0ab22" />
+                  </marker>
+                  <marker
+                    id="arrowRed"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 6 3, 0 6" fill="red" />
+                  </marker>
+                  <marker
+                    id="arrowBlue"
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <polygon points="0 0, 6 3, 0 6" fill="blue" />
+                  </marker>
+                </defs>
+
+                <line
+                  x1="60"
+                  y1="60"
+                  x2="35"
+                  y2="25"
+                  stroke="#f0ab22"
+                  strokeWidth="4"
+                  markerEnd="url(#arrowYellow)"
+                />
+
+                <line
+                  x1="60"
+                  y1="60"
+                  x2="95"
+                  y2="60"
+                  stroke="red"
+                  strokeWidth="4"
+                  markerEnd="url(#arrowRed)"
+                />
+
+                <line
+                  x1="60"
+                  y1="60"
+                  x2="35"
+                  y2="95"
+                  stroke="blue"
+                  strokeWidth="4"
+                  markerEnd="url(#arrowBlue)"
+                />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2">
-                <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontSize="10" fontWeight="bold">Z</text>
-              </svg>
+              <div className="px-4 py-2 text-center text-black text-2xl">
+                R + jX
+                <div>A ∠θ°</div>
+              </div>
             )}
           </button>
 
-          <button onClick={handleToggleInfo} className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-700" title="Toggle Info">
-            <i className="bx bx-info-circle text-xl" id="showInfoIcon" />
+          <button
+            onClick={handleToggleInfo}
+            className="w-10 h-10 text-2xl flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-700"
+            title="Toggle Info"
+          >
+            i
           </button>
 
-          <button onClick={handleToggleInput} className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-700 font-bold text-sm" title="Toggle Input/Output">
+          <button
+            onClick={handleToggleInput}
+            className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 transition-colors text-slate-700 font-bold text-sm"
+            title="Toggle Input/Output"
+          >
             I/V
           </button>
 
-          <button onClick={handleReset} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors text-sm font-semibold">
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors text-sm font-semibold"
+          >
             Reset Layout
           </button>
         </div>
@@ -995,77 +1837,193 @@ const Lab6 = () => {
         <div id="info-panel" className="lg:col-span-3 space-y-6">
           <section className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-slate-900">Electrical Quantities</h2>
+              <h2 className="text-lg font-bold text-slate-900">
+                Electrical Quantities
+              </h2>
             </div>
-            <div id="general-insights" className="text-sm text-slate-600 mb-4 space-y-2">
-              <p className="font-semibold text-slate-700">System Analysis Overview:</p>
-              <p>This analysis provides a comprehensive overview of electrical quantities derived from currents and voltages.</p>
+            <div
+              id="general-insights"
+              className="text-sm text-slate-600 mb-4 space-y-2"
+            >
+              <p className="font-semibold text-slate-700">
+                System Analysis Overview:
+              </p>
+              <p>
+                This analysis provides a comprehensive overview of electrical
+                quantities derived from currents and voltages.
+              </p>
             </div>
-            <div id="dynamic-tables-container" className="space-y-6 max-h-[60vh] overflow-y-auto pr-2" />
+            <div
+              id="dynamic-tables-container"
+              className="space-y-6 max-h-[60vh] overflow-y-auto pr-2"
+            />
           </section>
 
-          <section id="input-panel" className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <section
+            id="input-panel"
+            className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm"
+          >
             <h2 className="text-lg font-bold text-slate-900 mb-4">Inputs</h2>
             <div id="table-input">
-              <div id="input-fields1" className="text-slate-400 text-sm italic">Impedance table</div>
-              <div id="input-fields" className="text-slate-400 text-sm italic">Current and voltage inputs</div>
+              <div id="input-fields1" className="text-slate-400 text-sm italic">
+                Impedance table
+              </div>
+              <div id="input-fields" className="text-slate-400 text-sm italic">
+                Current and voltage inputs
+              </div>
             </div>
           </section>
         </div>
 
         {/* Right Column */}
-        <div id="mosaic-container" className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr">
+        <div
+          id="mosaic-container"
+          className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-fr"
+        >
           {/* Cell 1: Main Visual */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-1">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Main Visual</span>
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-1"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Main Visual
+            </span>
           </div>
 
           {/* Cell 2: Sequence Impedance */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-2">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Sequence Impedance</span>
-            <svg id="svgSequenceImpedance" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-2"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Z0 Z1 Z2 ZA ZB ZC
+            </span>
+            <svg
+              id="svgSequenceImpedance"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 3: Apparent Power */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-3">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Apparent Power</span>
-            <svg id="apparentPower" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-3"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Apparent Power SA SB SC S0 S1 S2
+            </span>
+            <svg
+              id="apparentPower"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 4: Sequence Current/Voltage */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-4">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Seq. I & V</span>
-            <svg id="svgSequenceCurrentAndVoltage" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-4"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              V0 V1 V2 I0 I1 I2
+            </span>
+            <svg
+              id="svgSequenceCurrentAndVoltage"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 5: Zaids */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-5">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Zaids</span>
-            <svg id="svgZaids" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-5"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              ZT = Z1+Z2+Z0, Zn
+            </span>
+            <svg
+              id="svgZaids"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 6: Admittance */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-6">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Admittance</span>
-            <svg id="admittance" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-6"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Admittance YA YB YC
+            </span>
+            <svg
+              id="admittance"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 7: Ph-Ph Voltage */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-7">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Ph-Ph Voltage</span>
-            <svg id="svgPhasePhaseVoltage" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-7"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Phase-Phase Voltage
+            </span>
+            <svg
+              id="svgPhasePhaseVoltage"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 8: Ph-Ph Current */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-8">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Ph-Ph Current</span>
-            <svg id="svgPhasePhaseCurrent" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-8"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Phase-Phase Current
+            </span>
+            <svg
+              id="svgPhasePhaseCurrent"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
 
           {/* Cell 9: Ph-Ph Impedance */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group" id="cell-9">
-            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">Ph-Ph Impedance</span>
-            <svg id="svgPhasePhaseImpedance" viewBox="0 0 250 250" className="w-full h-auto" />
+          <div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col items-center justify-center min-h-[300px] transition-all duration-300 relative group"
+            id="cell-9"
+          >
+            <span className="absolute top-4 left-4 text-xs font-bold text-slate-400 uppercase tracking-wider group-hover:text-accent transition-colors">
+              Phase-Phase Impedance
+            </span>
+            <svg
+              id="svgPhasePhaseImpedance"
+              viewBox="0 0 250 250"
+              width="250"
+              height="250"
+              className="w-full h-auto"
+            />
           </div>
         </div>
       </div>

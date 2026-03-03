@@ -105,25 +105,7 @@ button span{
  padding-right: 0.5em;
 }
 
-button:after{
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 100%;
-  background:var(--colorText);
-  z-index: -1;
-  transition: all 0.3s ease;
-}
 
-button:hover {
-	color: var(--color-bg);
-}
-
-button:hover:after{
-  width: 100%;
-}
 
 img {
   max-width: 100%;              /* [1] */ 
@@ -1148,7 +1130,7 @@ flex:10;
   grid-template-rows: repeat(3, 300px);
 }
 
-/* Custom Layout (Based on Sketch) */
+/* Custom Layout (Based on Sketch) - Cell-1 spans 2x2 to cover C1, C2, C3, C4 */
 .custom-layout {
   grid-template-areas:
     "cell-1 cell-1 cell-3"
@@ -1158,11 +1140,29 @@ flex:10;
   grid-template-rows: 300px 300px 300px;
 }
 
+/* When cell-1 is zoomed, it spans 2 columns and 2 rows (covers C1, C2, C3, C4 area) */
+.custom-layout #cell-1 {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+  overflow: visible; /* Allow content to be visible beyond cell boundaries */
+  z-index: 100; /* Ensure it appears above other cells */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Hide removed cells in custom layout */
 .custom-layout #cell-2,
-.custom-layout #cell-4 ,
+.custom-layout #cell-4,
 .custom-layout #cell-5 {
   display: none; /* Completely hide from view */
+}
+
+/* Ensure SVG inside zoomed cell scales properly but not too large */
+.custom-layout #cell-1 svg {
+  max-width: 90%;
+  max-height: 90%;
+  transform: none !important; /* Remove CSS transform, let grid handle sizing */
 }
 
 /* Assign grid areas */

@@ -12,7 +12,8 @@ export function GroupSVG(
   colors: { [key: string]: string },
   mainGroup: d3.Selection<any, any, any, any>,
   xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>
+  yScale: d3.ScaleLinear<number, number>,
+  isPolar: boolean = true
 ): d3.Selection<any, any, any, any> {
   const vectors = mainGroup.selectAll<SVGGElement, VectorData>(".vector")
     .data(ObjVect)
@@ -51,15 +52,27 @@ export function GroupSVG(
     .style("font-weight", "bold")
     .style("fill", (d: VectorData) => colors[d.key.charAt(1)])
     .each(function(d: VectorData) {
-      const magnitude = Math.sqrt(d.value.x ** 2 + d.value.y ** 2).toFixed(1);
-      const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(1);
-      d3.select(this)
-        .append("tspan")
-        .text(`${d.key} = ${magnitude}`);
-      d3.select(this)
-        .append("tspan")
-        .style("text-decoration", "underline")
-        .text(`/${angle}°`);
+      if (isPolar) {
+        // Polar format: KEY = magnitude /angle°
+        const magnitude = Math.sqrt(d.value.x ** 2 + d.value.y ** 2).toFixed(1);
+        const angle = (Math.atan2(d.value.y, d.value.x) * 180 / Math.PI).toFixed(1);
+        d3.select(this)
+          .append("tspan")
+          .text(`${d.key} = ${magnitude}`);
+        d3.select(this)
+          .append("tspan")
+          .style("text-decoration", "underline")
+          .text(`/${angle}°`);
+      } else {
+        // Cartesian format: KEY = real + j imag
+        const x = d.value.x;
+        const y = d.value.y;
+        const sign = y >= 0 ? '+' : '-';
+        const yAbs = Math.abs(y).toFixed(2);
+        d3.select(this)
+          .append("tspan")
+          .text(`${d.key} = ${x.toFixed(2)} ${sign} j${yAbs}`);
+      }
     });
 
   return vectors;

@@ -124,62 +124,83 @@ export function Lab8() {
   const getCurveParams = useCallback((curveType: string) => {
     let b = 19.61,
       a = 2,
-      l = 0.491;
+      l = 0.491,
+      multiplier = 1;
     switch (curveType) {
       case "IEEE_VI":
+      case "IEEE2_VI":
         b = 19.61;
         a = 2;
         l = 0.491;
+        multiplier = 1;
         break;
       case "IEEE_EI":
+      case "IEEE2_EI":
         b = 28.2;
         a = 2;
         l = 0.1217;
+        multiplier = 1;
         break;
       case "IEEE_MI":
-        b = 0.0515;
+      case "IEEE2_MI":
+        b = 0.05;
         a = 0.02;
         l = 0.114;
+        multiplier = 1;
         break;
       case "US_I":
-        b = 5.95;
-        a = 2;
-        l = 0.18;
-        break;
-      case "US_STI":
-        b = 0.16758;
-        a = 0.02;
-        l = 0.11858;
-        break;
-      case "IEC_VI":
+      case "US2_I":
         b = 13.5;
         a = 1;
         l = 0;
+        multiplier = 0.1;
         break;
-      case "IEC_EI":
+      case "US_STI":
+      case "US2_STI":
         b = 80;
         a = 2;
         l = 0;
+        multiplier = 0.1;
+        break;
+      case "IEC_VI":
+      case "IEC2_VI":
+        b = 5.95;
+        a = 2;
+        l = 0.18;
+        multiplier = 1;
+        break;
+      case "IEC_EI":
+      case "IEC2_EI":
+        b = 0.17;
+        a = 0.02;
+        l = 0.11858;
+        multiplier = 1;
         break;
       case "IEC_MI":
+      case "IEC2_MI":
         b = 0.14;
         a = 0.02;
         l = 0;
+        multiplier = 0.1;
         break;
       case "UK_LTI":
+      case "UK2_LTI":
         b = 120;
         a = 1;
         l = 0;
+        multiplier = 0.1;
         break;
       case "UK_R":
+      case "UK2_R":
         b = 45900;
         a = 5.6;
         l = 0;
+        multiplier = 0.1;
         break;
       default:
         break;
     }
-    return { b, a, l };
+    return { b, a, l, multiplier };
   }, []);
 
   // Update SVG elements when curves change
@@ -870,6 +891,7 @@ export function Lab8() {
                 <div className="t text-2xl font-bold text-gray-700 pt-6 font-['math'] col-span-full row-span-full">
                   t
                 </div>
+                <div id="formula-section"></div>
                 <svg
                   id="svgCurve"
                   ref={svgRef}

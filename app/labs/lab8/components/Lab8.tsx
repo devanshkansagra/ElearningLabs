@@ -1,6 +1,8 @@
 "use client";
 import * as d3 from "d3";
 import { useState, useEffect, useCallback, useRef } from "react";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import {
   calculateSettings,
   formatCalculationResults,
@@ -11,30 +13,20 @@ import {
 const renderKatex = (element: HTMLElement, formula: string) => {
   if (typeof window === "undefined") return;
 
-  // Dynamically import katex on client side
-  import("katex")
-    .then((katexModule) => {
-      const katex = katexModule.default || katexModule;
-      try {
-        // Clear the element first
-        element.innerHTML = "";
-        // Render KaTeX with HTML output
-        katex.render(formula, element, {
-          throwOnError: false,
-          displayMode: false,
-          output: "html",
-        });
-      } catch (e) {
-        console.warn("KaTeX rendering error:", e);
-        // Fallback to plain text
-        element.textContent = formula;
-      }
-    })
-    .catch((e) => {
-      console.warn("KaTeX import error:", e);
-      // Fallback to plain text
-      element.textContent = formula;
+  try {
+    // Clear the element first
+    element.innerHTML = "";
+    // Render KaTeX with HTML output in display mode for better visualization
+    katex.render(formula, element, {
+      throwOnError: false,
+      displayMode: true,
+      output: "html",
     });
+  } catch (e) {
+    console.warn("KaTeX rendering error:", e);
+    // Fallback to plain text
+    element.textContent = formula;
+  }
 };
 
 interface CurveData {
@@ -73,6 +65,7 @@ export function Lab8() {
     { id: string; label: string; value: string }[]
   >([]);
   const [calculationPerformed, setCalculationPerformed] = useState(false);
+  const [showCalculationResults, setShowCalculationResults] = useState(false);
 
   // Refs for D3 visualization
   const svgRef = useRef<SVGSVGElement>(null);
@@ -214,19 +207,6 @@ export function Lab8() {
     const width_curve = widthBox - margin.left - margin.right;
     const height_curve = heightBox - margin.top - margin.bottom;
 
-    // Calculate domains
-    const domx = endValue * I_Highest2;
-    const domy = Tx;
-
-    const xscale_curve = d3
-      .scaleLinear()
-      .range([0, width_curve])
-      .domain([0, domx]);
-    const yscale_curve = d3
-      .scaleLinear()
-      .range([0, -height_curve])
-      .domain([0, domy]);
-
     // Generate LV curve data
     let datasetdLV: CurveData[] = [];
     if (selectedLVCurve) {
@@ -255,30 +235,45 @@ export function Lab8() {
       }
     }
 
-    // Calculate dynamic y-domain if both curves are present
-    let newDomy = domy;
-    if (datasetdLV.length > 0 && datasetdHV.length > 0) {
-      const maxYLV = Math.max(...datasetdLV.map((d) => d.y));
-      const maxYHV = Math.max(...datasetdHV.map((d) => d.y));
-      newDomy = Math.max(maxYLV, maxYHV, 1) * 1.1;
+    // Calculate dynamic domains from the selected curves
+    const allData = [...datasetdLV, ...datasetdHV];
+    if (allData.length === 0) return;
 
-      // Create new y-scale with dynamic domain
-      const newYScale = d3
-        .scaleLinear()
-        .range([0, -height_curve])
-        .domain([0, newDomy]);
+    const maxX = Math.max(...allData.map((d) => d.x), 1);
+    const maxY = Math.max(...allData.map((d) => d.y), 1);
+    const domx = maxX * 1.1;
+    const domy = maxY * 1.1;
 
-      // Update y-axis
-      const yAxisGroup = svgRef.current?.querySelector(
-        ".y.axis",
-      ) as SVGGElement;
-      if (yAxisGroup) {
-        d3.select(yAxisGroup).call(d3.axisRight(newYScale));
-        yAxisGroup.querySelectorAll("*").forEach((el) => {
-          el.setAttribute("stroke", "black");
-          (el as HTMLElement).style.color = "black";
-        });
-      }
+    const xscale_curve = d3
+      .scaleLinear()
+      .range([0, width_curve])
+      .domain([0, domx]);
+    const yscale_curve = d3
+      .scaleLinear()
+      .range([0, -height_curve])
+      .domain([0, domy]);
+
+    // Update axes on every curve change
+    const xAxisGroup = svgRef.current?.querySelector(
+      ".x.axis",
+    ) as SVGGElement;
+    if (xAxisGroup) {
+      d3.select(xAxisGroup).call(d3.axisTop(xscale_curve));
+      xAxisGroup.querySelectorAll("*").forEach((el) => {
+        el.setAttribute("stroke", "black");
+        (el as HTMLElement).style.color = "black";
+      });
+    }
+
+    const yAxisGroup = svgRef.current?.querySelector(
+      ".y.axis",
+    ) as SVGGElement;
+    if (yAxisGroup) {
+      d3.select(yAxisGroup).call(d3.axisRight(yscale_curve));
+      yAxisGroup.querySelectorAll("*").forEach((el) => {
+        el.setAttribute("stroke", "black");
+        (el as HTMLElement).style.color = "black";
+      });
     }
 
     // Update LV curve
@@ -287,7 +282,7 @@ export function Lab8() {
       const lineFunction = d3
         .line<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y((d) => height_curve - (d.y * height_curve) / domy)
         .curve(d3.curveCatmullRom);
 
       lineGraphLV
@@ -307,7 +302,7 @@ export function Lab8() {
       const lineFunction = d3
         .line<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y((d) => height_curve - (d.y * height_curve) / domy)
         .curve(d3.curveCatmullRom);
 
       lineGraphHV
@@ -339,34 +334,34 @@ export function Lab8() {
       const lineFunctionLV = d3
         .line<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y((d) => height_curve - (d.y * height_curve) / domy)
         .curve(d3.curveCatmullRom);
 
       const lineFunctionHV = d3
         .line<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y((d) => height_curve - (d.y * height_curve) / domy)
         .curve(d3.curveCatmullRom);
 
       const areaFunctionPositive = d3
         .area<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y0((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y0((d) => height_curve - (d.y * height_curve) / domy)
         .y1((d, i) => {
           const hvData = datasetPositive.dHV[i];
           return hvData
-            ? height_curve - (hvData.y * height_curve) / newDomy
+            ? height_curve - (hvData.y * height_curve) / domy
             : 0;
         });
 
       const areaFunctionNegative = d3
         .area<CurveData>()
         .x((d) => (d.x * width_curve) / domx)
-        .y0((d) => height_curve - (d.y * height_curve) / newDomy)
+        .y0((d) => height_curve - (d.y * height_curve) / domy)
         .y1((d, i) => {
           const hvData = datasetNegative.dHV[i];
           return hvData
-            ? height_curve - (hvData.y * height_curve) / newDomy
+            ? height_curve - (hvData.y * height_curve) / domy
             : 0;
         });
 
@@ -392,44 +387,66 @@ export function Lab8() {
     }
 
     // Update text labels
-    if (selectedLVCurve) {
+    if (selectedLVCurve && datasetdLV.length > 0) {
+      const lvPoint =
+        datasetdLV[Math.max(0, Math.floor(datasetdLV.length * 0.85) - 1)] ||
+        datasetdLV[datasetdLV.length - 1];
+      const lvX = (lvPoint.x * width_curve) / domx;
+      const lvY = height_curve - (lvPoint.y * height_curve) / domy;
       const curveNames: Record<string, string> = {
-        IEEE_VI: "LV IEEE Very Inverse",
-        IEEE_EI: "LV IEEE Extremely Inverse",
-        IEEE_MI: "LV IEEE Moderate Inverse",
-        US_I: "LV US Inverse",
-        US_STI: "LV US Short Time Inverse",
-        IEC_VI: "LV IEC Very Inverse",
-        IEC_EI: "LV IEC Extremely Inverse",
-        IEC_MI: "LV IEC Moderate Inverse",
-        UK_LTI: "LV UK Long Time Inverse",
-        UK_R: "LV UK Rectifier",
+        IEEE_VI: "LV",
+        IEEE_EI: "LV",
+        IEEE_MI: "LV",
+        US_I: "LV",
+        US_STI: "LV",
+        IEC_VI: "LV",
+        IEC_EI: "LV",
+        IEC_MI: "LV",
+        UK_LTI: "LV",
+        UK_R: "LV",
       };
+      d3.select(svgRef.current)
+        .select("#gLV")
+        .attr("transform", `translate(${lvX},${lvY - 10})`);
+
       d3.select(svgRef.current)
         .select("#textLV")
         .text(curveNames[selectedLVCurve] || "")
         .style("fill", "springgreen")
         .style("display", "block");
+    } else {
+      d3.select(svgRef.current).select("#textLV").style("display", "none");
     }
 
-    if (selectedHVCurve) {
+    if (selectedHVCurve && datasetdHV.length > 0) {
+      const hvPoint =
+        datasetdHV[Math.max(0, Math.floor(datasetdHV.length * 0.85) - 1)] ||
+        datasetdHV[datasetdHV.length - 1];
+      const hvX = (hvPoint.x * width_curve) / domx;
+      const hvY = height_curve - (hvPoint.y * height_curve) / domy;
       const curveNames: Record<string, string> = {
-        IEEE2_VI: "HV IEEE Very Inverse",
-        IEEE2_EI: "HV IEEE Extremely Inverse",
-        IEEE2_MI: "HV IEEE Moderate Inverse",
-        US2_I: "HV US Inverse",
-        US2_STI: "HV US Short Time Inverse",
-        IEC2_VI: "HV IEC Very Inverse",
-        IEC2_EI: "HV IEC Extremely Inverse",
-        IEC2_MI: "HV IEC Moderate Inverse",
-        UK2_LTI: "HV UK Long Time Inverse",
-        UK2_R: "HV UK Rectifier",
+        IEEE2_VI: "HV",
+        IEEE2_EI: "HV",
+        IEEE2_MI: "HV",
+        US2_I: "HV",
+        US2_STI: "HV",
+        IEC2_VI: "HV",
+        IEC2_EI: "HV",
+        IEC2_MI: "HV",
+        UK2_LTI: "HV",
+        UK2_R: "HV",
       };
+      d3.select(svgRef.current)
+        .select("#gHV")
+        .attr("transform", `translate(${hvX},${hvY - 10})`);
+
       d3.select(svgRef.current)
         .select("#textHV")
         .text(curveNames[selectedHVCurve] || "")
         .style("fill", "peru")
         .style("display", "block");
+    } else {
+      d3.select(svgRef.current).select("#textHV").style("display", "none");
     }
   }, [
     selectedLVCurve,
@@ -462,16 +479,18 @@ export function Lab8() {
     setCalculationPerformed(true);
 
     // Update calculation section display with KaTeX
-    const calculationSection = document.querySelectorAll(
-      "#calculation-section p",
-    );
-    const items = formatCalculationResults(results);
+    if (showCalculationResults) {
+      const calculationSection = document.querySelectorAll(
+        "#calculation-section p",
+      );
+      const items = formatCalculationResults(results);
 
-    calculationSection.forEach((element, index) => {
-      if (items[index] && element instanceof HTMLElement) {
-        renderKatex(element, items[index].value);
-      }
-    });
+      calculationSection.forEach((element, index) => {
+        if (items[index] && element instanceof HTMLElement) {
+          renderKatex(element, items[index].value);
+        }
+      });
+    }
   }, [
     powerRating,
     lvVoltage,
@@ -481,6 +500,7 @@ export function Lab8() {
     ctRatioHV,
     tripTimeLV,
     tripTimeHV,
+    showCalculationResults,
   ]);
 
   // Update equations when curves or time values change
@@ -724,38 +744,87 @@ export function Lab8() {
     updateEquations();
 
     updateCurves();
+    setShowCalculationResults(true);
   };
 
   // Update equations with KaTeX rendering based on selected curves
   const updateEquations = () => {
-    // LV equation
-    const equationLVElement = document.getElementById("equationLV");
-    if (equationLVElement && selectedLVCurve) {
+    // LV Formulas - Show formula for selected LV curve
+    const formulaLVElement = document.getElementById("formula-lv");
+    if (formulaLVElement && selectedLVCurve) {
       const { b, a, l } = getCurveParams(selectedLVCurve);
       const multiplier =
         selectedLVCurve.includes("IEC") || selectedLVCurve.includes("UK")
           ? tmsValue
           : timemultval;
       let LText = l === 0 ? "" : ` + ${l}`;
-      const equationFormula = `\\mathrm{LV}:\\ t = ${multiplier.toFixed(
-        2,
-      )} \\times \\frac{${b.toFixed(2)}}{{\\left(\\frac{I}{I_{\\mathrm{s}}}}\\right)^{${a}}}}${LText}~\\mathrm{s}`;
-      renderKatex(equationLVElement, equationFormula);
+      
+      // Get standard name and curve type
+      let standardName = "";
+      let curveType = "";
+      if (selectedLVCurve.includes("IEEE")) {
+        standardName = "IEEE";
+        if (selectedLVCurve.includes("EI")) curveType = "Extremely Inverse";
+        else if (selectedLVCurve.includes("VI")) curveType = "Very Inverse";
+        else if (selectedLVCurve.includes("MI")) curveType = "Moderate Inverse";
+      } else if (selectedLVCurve.includes("US")) {
+        standardName = "US";
+        if (selectedLVCurve.includes("STI")) curveType = "Short Time Inverse";
+        else curveType = "Inverse";
+      } else if (selectedLVCurve.includes("IEC")) {
+        standardName = "IEC";
+        if (selectedLVCurve.includes("EI")) curveType = "Extremely Inverse";
+        else if (selectedLVCurve.includes("VI")) curveType = "Very Inverse";
+        else if (selectedLVCurve.includes("MI")) curveType = "Moderate Inverse";
+      } else if (selectedLVCurve.includes("UK")) {
+        standardName = "UK";
+        if (selectedLVCurve.includes("LTI")) curveType = "Long Time Inverse";
+        else curveType = "Rectifier";
+      }
+      
+      const equationFormula = `\\text{LV ${standardName} ${curveType}: } t = ${multiplier.toFixed(2)} \\times \\frac{${b.toFixed(2)}}{\\left(\\frac{I}{I_{\\mathrm{s}}}\\right)^{${a}} - 1}${LText}\\,\\mathrm{s}`;
+      renderKatex(formulaLVElement, equationFormula);
+    } else if (formulaLVElement) {
+      formulaLVElement.innerHTML = "<span class=\"text-gray-500\">Select LV Curve</span>";
     }
 
-    // HV equation
-    const equationHVElement = document.getElementById("equationHV");
-    if (equationHVElement && selectedHVCurve) {
+    // HV Formulas - Show formula for selected HV curve
+    const formulaHVElement = document.getElementById("formula-hv");
+    if (formulaHVElement && selectedHVCurve) {
       const { b, a, l } = getCurveParams(selectedHVCurve);
       const multiplier =
         selectedHVCurve.includes("IEC") || selectedHVCurve.includes("UK")
           ? tmsValue2
           : timemultval2;
       let LText = l === 0 ? "" : ` + ${l}`;
-      const equationFormula = `\\mathrm{HV}:\\ t = ${multiplier.toFixed(
-        2,
-      )} \\times \\frac{${b.toFixed(2)}}{{\\left(\\frac{I}{I_{\\mathrm{s}}}}\\right)^{${a}}}}${LText}~\\mathrm{s}`;
-      renderKatex(equationHVElement, equationFormula);
+      
+      // Get standard name and curve type
+      let standardName = "";
+      let curveType = "";
+      if (selectedHVCurve.includes("IEEE")) {
+        standardName = "IEEE";
+        if (selectedHVCurve.includes("EI")) curveType = "Extremely Inverse";
+        else if (selectedHVCurve.includes("VI")) curveType = "Very Inverse";
+        else if (selectedHVCurve.includes("MI")) curveType = "Moderate Inverse";
+      } else if (selectedHVCurve.includes("US")) {
+        standardName = "US";
+        if (selectedHVCurve.includes("STI")) curveType = "Short Time Inverse";
+        else curveType = "Inverse";
+      } else if (selectedHVCurve.includes("IEC")) {
+        standardName = "IEC";
+        if (selectedHVCurve.includes("EI")) curveType = "Extremely Inverse";
+        else if (selectedHVCurve.includes("VI")) curveType = "Very Inverse";
+        else if (selectedHVCurve.includes("MI")) curveType = "Moderate Inverse";
+      } else if (selectedHVCurve.includes("UK")) {
+        standardName = "UK";
+        if (selectedHVCurve.includes("LTI")) curveType = "Long Time Inverse";
+        else curveType = "Rectifier";
+      }
+      
+      const equationFormula = `\\text{HV ${standardName} ${curveType}: } t = ${multiplier.toFixed(2)} \\times \\frac{${b.toFixed(2)}}{\\left(\\frac{I}{I_{\\mathrm{s}}}\\right)^{${a}} - 1}${LText}\\,\\mathrm{s}`;
+      renderKatex(formulaHVElement, equationFormula);
+    } else if (formulaHVElement) {
+      formulaHVElement.innerHTML = "<span class=\"text-gray-500\">Select HV Curve</span>";
     }
   };
 
@@ -769,6 +838,7 @@ export function Lab8() {
     }
     updateEquations();
     updateCurves();
+    setShowCalculationResults(true);
   };
 
   const handleTDial2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -780,6 +850,7 @@ export function Lab8() {
     }
     updateEquations();
     updateCurves();
+    setShowCalculationResults(true);
   };
 
   const handleTTMSChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -791,6 +862,7 @@ export function Lab8() {
     }
     updateEquations();
     updateCurves();
+    setShowCalculationResults(true);
   };
 
   const handleTTMS2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -802,6 +874,7 @@ export function Lab8() {
     }
     updateEquations();
     updateCurves();
+    setShowCalculationResults(true);
   };
 
   // Calculate button handler
@@ -849,6 +922,7 @@ export function Lab8() {
     setCalculationPerformed(true);
 
     // Update calculation section display
+    setShowCalculationResults(true);
     updateCalculationDisplay(results);
 
     updateCurves();
@@ -884,6 +958,19 @@ export function Lab8() {
               <h1 className="text-5xl font-bold text-blue-600 text-center border-b-2 border-blue-200 pb-3">
                 Transformer Over-Current Setting
               </h1>
+
+              <div id="formula-section" className="col-span-full row-span-full flex flex-col items-center justify-start pt-2 gap-3 z-10 w-full max-w-[600px]">
+                  {/* LV Formulas */}
+                  <div className="bg-blue-50 p-3 rounded-lg shadow-sm border border-blue-100 w-full">
+                    <div className="text-xs font-semibold text-blue-600 mb-1 uppercase tracking-wide">LV Side - Overcurrent Curve</div>
+                  <div id="formula-lv" className="text-sm"></div>
+                  </div>
+                  {/* HV Formulas */}
+                  <div className="bg-green-50 p-3 rounded-lg shadow-sm border border-green-100 w-full">
+                    <div className="text-xs font-semibold text-green-600 mb-1 uppercase tracking-wide">HV Side - Overcurrent Curve</div>
+                  <div id="formula-hv" className="text-sm"></div>
+                  </div>
+                </div>
               <div
                 className="svgCurveContainer grid bg-white rounded-lg shadow-inner border border-slate-200 p-4"
                 id="divCurveContainerId"
@@ -891,7 +978,7 @@ export function Lab8() {
                 <div className="t text-2xl font-bold text-gray-700 pt-6 font-['math'] col-span-full row-span-full">
                   t
                 </div>
-                <div id="formula-section"></div>
+                
                 <svg
                   id="svgCurve"
                   ref={svgRef}
@@ -1112,7 +1199,7 @@ export function Lab8() {
                         name="slider"
                         id="TDial"
                         defaultValue="1.0"
-                        min="1.0"
+                        min="0"
                         max="100"
                         step="1"
                         onChange={handleTDialChange}
@@ -1136,9 +1223,9 @@ export function Lab8() {
                         name="slider"
                         id="TTMS"
                         defaultValue="1.0"
-                        min="1.0"
-                        max="100"
-                        step="1"
+                        min="0.01"
+                        max="1.50"
+                        step="0.01"
                         onChange={handleTTMSChange}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       />
@@ -1395,16 +1482,16 @@ export function Lab8() {
                 className="grid-item absolute bottom-0 left-0 text-base w-full h-[65%] overflow-y-auto"
                 id="calculation-section"
               >
-                <p id="1" className="px-2 py-1"></p>
-                <p id="2" className="px-2 py-1"></p>
-                <p id="3" className="px-2 py-1"></p>
-                <p id="4" className="px-2 py-1"></p>
-                <p id="5" className="px-2 py-1"></p>
-                <p id="6" className="px-2 py-1"></p>
-                <p id="7" className="px-2 py-1"></p>
-                <p id="8" className="px-2 py-1"></p>
-                <p id="9" className="px-2 py-1"></p>
-                <p id="10" className="px-2 py-1"></p>
+                <p id="1" className="px-2 "></p>
+                <p id="2" className="px-2 "></p>
+                <p id="3" className="px-2 "></p>
+                <p id="4" className="px-2 "></p>
+                <p id="5" className="px-2 "></p>
+                <p id="6" className="px-2 "></p>
+                <p id="7" className="px-2 "></p>
+                <p id="8" className="px-2 "></p>
+                <p id="9" className="px-2 "></p>
+                <p id="10" className="px-2 "></p>
               </div>
             </div>
           </div>

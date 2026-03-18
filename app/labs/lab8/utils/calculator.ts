@@ -118,12 +118,12 @@ export const calculateSettings = (
 // Format results for display
 export const formatCalculationResults = (results: CalculationResults) => {
   return [
-    { id: "1", label: "I_FL_LV", value: `I_{\\mathrm{FL,LV}} = ${results.I_FL_LV.toFixed(2)}~\mathrm{A}` },
-    { id: "2", label: "I_FL_HV", value: `I_{\\mathrm{FL,HV}} = ${results.I_FL_HV.toFixed(2)}~\mathrm{A}` },
-    { id: "3", label: "I_F_LV", value: `I_{\\mathrm{F,LV}} = ${results.I_F_LV.toFixed(2)}~\mathrm{A}` },
-    { id: "4", label: "I_F_HV", value: `I_{\\mathrm{F,HV}} = ${results.I_F_HV.toFixed(2)}~\mathrm{A}` },
-    { id: "5", label: "I_set_LV", value: `I_{\\mathrm{set,LV}} = ${results.I_set_LV.toFixed(2)}~\mathrm{A}` },
-    { id: "6", label: "I_set_HV", value: `I_{\\mathrm{set,HV}} = ${results.I_set_HV.toFixed(2)}~\mathrm{A}` },
+    { id: "1", label: "I_FL_LV", value: `I_{\\mathrm{FL,LV}} = ${results.I_FL_LV.toFixed(2)}~A` },
+    { id: "2", label: "I_FL_HV", value: `I_{\\mathrm{FL,HV}} = ${results.I_FL_HV.toFixed(2)}~A` },
+    { id: "3", label: "I_F_LV", value: `I_{\\mathrm{F,LV}} = ${results.I_F_LV.toFixed(2)}~A` },
+    { id: "4", label: "I_F_HV", value: `I_{\\mathrm{F,HV}} = ${results.I_F_HV.toFixed(2)}~A` },
+    { id: "5", label: "I_set_LV", value: `I_{\\mathrm{set,LV}} = ${results.I_set_LV.toFixed(2)}~A` },
+    { id: "6", label: "I_set_HV", value: `I_{\\mathrm{set,HV}} = ${results.I_set_HV.toFixed(2)}~A` },
     { id: "7", label: "PSM_LV", value: `\\mathrm{PSM}_{\\mathrm{LV}} = ${results.PSM_LV.toFixed(2)}` },
     { id: "8", label: "PSM_HV", value: `\\mathrm{PSM}_{\\mathrm{HV}} = ${results.PSM_HV.toFixed(2)}` },
     { id: "9", label: "TMS_LV", value: `\\mathrm{TMS}_{\\mathrm{LV}} = ${results.TMS_LV.toFixed(2)}` },

@@ -73,14 +73,115 @@ export default function Lab3() {
   const [resetVTrigger, setResetVTrigger] = useState(0);
   const [resetITrigger, setResetITrigger] = useState(0);
 
+  // React state for voltage values (for controlled inputs and reset)
+  const [voltageValues, setVoltageValues] = useState({
+    Amp_A: 115,
+    Amp_B: 115,
+    Amp_C: 115,
+    Angle_A: 0,
+    Angle_B: -120,
+    Angle_C: 120,
+    Amp_0: 0,
+    Amp_1: 115,
+    Amp_2: 0,
+    Angle_0: 0,
+    Angle_1: 0,
+    Angle_2: 0,
+  });
+
+  // React state for current values (for controlled inputs and reset)
+  const [currentValues, setCurrentValues] = useState({
+    Amp_A_I: 5,
+    Amp_B_I: 5,
+    Amp_C_I: 5,
+    Angle_A_I: 0,
+    Angle_B_I: -120,
+    Angle_C_I: 120,
+    Amp_0_I: 0,
+    Amp_1_I: 5,
+    Amp_2_I: 0,
+    Angle_0_I: 0,
+    Angle_1_I: 0,
+    Angle_2_I: 0,
+  });
+
+  // React state for blinder visibility
+  const [blinderVisible, setBlinderVisible] = useState(false);
+
+  const handleCharTypeChange = (value: string) => {
+    if (typeof window === "undefined") return;
+    const win = window as any;
+    win.currentCharType = value;
+    if (typeof win.recordAndUpdate === "function") {
+      win.recordAndUpdate();
+    }
+    if (String(value).toUpperCase() === "QUAD") {
+      try {
+        drawQuadHandles();
+      } catch {
+        /* handles are optional */
+      }
+    }
+  };
+
+  // Handle blinder visibility change
+  const handleBlinderVisibility = (checked: boolean) => {
+    setBlinderVisible(checked);
+  };
+
+  // Update blinder visibility in DOM when state changes
+  useEffect(() => {
+    const blinderShow = document.getElementById(
+      "blinderShow",
+    ) as HTMLInputElement;
+    if (blinderShow) {
+      blinderShow.checked = blinderVisible;
+    }
+    // Trigger blinder redraw
+    const win = window as any;
+    if (typeof win.drawSELBlinder === "function") {
+      win.drawSELBlinder();
+    }
+  }, [blinderVisible]);
+
   // Handle reset V
   const handleResetV = () => {
-    setResetVTrigger(prev => prev + 1);
+    // Update React state with initial values
+    setVoltageValues({
+      Amp_A: 115,
+      Amp_B: 115,
+      Amp_C: 115,
+      Angle_A: 0,
+      Angle_B: -120,
+      Angle_C: 120,
+      Amp_0: 0,
+      Amp_1: 115,
+      Amp_2: 0,
+      Angle_0: 0,
+      Angle_1: 0,
+      Angle_2: 0,
+    });
+    setResetVTrigger((prev) => prev + 1);
   };
 
   // Handle reset I
   const handleResetI = () => {
-    setResetITrigger(prev => prev + 1);
+    // Update React state with initial values
+    setCurrentValues({
+      Amp_A_I: 5,
+      Amp_B_I: 5,
+      Amp_C_I: 5,
+      Angle_A_I: 0,
+      Angle_B_I: -120,
+      Angle_C_I: 120,
+      Amp_0_I: 0,
+      Amp_1_I: 5,
+      Amp_2_I: 0,
+      Angle_0_I: 0,
+      Angle_1_I: 0,
+      Angle_2_I: 0,
+    });
+    setResetITrigger((prev) => prev + 1);
   };
 
   useEffect(() => {
@@ -168,32 +269,32 @@ export default function Lab3() {
     run();
   }, []);
 
-  // Handle reset V trigger
+  // Handle reset V trigger - now uses React state
   useEffect(() => {
     if (resetVTrigger === 0) return;
-    
-    // Get the AMP_V_INIT value
-    const AMP_V_INIT = (window as any).AMP_V_INIT || 115;
+
     const $ = (window as any).jQuery || require("jquery");
-    
     if (!$) return;
-    
+
+    // Use values from React state
+    const v = voltageValues;
+
     // Set balanced three-phase voltage values
-    $("#Amp_A").val(AMP_V_INIT);
-    $("#Amp_B").val(AMP_V_INIT);
-    $("#Amp_C").val(AMP_V_INIT);
-    $("#Angle_A").val(0);
-    $("#Angle_B").val(-120);
-    $("#Angle_C").val(120);
-    
+    $("#Amp_A").val(v.Amp_A);
+    $("#Amp_B").val(v.Amp_B);
+    $("#Amp_C").val(v.Amp_C);
+    $("#Angle_A").val(v.Angle_A);
+    $("#Angle_B").val(v.Angle_B);
+    $("#Angle_C").val(v.Angle_C);
+
     // Reset symmetric components
-    $("#Amp_0").val(0);
-    $("#Amp_1").val(AMP_V_INIT);
-    $("#Amp_2").val(0);
-    $("#Angle_0").val(0);
-    $("#Angle_1").val(0);
-    $("#Angle_2").val(0);
-    
+    $("#Amp_0").val(v.Amp_0);
+    $("#Amp_1").val(v.Amp_1);
+    $("#Amp_2").val(v.Amp_2);
+    $("#Angle_0").val(v.Angle_0);
+    $("#Angle_1").val(v.Angle_1);
+    $("#Angle_2").val(v.Angle_2);
+
     // Trigger change events to update the UI
     $("#Amp_A").trigger("change");
     $("#Amp_B").trigger("change");
@@ -201,43 +302,48 @@ export default function Lab3() {
     $("#Angle_A").trigger("change");
     $("#Angle_B").trigger("change");
     $("#Angle_C").trigger("change");
-    
-    // Dispatch custom event for full update
-    setTimeout(() => {
-      const win = window as any;
-      if (win.performUpdateCycle) {
-        win.performUpdateCycle();
-      } else if (win.recordAndUpdate) {
-        win.recordAndUpdate();
-      }
-    }, 50);
-  }, [resetVTrigger]);
+    $("#Amp_0").trigger("change");
+    $("#Amp_1").trigger("change");
+    $("#Amp_2").trigger("change");
+    $("#Angle_0").trigger("change");
+    $("#Angle_1").trigger("change");
+    $("#Angle_2").trigger("change");
 
-  // Handle reset I trigger
+    // Call performUpdateCycle to re-render the SVG
+    const win = window as any;
+    if (win.performUpdateCycle) {
+      win.performUpdateCycle();
+    } else if (win.recordAndUpdate) {
+      win.recordAndUpdate();
+    }
+  }, [resetVTrigger, voltageValues]);
+
+  // Handle reset I trigger - now uses React state
   useEffect(() => {
     if (resetITrigger === 0) return;
-    
-    const AMP_I_INIT = (window as any).AMP_I_INIT || 5;
+
     const $ = (window as any).jQuery || require("jquery");
-    
     if (!$) return;
-    
+
+    // Use values from React state
+    const i = currentValues;
+
     // Set balanced three-phase current values
-    $("#Amp_A_I").val(AMP_I_INIT);
-    $("#Amp_B_I").val(AMP_I_INIT);
-    $("#Amp_C_I").val(AMP_I_INIT);
-    $("#Angle_A_I").val(0);
-    $("#Angle_B_I").val(-120);
-    $("#Angle_C_I").val(120);
-    
+    $("#Amp_A_I").val(i.Amp_A_I);
+    $("#Amp_B_I").val(i.Amp_B_I);
+    $("#Amp_C_I").val(i.Amp_C_I);
+    $("#Angle_A_I").val(i.Angle_A_I);
+    $("#Angle_B_I").val(i.Angle_B_I);
+    $("#Angle_C_I").val(i.Angle_C_I);
+
     // Reset symmetric components
-    $("#Amp_0_I").val(0);
-    $("#Amp_1_I").val(AMP_I_INIT);
-    $("#Amp_2_I").val(0);
-    $("#Angle_0_I").val(0);
-    $("#Angle_1_I").val(0);
-    $("#Angle_2_I").val(0);
-    
+    $("#Amp_0_I").val(i.Amp_0_I);
+    $("#Amp_1_I").val(i.Amp_1_I);
+    $("#Amp_2_I").val(i.Amp_2_I);
+    $("#Angle_0_I").val(i.Angle_0_I);
+    $("#Angle_1_I").val(i.Angle_1_I);
+    $("#Angle_2_I").val(i.Angle_2_I);
+
     // Trigger change events
     $("#Amp_A_I").trigger("change");
     $("#Amp_B_I").trigger("change");
@@ -245,16 +351,21 @@ export default function Lab3() {
     $("#Angle_A_I").trigger("change");
     $("#Angle_B_I").trigger("change");
     $("#Angle_C_I").trigger("change");
-    
-    setTimeout(() => {
-      const win = window as any;
-      if (win.performUpdateCycle) {
-        win.performUpdateCycle();
-      } else if (win.recordAndUpdate) {
-        win.recordAndUpdate();
-      }
-    }, 50);
-  }, [resetITrigger]);
+    $("#Amp_0_I").trigger("change");
+    $("#Amp_1_I").trigger("change");
+    $("#Amp_2_I").trigger("change");
+    $("#Angle_0_I").trigger("change");
+    $("#Angle_1_I").trigger("change");
+    $("#Angle_2_I").trigger("change");
+
+    // Call performUpdateCycle to re-render the SVG
+    const win = window as any;
+    if (win.performUpdateCycle) {
+      win.performUpdateCycle();
+    } else if (win.recordAndUpdate) {
+      win.recordAndUpdate();
+    }
+  }, [resetITrigger, currentValues]);
 
   if (!d3.selection.prototype.nodes) {
     d3.selection.prototype.nodes = function () {
@@ -1781,25 +1892,7 @@ export default function Lab3() {
         const half = Math.max(Math.abs(cur[0]), Math.abs(cur[1]));
         const next = Math.min(MAX_CAP, half + growUnits);
         apply([-next, +next], { instant: true });
-        shrinkState[key] = 0; // reset shrink hysteresis on grow
-        return; // don’t try to shrink same frame
-      }
-
-      // --- SHRINK when there’s comfortable slack inside the current domain ---
-      if (key === "Z") return; // as requested: leave impedance out for drag
-      const cur = xScale.domain();
-      const half = Math.max(Math.abs(cur[0]), Math.abs(cur[1]));
-      const used = currentMaxEngForCanvas(key); // engineering units
-      const want = niceSymmetricDomain(used)[1]; // target half-range after padding
-
-      // If padded used-range is well below current half-range, count toward shrink
-      if (want <= half * SHRINK_SLACK) {
-        if (++shrinkState[key] >= SHRINK_MIN_CONSEC) {
-          apply([-want, +want], { instant: true });
-          shrinkState[key] = 0;
-        }
-      } else {
-        shrinkState[key] = 0;
+        return; // only expand during drag
       }
     }
 
@@ -1980,6 +2073,10 @@ export default function Lab3() {
     });
 
     async function update2() {
+      // Read fresh values from input fields before computing phasors
+      recomputeVHeadsFromInputs();
+      recomputeIHeadsFromInputs();
+
       Object.assign(
         window,
         computeVoltagePhasors({ va, vb, vc, p0x, p0y, Three_ph }),
@@ -2251,52 +2348,34 @@ export default function Lab3() {
 
     function recomputeVHeadsFromInputs() {
       const O = originV();
-      (window as any).va = headFromFields(
-        "#Amp_A",
-        "#Angle_A",
-        O,
-        PIX_PER_AMP_V,
-      );
-      (window as any).vb = headFromFields(
-        "#Amp_B",
-        "#Angle_B",
-        O,
-        PIX_PER_AMP_V,
-      );
-      (window as any).vc = headFromFields(
-        "#Amp_C",
-        "#Angle_C",
-        O,
-        PIX_PER_AMP_V,
-      );
-      (window as any).psa = [(window as any).va];
-      (window as any).psb = [(window as any).vb];
-      (window as any).psc = [(window as any).vc];
+      va = headFromFields("#Amp_A", "#Angle_A", O, PIX_PER_AMP_V);
+      vb = headFromFields("#Amp_B", "#Angle_B", O, PIX_PER_AMP_V);
+      vc = headFromFields("#Amp_C", "#Angle_C", O, PIX_PER_AMP_V);
+      psa = [va];
+      psb = [vb];
+      psc = [vc];
+      (window as any).va = va;
+      (window as any).vb = vb;
+      (window as any).vc = vc;
+      (window as any).psa = psa;
+      (window as any).psb = psb;
+      (window as any).psc = psc;
     }
 
     function recomputeIHeadsFromInputs() {
       const O = originI();
-      (window as any).ia = headFromFields(
-        "#Amp_A_I",
-        "#Angle_A_I",
-        O,
-        PIX_PER_AMP_I,
-      );
-      (window as any).ib = headFromFields(
-        "#Amp_B_I",
-        "#Angle_B_I",
-        O,
-        PIX_PER_AMP_I,
-      );
-      (window as any).ic = headFromFields(
-        "#Amp_C_I",
-        "#Angle_C_I",
-        O,
-        PIX_PER_AMP_I,
-      );
-      (window as any).psa_I = [(window as any).ia];
-      (window as any).psb_I = [(window as any).ib];
-      (window as any).psc_I = [(window as any).ic];
+      ia = headFromFields("#Amp_A_I", "#Angle_A_I", O, PIX_PER_AMP_I);
+      ib = headFromFields("#Amp_B_I", "#Angle_B_I", O, PIX_PER_AMP_I);
+      ic = headFromFields("#Amp_C_I", "#Angle_C_I", O, PIX_PER_AMP_I);
+      psa_I = [ia];
+      psb_I = [ib];
+      psc_I = [ic];
+      (window as any).ia = ia;
+      (window as any).ib = ib;
+      (window as any).ic = ic;
+      (window as any).psa_I = psa_I;
+      (window as any).psb_I = psb_I;
+      (window as any).psc_I = psc_I;
     }
 
     // --- helpers ---------------------------------------------------------------
@@ -2455,59 +2534,12 @@ export default function Lab3() {
     const MIN_SPAN = 1e-6; // avoid zero-span domains
     const PAD = 1.75; // breathing room around extrema
     // let isAutoScaling = false;  // re-entry guard (Duplicate)
-    // --- Shrink tuning (smooth / anti-jitter)
-    const SHRINK_SLACK = 0.82; // shrink when used range < 82% of current half-range
-    const SHRINK_MIN_CONSEC = 2; // need N consecutive frames under threshold
-
-    const shrinkState: any = { V: 0, I: 0, Z: 0, KN: 0 };
 
     function classKey(cls: any) {
       if (cls.endsWith("_I")) return "I";
       if (cls.includes("_Z")) return "Z";
       if (cls === "vector_KN") return "KN";
       return "V";
-    }
-
-    // Max magnitude (engineering units) currently shown on a canvas
-    function currentMaxEngForCanvas(key: any) {
-      if (key === "V") {
-        const O = originV();
-        const heads = [
-          (window as any).psa?.[0],
-          (window as any).psb?.[0],
-          (window as any).psc?.[0],
-        ].filter(Boolean);
-        if (!heads.length) return AMP_V_INIT;
-        const ppu = PIX_PER_AMP_V || xScale_V(1) - xScale_V(0);
-        return Math.max(
-          ...heads.map(
-            ([x, y]: any) =>
-              Math.hypot(x - O[0], y - O[1]) / Math.max(ppu as number, 1e-9),
-          ),
-        );
-      }
-      if (key === "I") {
-        const O = originI();
-        const heads = [
-          (window as any).psa_I?.[0],
-          (window as any).psb_I?.[0],
-          (window as any).psc_I?.[0],
-        ].filter(Boolean);
-        if (!heads.length) return AMP_I_INIT;
-        const ppu = PIX_PER_AMP_I || xScale_I(1) - xScale_I(0);
-        return Math.max(
-          ...heads.map(
-            ([x, y]: any) =>
-              Math.hypot(x - O[0], y - O[1]) / Math.max(ppu as number, 1e-9),
-          ),
-        );
-      }
-      if (key === "Z") {
-        // leave Z out during drag; this is only used if you later enable Z shrinking
-        const vals = collectZ();
-        return Math.max(...vals.map(Math.abs));
-      }
-      return 1;
     }
 
     function finiteNums(arr: any) {
@@ -2759,23 +2791,23 @@ export default function Lab3() {
       const zMax = Math.max(...collectZ().map(Math.abs));
       const knMag = Math.abs(parseFloat($("#KN").val()) || 1);
 
-      const vDomNew = niceSymmetricDomain(vMax);
-      const iDomNew = niceSymmetricDomain(iMax);
-      const zDomNew = niceSymmetricDomain(zMax);
-      const knDomNew = niceSymmetricDomain(Math.max(knMag, 1)); // keep ≥1 for usability
-
-      // Only apply if changed
-      const same = (a: any, b: any) => a[0] === b[0] && a[1] === b[1];
-
       const vDomOld = xScale_V.domain().slice();
       const iDomOld = xScale_I.domain().slice();
       const zDomOld = xScale_Z.domain().slice();
       const knDomOld = xScale_KN.domain().slice();
 
-      if (!same(vDomNew, vDomOld)) applyAxis_V(vDomNew);
-      if (!same(iDomNew, iDomOld)) applyAxis_I(iDomNew);
-      if (!same(zDomNew, zDomOld)) applyAxis_Z(zDomNew);
-      if (!same(knDomNew, knDomOld)) applyAxis_KN(knDomNew);
+      const curMax = (dom: any) => Math.max(Math.abs(dom[0]), Math.abs(dom[1]));
+
+      // Only expand when needed (prevents shrink on small changes)
+      const vNeeds = vMax * PAD > curMax(vDomOld);
+      const iNeeds = iMax * PAD > curMax(iDomOld);
+      const zNeeds = zMax * PAD > curMax(zDomOld);
+      const knNeeds = Math.max(knMag, 1) * PAD > curMax(knDomOld);
+
+      if (vNeeds) applyAxis_V(niceSymmetricDomain(vMax));
+      if (iNeeds) applyAxis_I(niceSymmetricDomain(iMax));
+      if (zNeeds) applyAxis_Z(niceSymmetricDomain(zMax));
+      if (knNeeds) applyAxis_KN(niceSymmetricDomain(Math.max(knMag, 1)));
 
       styleAxesOnce();
     }
@@ -2961,6 +2993,28 @@ export default function Lab3() {
       const redo = document.getElementById("redoBtn");
       if (redo) redo.onclick = History.redo;
 
+      const onZLineInput = () => {
+        if (_lockZLmag) return;
+        updateCollapseRows();
+        syncZLmagFromParts();
+        computeWeakSourceModel();
+        recordAndUpdate();
+      };
+
+      ["#Z_ratio", "#Z0_ratio", "#Z_l", "#Z_angle", "#Z0_angle"].forEach(
+        (sel) => {
+          d3.select(sel).on("input", onZLineInput);
+          d3.select(sel).on("change", onZLineInput);
+        },
+      );
+
+      d3.select("#ZLmag").on("input", () => {
+        syncPartsFromZLmag();
+      });
+      d3.select("#ZLmag").on("change", () => {
+        syncPartsFromZLmag();
+      });
+
       d3.select("#reachLeft").on("change", () => {
         recordAndUpdate();
       });
@@ -2975,6 +3029,48 @@ export default function Lab3() {
       });
       d3.select("#reachAngleRight").on("change", () => {
         recordAndUpdate();
+      });
+
+      const vSeqInputs = [
+        "#Amp_0",
+        "#Angle_0",
+        "#Amp_1",
+        "#Angle_1",
+        "#Amp_2",
+        "#Angle_2",
+      ];
+      vSeqInputs.forEach((sel) => {
+        d3.select(sel).on("input", () => {
+          editSource = "V_SEQ";
+          (window as any).editSource = editSource;
+          recordAndUpdate();
+        });
+        d3.select(sel).on("change", () => {
+          editSource = "V_SEQ";
+          (window as any).editSource = editSource;
+          recordAndUpdate();
+        });
+      });
+
+      const iSeqInputs = [
+        "#Amp_0_I",
+        "#Angle_0_I",
+        "#Amp_1_I",
+        "#Angle_1_I",
+        "#Amp_2_I",
+        "#Angle_2_I",
+      ];
+      iSeqInputs.forEach((sel) => {
+        d3.select(sel).on("input", () => {
+          editSource = "I_SEQ";
+          (window as any).editSource = editSource;
+          recordAndUpdate();
+        });
+        d3.select(sel).on("change", () => {
+          editSource = "I_SEQ";
+          (window as any).editSource = editSource;
+          recordAndUpdate();
+        });
       });
 
       d3.select("body").on("keydown", function (event: any) {
@@ -3824,6 +3920,10 @@ export default function Lab3() {
                           id="blinderShow"
                           type="checkbox"
                           className="w-4 h-4 rounded text-blue-600"
+                          checked={blinderVisible}
+                          onChange={(e) =>
+                            handleBlinderVisibility(e.target.checked)
+                          }
                         />
                         Show Blinder
                       </label>
@@ -3873,6 +3973,7 @@ export default function Lab3() {
                         value="MHO"
                         defaultChecked
                         className="hidden"
+                        onChange={() => handleCharTypeChange("MHO")}
                       />
                       MHO
                     </label>
@@ -3883,6 +3984,7 @@ export default function Lab3() {
                         name="charType"
                         value="QUAD"
                         className="hidden"
+                        onChange={() => handleCharTypeChange("QUAD")}
                       />
                       Quad
                     </label>
@@ -4648,7 +4750,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">V0</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_0" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_0"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_0"
                             type="number"
@@ -4659,7 +4765,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_0" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_0"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_0"
                             type="number"
@@ -4674,7 +4784,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">V1</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_1" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_1"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_1"
                             type="number"
@@ -4685,7 +4799,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_1" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_1"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_1"
                             type="number"
@@ -4700,7 +4818,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">V2</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_2" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_2"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_2"
                             type="number"
@@ -4711,7 +4833,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_2" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_2"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_2"
                             type="number"
@@ -4800,7 +4926,7 @@ export default function Lab3() {
                       title="click to lock voltage VA, VB, VC balanced"
                     >
                       <img
-                        src="./img/closed unlock.svg"
+                        src="/image.png"
                         id="img_toggleon"
                         className="w-8 h-8 opacity-80"
                         alt="Toggle V lock"
@@ -5008,7 +5134,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">I0</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_0_I" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_0_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_0_I"
                             type="number"
@@ -5019,7 +5149,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_0_I" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_0_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_0_I"
                             type="number"
@@ -5034,7 +5168,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">I1</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_1_I" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_1_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_1_I"
                             type="number"
@@ -5045,7 +5183,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_1_I" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_1_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_1_I"
                             type="number"
@@ -5060,7 +5202,11 @@ export default function Lab3() {
                       <td className="py-2 font-bold text-slate-500">I2</td>
                       <td className="py-2 text-slate-400 font-medium">=</td>
                       <td className="py-2">
-                        <form id="form_Amp_2_I" onBlur={() => {}}>
+                        <form
+                          id="form_Amp_2_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Amp_2_I"
                             type="number"
@@ -5071,7 +5217,11 @@ export default function Lab3() {
                         </form>
                       </td>
                       <td className="py-2">
-                        <form id="form_Angle_2_I" onBlur={() => {}}>
+                        <form
+                          id="form_Angle_2_I"
+                          onBlur={() => {}}
+                          onSubmit={(e) => e.preventDefault()}
+                        >
                           <input
                             id="Angle_2_I"
                             type="number"
@@ -5133,6 +5283,13 @@ export default function Lab3() {
                         step="1"
                         min="0"
                         className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter") return;
+                          e.preventDefault();
+                          (e.currentTarget as HTMLInputElement).dispatchEvent(
+                            new Event("change", { bubbles: true }),
+                          );
+                        }}
                       />
                     </label>
 
@@ -5147,6 +5304,13 @@ export default function Lab3() {
                         step="0.01"
                         min="0"
                         className="w-full px-2 py-1 bg-slate-100 dark:bg-slate-700 border-none rounded text-right text-sm focus:ring-2 focus:ring-blue-500"
+                        onKeyDown={(e) => {
+                          if (e.key !== "Enter") return;
+                          e.preventDefault();
+                          (e.currentTarget as HTMLInputElement).dispatchEvent(
+                            new Event("change", { bubbles: true }),
+                          );
+                        }}
                       />
                     </label>
                   </div>
@@ -5163,7 +5327,7 @@ export default function Lab3() {
                       title="click to lock currents IA, IB, IC balanced"
                     >
                       <img
-                        src="./img/closed unlock.svg"
+                        src="/image.png"
                         id="img_toggleon_I"
                         className="w-8 h-8 opacity-80"
                         alt="Toggle I lock"

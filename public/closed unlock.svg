@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   width="50"
+   height="49.900993"
+   id="svg2"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="closed unlock.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="1027"
+     id="namedview3021"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:zoom="3.3373737"
+     inkscape:cx="-22.552427"
+     inkscape:cy="35.357143"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs4" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <rect
+     width="50"
+     height="49.900993"
+     x="0"
+     y="0"
+     id="rect3821"
+     style="color:#000000;fill:#2ecc92;fill-opacity:1;stroke:none;stroke-width:5;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <text
+     x="13.875585"
+     y="16.494984"
+     id="text3037"
+     xml:space="preserve"
+     style="font-size:16.93609428px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sakkal Majalla;-inkscape-font-specification:Sakkal Majalla Bold"
+     sodipodi:linespacing="125%"><tspan
+       x="13.875585"
+       y="16.494984"
+       id="tspan3039">3 Ph</tspan></text>
+  <path
+     d="m 20.481312,30.52739 c -1.088597,0 -1.974254,0.885658 -1.974254,1.97429 v 2.03934 h -1.627155 v -2.03934 c 0,-1.985842 1.615602,-3.601444 3.601409,-3.601444 1.98581,0 3.601412,1.615602 3.601412,3.601444 v 2.03934 h -1.627155 v -2.03934 c 0,-1.088632 -0.885655,-1.97429 -1.974257,-1.97429 z m 9.806268,4.989924 v 6.790663 h -9.632744 v -6.790663 h 9.632744 z m -3.93771,2.852952 c 0,-0.485279 -0.393379,-0.878662 -0.878664,-0.878662 -0.485279,0 -0.878662,0.393383 -0.878662,0.878662 0,0.254193 0.107979,0.483068 0.280489,0.643474 0.142699,0.132615 0.223928,0.318921 0.223928,0.513696 v 0.7466 h 0.748492 v -0.74657 c 0,-0.194898 0.08116,-0.381016 0.223926,-0.513695 0.172576,-0.160437 0.280491,-0.389312 0.280491,-0.643505 z"
+     id="lock-11-icon"
+     style="fill:#ffffff;fill-opacity:1"
+     inkscape:connector-curvature="0" />
+  <text
+     x="21.458937"
+     y="27.106421"
+     id="text3029"
+     xml:space="preserve"
+     style="font-size:16.93609428px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sakkal Majalla;-inkscape-font-specification:Sakkal Majalla Bold"
+     sodipodi:linespacing="125%"><tspan
+       x="21.458937"
+       y="27.106421"
+       id="tspan3033">V</tspan></text>
+</svg>

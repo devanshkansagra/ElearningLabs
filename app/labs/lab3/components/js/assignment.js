@@ -92,8 +92,8 @@ export function assignValues(recordAndUpdate, History) {
   $("#Angle_C_I").val(120);
   $("#toggle").val(0);
   $("#toggle_I").val(0);
-  $("#img_toggleon").attr("src", "../img/closed unlock.svg");
-  $("#img_toggleon_I").attr("src", "../img/closed unlock_I.svg");
+  $("#img_toggleon").attr("src", "/closed unlock.svg");
+  $("#img_toggleon_I").attr("src", "/closed unlock.svg");
   $("#Z_ratio").val(0.29);
   $("#Z0_ratio").val(0.9);
   $("#Z_l").val(20);

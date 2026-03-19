@@ -758,10 +758,23 @@ $('input[name="charType"]').on('change', function () {
 
     async function update2 () {
 
+    // Read fresh values from input fields before computing phasors
+    recomputeVHeadsFromInputs();
+    recomputeIHeadsFromInputs();
+
     Object.assign(window, computeVoltagePhasors({ va, vb, vc, p0x, p0y, Three_ph }));
     Object.assign(window, computeCurrentPhasors({ ia, ib, ic, p0x, p0y, Three_ph_I }));
     Object.assign(window, computeImpedancePhasors({}));
     /* -------------------------------------------------------------- */
+
+    // Clear existing vector elements before re-rendering to ensure proper reset
+    vis_inner_V.selectAll('polyline.vectora, polyline.vectorb, polyline.vectorc, polyline.vector0, polyline.vector1, polyline.vector2').remove();
+    vis_inner_V.selectAll('circle.vectora, circle.vectorb, circle.vectorc').remove();
+    vis_inner_I.selectAll('polyline.vectora_I, polyline.vectorb_I, polyline.vectorc_I, polyline.vector0_I, polyline.vector1_I, polyline.vector2_I').remove();
+    vis_inner_I.selectAll('circle.vectora_I, circle.vectorb_I, circle.vectorc_I').remove();
+    vis_inner_Z.selectAll('polyline.vectora_Z, polyline.vectorb_Z, polyline.vectorc_Z, polyline.vectorab_Z, polyline.vectorbc_Z, polyline.vectorca_Z, polyline.vector_Z_Line').remove();
+    vis_inner_Z.selectAll('text[class^="text"], text[class$="dash"]').remove();
+
 
     const [inDisplay, knDisplay] = await Promise.all([
       convertScalar(Zabs(IN), 'I'),
@@ -1011,10 +1024,10 @@ function maybeExpandWhileDragging(cls, px, py) {
   }
 }
 
-// ------- Auto-scale helpers -------
+// ------- Auto-scale constants -------
 const MAX_CAP = 1e6;        // ignore absurd values
 const MIN_SPAN = 1e-6;      // avoid zero-span domains
-const PAD = 1.75;           // breathing room around extrema
+const PAD = 1.1;            // breathing room around extrema (matching Lab3.tsx initial domainFactor)
 let isAutoScaling = false;  // re-entry guard
 // --- Shrink tuning (smooth / anti-jitter)
 const SHRINK_SLACK        = 0.82;  // shrink when used range < 82% of current half-range
@@ -1482,6 +1495,7 @@ export function recordAndUpdate() {
 // Make full refresh callable from other modules (e.g., presets)
 // Safe in modules: attaching to window for loose coupling
 window.recordAndUpdate = recordAndUpdate;
+window.performUpdateCycle = performUpdateCycle;
 
     document.getElementById('undoBtn').onclick = History.undo;
     document.getElementById('redoBtn').onclick = History.redo;
